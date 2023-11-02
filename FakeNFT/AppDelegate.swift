@@ -10,12 +10,17 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: UISceneSession Lifecycle
-
     func application(
-        _: UIApplication,
+        _ application: UIApplication,
         configurationForConnecting connectingSceneSession: UISceneSession,
-        options _: UIScene.ConnectionOptions
+        options: UIScene.ConnectionOptions
     ) -> UISceneConfiguration {
-        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+        let configuration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        configuration.storyboard = nil
+        configuration.sceneClass = UIWindowScene.self
+        configuration.delegateClass = SceneDelegate.self
+        return configuration
     }
 }
+
+
