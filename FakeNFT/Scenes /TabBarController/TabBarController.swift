@@ -41,8 +41,10 @@ final class TabBarController: UITabBarController {
         )
         catalogController.tabBarItem = catalogTabBarItem
 
-        let profileController = UIViewController() // Replace with the actual ProfileViewController
+        let profileController = UINavigationController(rootViewController: ProfileViewController())
+
         profileController.tabBarItem = profileTabBarItem
+        
         
         let cartController = UIViewController() // Replace with the actual CartViewController
         cartController.tabBarItem = cartTabBarItem
