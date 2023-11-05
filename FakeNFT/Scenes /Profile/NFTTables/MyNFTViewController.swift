@@ -6,14 +6,18 @@ import UIKit
 
 final class MyNFTViewController: UIViewController {
     // MARK: Private properties
+    private var myNFT = [1, 2, 3]
+    private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
+    
     private lazy var myNFTTableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .systemBackground
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(MyNFTCell.self)
         tableView.separatorStyle = UITableViewCell.SeparatorStyle.none
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
         return tableView
     }()
     
@@ -22,9 +26,13 @@ final class MyNFTViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
+        showEmptyLabel()
     }
     
     // MARK: Methods
+    private func showEmptyLabel() {
+        myNFT.isEmpty ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
+    }
     private func setupNavigationBar() {
         if let navBar = navigationController?.navigationBar {
             let editItem = UIBarButtonItem(image: UIImage(named: ImagesAssets.sort.rawValue), style: .plain, target: self, action: #selector(filterNFT))
@@ -33,13 +41,36 @@ final class MyNFTViewController: UIViewController {
             
             let backItem = UIBarButtonItem(image: UIImage(named: ImagesAssets.backWard.rawValue), style: .plain, target: self, action: #selector(goBack))
             backItem.tintColor = .black
-            navBar.topItem?.setLeftBarButton(backItem, animated: true)    
+            navBar.topItem?.setLeftBarButton(backItem, animated: true)
         }
     }
+    private func showFilterAlert() {
+        let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
+        let priceAction = UIAlertAction(title: "По цене", style: .default) { _ in //[weak self] _ in
+           // guard let self else { return }
+            
+        }
+        let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in //[weak self] _ in
+           // guard let self else { return }
+            
+        }
+        let nameAction = UIAlertAction(title: "По названию", style: .default) { _ in //[weak self] _ in
+           // guard let self else { return }
+            
+        }
+        let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
+        
+        alert.addAction(priceAction)
+        alert.addAction(raitingAction)
+        alert.addAction(nameAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true)
+    }
+    
     
     // MARK: Selectors
     @objc private func filterNFT() {
-        #warning("TODO")
+        showFilterAlert()
     }
     @objc private func goBack() {
         dismiss(animated: true)
@@ -48,38 +79,15 @@ final class MyNFTViewController: UIViewController {
 
 extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return myNFT.count
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = "LILO"
-        cell.textLabel?.textColor = .label
-        cell.textLabel?.font = .systemFont(ofSize: 17, weight: .bold)
-        cell.backgroundColor = .clear
-        cell.selectionStyle = .none
-        
-        cell.accessoryType = UITableViewCell.AccessoryType.none
-        let sentImage = UIImage(named: ImagesAssets.chevron.rawValue)
-        let sentImageView = UIImageView(image: sentImage)
-        sentImageView.frame = CGRect(x: 0, y: 0, width: 7.977, height: 13.859)
-        cell.accessoryView = sentImageView
+        let cell = tableView.dequeueReusableCell() as MyNFTCell
         return cell
     }
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: false)
-        
-        switch indexPath.row {
-        case 0: print(1)
-        case 1: print(2)
-        case 2: print(3)
-        default: return
-        }
-    }
-    
-    
 }
 
 
@@ -87,13 +95,16 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
 private extension MyNFTViewController {
     func setupUI() {
         navigationController?.navigationBar.backgroundColor = .systemBackground
-        view.addSubviews(myNFTTableView)
+        view.addSubviews(myNFTTableView, emptyLabel)
         
         NSLayoutConstraint.activate([
             myNFTTableView.topAnchor.constraint(equalTo: view.topAnchor),
             myNFTTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             myNFTTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            myNFTTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            myNFTTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }

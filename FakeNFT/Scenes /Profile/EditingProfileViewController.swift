@@ -9,12 +9,16 @@ final class  EditingProfileViewController: UIViewController {
     private lazy var closeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
+        button.tintColor = .black
         button.setImage(UIImage(named: ImagesAssets.close.rawValue), for: .normal)
         button.addTarget(self, action: #selector(goBack), for: .touchUpInside)
         return button
     }()
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
+        imageView.layer.masksToBounds = true
+        imageView.sizeToFit()
+        imageView.layer.cornerRadius = 35
         return imageView
     }()
     private lazy var changePhotoButton: UIButton = {
@@ -88,7 +92,7 @@ final class  EditingProfileViewController: UIViewController {
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.updateDataProfile(image: ImagesAssets.profileImage.rawValue, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
+        profileViewController.updateDataProfile(image: avatarImageView.image?.toPngString(), name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
         
     }
     
@@ -102,9 +106,10 @@ final class  EditingProfileViewController: UIViewController {
     }
 }
 
+// MARK: - InterfaceProfileViewController
 extension EditingProfileViewController: InterfaceProfileViewController {
     func configureDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = UIImage(named: image ?? String())
+        avatarImageView.image = image?.toImage()
         nameTextField.text = name
         descriptionTextView.text = description
         websiteTextField.text = website
@@ -217,7 +222,7 @@ private extension EditingProfileViewController {
     private func newConstraints() {
         setupUI()
         NSLayoutConstraint.activate([
-            limitLabel.topAnchor.constraint(equalTo: websiteTextField.bottomAnchor, constant: 8),
+            limitLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 6),
             limitLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }

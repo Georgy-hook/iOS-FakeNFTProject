@@ -6,10 +6,10 @@ import UIKit
 
 final class ProfileLabel: UILabel {
     // MARK: Private properties
-    private let labelType: LabelType
+    private let labelType: LabelTypeProfile
     
     // MARK: Initialisation
-    init(labelType: LabelType) {
+    init(labelType: LabelTypeProfile) {
         self.labelType = labelType
         super.init(frame: .zero)
         configureLabelType()
@@ -24,7 +24,7 @@ final class ProfileLabel: UILabel {
         self.textColor = .label
         self.font = .systemFont(ofSize: 22, weight: .bold)
     }
-    private func switchTypeOfLabelType(_ label: LabelType) {
+    private func switchTypeOfLabelType(_ label: LabelTypeProfile) {
         switch label {
         case .userName:
             self.text = "Имя"

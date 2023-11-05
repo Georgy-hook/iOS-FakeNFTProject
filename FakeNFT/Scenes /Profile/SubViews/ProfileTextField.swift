@@ -6,10 +6,10 @@ import UIKit
 
 final class ProfileTextField: UITextField {
     // MARK: Private properties
-    private let textFieldType: TextFieldType
+    private let textFieldType: TextFieldTypeProfile
     
     // MARK: Initialisation
-    init(fieldType: TextFieldType) {
+    init(fieldType: TextFieldTypeProfile) {
         self.textFieldType = fieldType
         super.init(frame: .zero)
         configureTextField()
@@ -32,7 +32,7 @@ final class ProfileTextField: UITextField {
         self.font = .systemFont(ofSize: 17, weight: .regular)
         self.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: frame.size.height))
     }
-    private func switchTypeOfTextField(_ textField: TextFieldType) {
+    private func switchTypeOfTextField(_ textField: TextFieldTypeProfile) {
         switch textField {
         case .userName:
             self.placeholder = "Введите ваше имя"

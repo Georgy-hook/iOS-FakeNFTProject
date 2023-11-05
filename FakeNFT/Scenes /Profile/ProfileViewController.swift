@@ -3,6 +3,7 @@
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
+import Kingfisher
 
 protocol InterfaceProfileViewController: AnyObject {
     func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
@@ -10,8 +11,10 @@ protocol InterfaceProfileViewController: AnyObject {
 
 final class ProfileViewController: UIViewController {
     // MARK: Private properties
-    private var myNFT = [1,2,3]
-    private var favoritesNFT = [1,2]
+    private let gradientLayer = GradientLayer()
+    private let profile = Mock().profile
+    private var myNFT = [String]()
+    private var favoritesNFT = [String]()
     
     private lazy var titleRows = [
         "Мои NFT (\(myNFT.count))",
@@ -22,13 +25,14 @@ final class ProfileViewController: UIViewController {
     // MARK: UI
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: ImagesAssets.profileImage.rawValue)
+        imageView.layer.masksToBounds = true
+        imageView.sizeToFit()
+        imageView.layer.cornerRadius = 35
         return imageView
     }()
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.text = "Joaquin Phoenix"
         return label
     }()
     private let descriptionLabel: UILabel = {
@@ -36,13 +40,11 @@ final class ProfileViewController: UIViewController {
         label.font = .systemFont(ofSize: 13, weight: .regular)
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.text = "Дизайнер из Казани, люблю цифровое искусство и бейглы. В моей коллекции уже 100+ NFT, и еще больше — на моём сайт. Открыт к коллаборациям."
         label.setLineSpacing(lineSpacing: 5)
         return label
     }()
     private lazy var websiteButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Joaquin Phoenix.com", for: .normal)
         button.backgroundColor = .clear
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
@@ -68,9 +70,39 @@ final class ProfileViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
+        setupDataProfile(profile)
+        addGradient()
     }
     
-    // MARK: Methods
+    // MARK: Setup Network data
+    private func setupDataProfile(_ profile: Profile) {
+        myNFT = profile.nfts
+        favoritesNFT = profile.likes
+        updateAvatar(with: profile.avatar)
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteButton.setTitle(profile.website, for: .normal)
+    }
+    //MARK: - KingFisher
+    func updateAvatar(with url: String) {
+        let cache = ImageCache.default
+        cache.clearDiskCache()
+        let processor = RoundCornerImageProcessor(cornerRadius: 60)
+        avatarImageView.kf.setImage(with: URL(string: url),
+                                        placeholder: UIImage(named: "placeholder"),
+                                    options: [.processor(processor),  .transition(.fade(2))],
+                                    completionHandler: { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.gradientLayer.removeFromSuperLayer(views: [self.avatarImageView, self.nameLabel, self.descriptionLabel, self.websiteButton])
+            case .failure(let error):
+                print("\(error)")
+          }
+        })
+    }
+    
+    // MARK: Setup ViewControllers
     private func setupNavigationBar() {
         if let navBar = navigationController?.navigationBar {
             navigationController?.navigationBar.prefersLargeTitles = true
@@ -80,35 +112,63 @@ final class ProfileViewController: UIViewController {
             
         }
     }
+    
     private func showWebViewController(with URLString: String) {
         let webViewerController = WebViewerController(urlString: URLString)
         let navigationController = UINavigationController(rootViewController: webViewerController)
         present(navigationController, animated: true)
     }
+    
     private func showMyNFTViewController() {
         let myNFTViewController = MyNFTViewController()
         myNFTViewController.title = "Мои NFT"
         let navigationController = UINavigationController(rootViewController: myNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
         navigationController.navigationBar.shadowImage = UIImage()
+        navigationController.modalPresentationStyle = .fullScreen
         present(navigationController, animated: true)
+    }
+    
+    private func showFavouriteNFTViewController() {
+        let favouriteNFTViewController = FavouriteNFTViewController()
+        favouriteNFTViewController.title = "Избранные NFT"
+        let navigationController = UINavigationController(rootViewController: favouriteNFTViewController)
+        navigationController.navigationBar.barTintColor = .systemBackground
+        navigationController.navigationBar.shadowImage = UIImage()
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true)
+    }
+    
+    // MARK: Gradient Layer
+    private func addGradient() {
+        gradientLayer.gradientLayer(view: avatarImageView, width: 70, height: 70, cornerRadius: 35)
+        gradientLayer.gradientLayer(view: nameLabel, width: nameLabel.intrinsicContentSize.width, height: nameLabel.intrinsicContentSize.height, cornerRadius: 10)
+        gradientLayer.gradientLayer(view: websiteButton, width: websiteButton.intrinsicContentSize.width, height: websiteButton.intrinsicContentSize.height, cornerRadius: 5)
+        
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            DispatchQueue.main.sync {
+                self.gradientLayer.gradientLayer(view: self.descriptionLabel, width: self.descriptionLabel.frame.width, height: self.descriptionLabel.frame.height, cornerRadius: 5)
+            }
+        }
     }
     
     // MARK: Selectors
     @objc private func editProfileData() {
         let viewController = EditingProfileViewController()
         delegateToEditing = viewController
-        delegateToEditing?.configureDataProfile(image: ImagesAssets.profileImage.rawValue, name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.title(for: .normal))
+        delegateToEditing?.configureDataProfile(image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.title(for: .normal))
         present(viewController, animated: true)
     }
     @objc private func goToWebSite() {
-        showWebViewController(with: "https://\(String(describing: websiteButton.titleLabel?.text))")
+        showWebViewController(with: websiteButton.titleLabel?.text ?? String())
     }
 }
 
+// MARK: Update data profile Delegate
 extension ProfileViewController {
     func updateDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = UIImage(named: image ?? String())
+        avatarImageView.image = image?.toImage()
         nameLabel.text = name
         descriptionLabel.text = description
         websiteButton.setTitle(website, for: .normal)
@@ -143,7 +203,7 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
         
         switch indexPath.row {
         case 0: showMyNFTViewController()
-        case 1: print(2)
+        case 1: showFavouriteNFTViewController()
         case 2: goToWebSite()
         default: return
         }
@@ -162,12 +222,11 @@ private extension ProfileViewController {
             avatarImageView.widthAnchor.constraint(equalToConstant: 70),
             avatarImageView.heightAnchor.constraint(equalToConstant: 70),
             
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.topAnchor),
+            nameLabel.topAnchor.constraint(equalTo: avatarImageView.topAnchor, constant: 16),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 16),
             nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameLabel.heightAnchor.constraint(equalToConstant: 70),
             
-            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 20),
+            descriptionLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 20),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
