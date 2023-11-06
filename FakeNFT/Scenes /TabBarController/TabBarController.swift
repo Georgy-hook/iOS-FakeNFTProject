@@ -44,7 +44,10 @@ final class TabBarController: UITabBarController {
         let profileController = UIViewController() // Replace with the actual ProfileViewController
         profileController.tabBarItem = profileTabBarItem
         
-        let cartController = UIViewController() // Replace with the actual CartViewController
+        let cartController = CartViewController(
+            presenter: CartViewPresenter()
+        )
+        
         cartController.tabBarItem = cartTabBarItem
         
         let statsController = UIViewController() // Replace with the actual StatsViewController

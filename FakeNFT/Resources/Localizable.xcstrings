@@ -86,6 +86,22 @@
         }
       }
     },
+    "Price" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Price"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Цена"
+          }
+        }
+      }
+    },
     "Tab.cart" : {
       "localizations" : {
         "en" : {
@@ -147,6 +163,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Статистика"
+          }
+        }
+      }
+    },
+    "To pay" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To pay"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "К оплате"
           }
         }
       }
