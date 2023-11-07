@@ -5,36 +5,33 @@
 import UIKit
 
 final class MyNFTCell: UITableViewCell & ReuseIdentifying {
-    // MARK: Public Properties
-    static let identifier = "MyNFTCell"
-    
-    // MARK: Private properties
-    private let nftImageView: UIImageView = {
+    // MARK: Public properties
+    var nftImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "NFT card 1")
+        imageView.layer.masksToBounds = true
+        imageView.sizeToFit()
+        imageView.layer.cornerRadius = 12
         return imageView
     }()
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
         button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
-        button.addTarget(self, action: #selector(addLike), for: .touchUpInside)
+        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .selected)
+        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: [.highlighted, .selected])
         return button
     }()
-    private let ratingStarOne = MyNFTStarImage(myNFTStarType: .star)
-    private let ratingStarTwo = MyNFTStarImage(myNFTStarType: .star)
-    private let ratingStarThree = MyNFTStarImage(myNFTStarType: .star)
-    private let ratingStarFour = MyNFTStarImage(myNFTStarType: .noStar)
-    private let ratingStarFive = MyNFTStarImage(myNFTStarType: .noStar)
+    
+    var nameLabel = MyNFTLabel(labelType: .big, text: nil)
+    var ratingStar = RatingStackView()
+    var authorLabel = MyNFTLabel(labelType: .little, text: nil)
+    var priceLabel = MyNFTLabel(labelType: .big, text: nil)
 
-    
-    private let nameLabel = MyNFTLabel(labelType: .big, text: "Adam West")
+    // MARK: Private properties
     private let fromAuthorLabel = MyNFTLabel(labelType: .middle, text: "от")
-    private let authorLabel = MyNFTLabel(labelType: .little, text: "Artur Doile")
     private let namePriceLabel = MyNFTLabel(labelType: .little, text: "Цена")
-    private let priceLabel = MyNFTLabel(labelType: .big, text: "6,99 ETH")
     
-    // MARK: Life cycle
+    // MARK: Initialisation
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
@@ -42,19 +39,13 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: Selectors
-    @objc private func addLike() {
-        #warning("TODO")
-        likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .focused)
-    }
 }
 
 // MARK: - Setup views, constraints
 private extension MyNFTCell {
     func setupUI() {
-        contentView.addSubviews(nftImageView, likeButton,
-        ratingStarOne, ratingStarTwo, ratingStarThree, ratingStarFour, ratingStarFive,                            nameLabel, fromAuthorLabel, authorLabel,
+        contentView.addSubviews(nftImageView, likeButton, ratingStar,
+                                nameLabel, fromAuthorLabel, authorLabel,
                                 namePriceLabel, priceLabel)
         
         NSLayoutConstraint.activate([
@@ -71,26 +62,14 @@ private extension MyNFTCell {
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 23 + 16),
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
             
-            ratingStarOne.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            ratingStarOne.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
-            
-            ratingStarTwo.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            ratingStarTwo.leadingAnchor.constraint(equalTo: ratingStarOne.trailingAnchor, constant: 2),
-            
-            ratingStarThree.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            ratingStarThree.leadingAnchor.constraint(equalTo: ratingStarTwo.trailingAnchor, constant: 2),
-            
-            ratingStarFour.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            ratingStarFour.leadingAnchor.constraint(equalTo: ratingStarThree.trailingAnchor, constant: 2),
-            
-            ratingStarFive.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
-            ratingStarFive.leadingAnchor.constraint(equalTo: ratingStarFour.trailingAnchor, constant: 2),
-            
-            fromAuthorLabel.topAnchor.constraint(equalTo: ratingStarOne.bottomAnchor, constant: 4),
+            ratingStar.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
+            ratingStar.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
+
+            fromAuthorLabel.topAnchor.constraint(equalTo: ratingStar.bottomAnchor, constant: 4),
             fromAuthorLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
             fromAuthorLabel.widthAnchor.constraint(equalToConstant: 16),
             
-            authorLabel.topAnchor.constraint(equalTo: ratingStarOne.bottomAnchor, constant: 6),
+            authorLabel.topAnchor.constraint(equalTo: ratingStar.bottomAnchor, constant: 6),
             authorLabel.leadingAnchor.constraint(equalTo: fromAuthorLabel.trailingAnchor, constant: 4),
             
             namePriceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30 + 16),

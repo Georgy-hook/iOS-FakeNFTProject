@@ -14,7 +14,7 @@ final class MyNFTLabel: UILabel {
     private let labelType: MyNFTLabelType
     
     // MARK: Initialisation
-    init(labelType: MyNFTLabelType, text: String) {
+    init(labelType: MyNFTLabelType, text: String?) {
         self.labelType = labelType
         super.init(frame: .zero)
         self.text = text

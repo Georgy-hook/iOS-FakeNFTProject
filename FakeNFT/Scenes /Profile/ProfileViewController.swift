@@ -8,19 +8,28 @@ import Kingfisher
 protocol InterfaceProfileViewController: AnyObject {
     func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
 }
+protocol InterfaceMyNFTViewController: AnyObject {
+    var myNFT: [String] { get set }
+    var favoritesNFT: [String] { get set }
+}
+protocol InterfaceFavouriteNFTViewController: AnyObject {
+    var favoritesNFT: [String] { get set }
+}
 
 final class ProfileViewController: UIViewController {
     // MARK: Private properties
     private let gradientLayer = GradientLayer()
-    private let profile = Mock().profile
+    private let profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
+    
     private var myNFT = [String]()
     private var favoritesNFT = [String]()
+    private var dataProfile: Profile = Profile()
     
-    private lazy var titleRows = [
+    private lazy var titleRows: [String] = [
         "Мои NFT (\(myNFT.count))",
         "Избранные NFT (\(favoritesNFT.count))",
         "О разработчике"
-        ]
+    ]
     
     // MARK: UI
     private let avatarImageView: UIImageView = {
@@ -62,26 +71,35 @@ final class ProfileViewController: UIViewController {
         return tableView
     }()
     
-    // MARK: Delegate
+    // MARK: Delegates
     weak var delegateToEditing: InterfaceProfileViewController?
+    weak var delegateToMyNFT: InterfaceMyNFTViewController?
+    weak var delegateToFavouriteNFT: InterfaceFavouriteNFTViewController?
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        setupDataProfile(profile)
+        setupDataProfile()
         addGradient()
     }
     
     // MARK: Setup Network data
-    private func setupDataProfile(_ profile: Profile) {
-        myNFT = profile.nfts
-        favoritesNFT = profile.likes
-        updateAvatar(with: profile.avatar)
-        nameLabel.text = profile.name
-        descriptionLabel.text = profile.description
-        websiteButton.setTitle(profile.website, for: .normal)
+    private func setupDataProfile() {
+        profileService.loadProfile(id: "1") { result in
+            switch result {
+            case .success(let profile):
+                self.myNFT = profile.nfts
+                self.favoritesNFT = profile.likes
+                self.updateAvatar(with: profile.avatar)
+                self.nameLabel.text = profile.name
+                self.descriptionLabel.text = profile.description
+                self.websiteButton.setTitle(profile.website, for: .normal)
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
     //MARK: - KingFisher
     func updateAvatar(with url: String) {
@@ -89,16 +107,22 @@ final class ProfileViewController: UIViewController {
         cache.clearDiskCache()
         let processor = RoundCornerImageProcessor(cornerRadius: 60)
         avatarImageView.kf.setImage(with: URL(string: url),
-                                        placeholder: UIImage(named: "placeholder"),
+                                    placeholder: UIImage(named: "placeholder"),
                                     options: [.processor(processor),  .transition(.fade(2))],
                                     completionHandler: { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
                 self.gradientLayer.removeFromSuperLayer(views: [self.avatarImageView, self.nameLabel, self.descriptionLabel, self.websiteButton])
+                self.titleRows = [
+                    "Мои NFT (\(self.myNFT.count))",
+                    "Избранные NFT (\(self.favoritesNFT.count))",
+                    "О разработчике"
+                ]
+                self.tableView.reloadData()
             case .failure(let error):
                 print("\(error)")
-          }
+            }
         })
     }
     
@@ -121,6 +145,9 @@ final class ProfileViewController: UIViewController {
     
     private func showMyNFTViewController() {
         let myNFTViewController = MyNFTViewController()
+        delegateToMyNFT = myNFTViewController
+        delegateToMyNFT?.myNFT = myNFT
+        delegateToMyNFT?.favoritesNFT = favoritesNFT
         myNFTViewController.title = "Мои NFT"
         let navigationController = UINavigationController(rootViewController: myNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
@@ -131,6 +158,8 @@ final class ProfileViewController: UIViewController {
     
     private func showFavouriteNFTViewController() {
         let favouriteNFTViewController = FavouriteNFTViewController()
+        delegateToFavouriteNFT = favouriteNFTViewController
+        delegateToFavouriteNFT?.favoritesNFT = favoritesNFT
         favouriteNFTViewController.title = "Избранные NFT"
         let navigationController = UINavigationController(rootViewController: favouriteNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
@@ -139,26 +168,28 @@ final class ProfileViewController: UIViewController {
         present(navigationController, animated: true)
     }
     
+    private func showEditingProfileViewController() {
+        let viewController = EditingProfileViewController()
+        delegateToEditing = viewController
+        delegateToEditing?.configureDataProfile(image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.title(for: .normal))
+        present(viewController, animated: true)
+    }
+    
     // MARK: Gradient Layer
     private func addGradient() {
-        gradientLayer.gradientLayer(view: avatarImageView, width: 70, height: 70, cornerRadius: 35)
-        gradientLayer.gradientLayer(view: nameLabel, width: nameLabel.intrinsicContentSize.width, height: nameLabel.intrinsicContentSize.height, cornerRadius: 10)
-        gradientLayer.gradientLayer(view: websiteButton, width: websiteButton.intrinsicContentSize.width, height: websiteButton.intrinsicContentSize.height, cornerRadius: 5)
-        
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             DispatchQueue.main.sync {
-                self.gradientLayer.gradientLayer(view: self.descriptionLabel, width: self.descriptionLabel.frame.width, height: self.descriptionLabel.frame.height, cornerRadius: 5)
+                self.gradientLayer.gradientLayer(view: self.avatarImageView, width: 70, height: 70, cornerRadius: 35)
+                self.gradientLayer.gradientLayer(view: self.nameLabel, width: self.view.bounds.width - 48.0 - 70, height: 30, cornerRadius: 5)
+                self.gradientLayer.gradientLayer(view: self.websiteButton, width: self.view.bounds.width - 32.0, height: 30, cornerRadius: 5)
             }
         }
     }
     
     // MARK: Selectors
     @objc private func editProfileData() {
-        let viewController = EditingProfileViewController()
-        delegateToEditing = viewController
-        delegateToEditing?.configureDataProfile(image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.title(for: .normal))
-        present(viewController, animated: true)
+        showEditingProfileViewController()
     }
     @objc private func goToWebSite() {
         showWebViewController(with: websiteButton.titleLabel?.text ?? String())

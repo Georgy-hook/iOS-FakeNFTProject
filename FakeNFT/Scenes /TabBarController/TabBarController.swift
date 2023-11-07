@@ -2,12 +2,12 @@ import UIKit
 
 final class TabBarController: UITabBarController {
     
-    //var servicesAssembly: ServicesAssembly!
-
     let servicesAssembly = ServicesAssembly(
         networkClient: DefaultNetworkClient(),
-        nftStorage: NftStorageImpl()
+        nftStorage: NftStorageImpl(),
+        profileStorage: ProfileStorageImpl()
     )
+    
 
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),

@@ -3,13 +3,18 @@
 //  Created by Adam West on 04.11.2023.
 
 import UIKit
+import Kingfisher
 
-final class MyNFTViewController: UIViewController {
-    // MARK: Private properties
-    private var myNFT = [1, 2, 3]
-    private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
+final class MyNFTViewController: UIViewController & InterfaceMyNFTViewController {
+    // MARK: Public properties
+    var myNFT: [String] = []
+    var favoritesNFT: [String] = []
     
-    private lazy var myNFTTableView: UITableView = {
+    // MARK: Private properties
+    private lazy var myNFTProfile: [Nft] = []
+    private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
+    private let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .systemBackground
         tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
@@ -26,7 +31,25 @@ final class MyNFTViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
+        loadRequest(myNFT)
         showEmptyLabel()
+    }
+    
+    // MARK: Load Request
+    func loadRequest(_ myNFT: [String]) {
+        assert(Thread.isMainThread)
+        myNFT.forEach { [weak self] nft in
+            guard let self = self else { return }
+            self.nftService.loadNft(id: nft) { result in
+                switch result {
+                case .success(let nft):
+                    self.myNFTProfile.append(nft)
+                    self.tableView.reloadData()
+                case .failure(let error):
+                    print(error)
+                }
+            }
+        }
     }
     
     // MARK: Methods
@@ -46,17 +69,20 @@ final class MyNFTViewController: UIViewController {
     }
     private func showFilterAlert() {
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
-        let priceAction = UIAlertAction(title: "По цене", style: .default) { _ in //[weak self] _ in
-           // guard let self else { return }
-            
+        let priceAction = UIAlertAction(title: "По цене", style: .default) { [weak self] _ in
+            guard let self else { return }
+            myNFTProfile = myNFTProfile.sorted { $0.price < $1.price }
+            tableView.reloadData()
         }
-        let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { _ in //[weak self] _ in
-           // guard let self else { return }
-            
+        let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { [weak self] _ in
+             guard let self else { return }
+            myNFTProfile = myNFTProfile.sorted { $0.rating < $1.rating }
+            tableView.reloadData()
         }
-        let nameAction = UIAlertAction(title: "По названию", style: .default) { _ in //[weak self] _ in
-           // guard let self else { return }
-            
+        let nameAction = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
+             guard let self else { return }
+            myNFTProfile = myNFTProfile.sorted { $0.name < $1.name }
+            tableView.reloadData()
         }
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
         
@@ -67,7 +93,6 @@ final class MyNFTViewController: UIViewController {
         self.present(alert, animated: true)
     }
     
-    
     // MARK: Selectors
     @objc private func filterNFT() {
         showFilterAlert()
@@ -77,15 +102,31 @@ final class MyNFTViewController: UIViewController {
     }
 }
 
+// MARK: UITableViewDelegate & UITableViewDataSource
 extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myNFT.count
+        return myNFTProfile.count
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell() as MyNFTCell
+        let myNFTProfile = myNFTProfile[indexPath.row]
+        if let image = myNFTProfile.images.first {
+            cell.nftImageView.kf.setImage(with: image, completionHandler: { _ in
+                UIBlockingProgressHUD.dismiss()
+            })
+        }
+        favoritesNFT.forEach { nft in
+            if myNFTProfile.id == nft {
+                cell.likeButton.isSelected = true
+            }
+        }
+        cell.nameLabel.text = myNFTProfile.name
+        cell.ratingStar.rating = myNFTProfile.rating
+        cell.authorLabel.text = myNFTProfile.author
+        cell.priceLabel.text = String(myNFTProfile.price)
         return cell
     }
 }
@@ -95,13 +136,13 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
 private extension MyNFTViewController {
     func setupUI() {
         navigationController?.navigationBar.backgroundColor = .systemBackground
-        view.addSubviews(myNFTTableView, emptyLabel)
+        view.addSubviews(tableView, emptyLabel)
         
         NSLayoutConstraint.activate([
-            myNFTTableView.topAnchor.constraint(equalTo: view.topAnchor),
-            myNFTTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            myNFTTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            myNFTTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
