@@ -10,16 +10,16 @@ import UIKit
 final class CartViewController:UIViewController{
     
     // MARK: - Init
-
+    
     init(presenter: CartViewPresenter) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
-
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     // MARK: - UI Elements
     private let sortButton: UIButton = {
         let button = UIButton()
@@ -66,11 +66,11 @@ final class CartViewController:UIViewController{
     }()
     
     // MARK: - Variables
-
+    
     private let cartTableView = CartTableView()
     private let presenter: CartViewPresenter
     
-    let service = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -80,11 +80,13 @@ final class CartViewController:UIViewController{
         addSubviews()
         applyConstraints()
         
-        service.loadNft(id: "22") { [weak self] result in
+        let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
+        
+        cartService.loadNFTs(with: "1"){[weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success(let nft):
-                self.cartTableView.set(with: [nft])
+            case .success(let nfts):
+                cartTableView.set(with: nfts)
             case .failure(let error):
                 print(error)
             }

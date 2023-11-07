@@ -45,7 +45,7 @@ final class TabBarController: UITabBarController {
         profileController.tabBarItem = profileTabBarItem
         
         let cartController = CartViewController(
-            presenter: CartViewPresenter()
+            presenter: CartViewPresenterImpl()
         )
         
         cartController.tabBarItem = cartTabBarItem

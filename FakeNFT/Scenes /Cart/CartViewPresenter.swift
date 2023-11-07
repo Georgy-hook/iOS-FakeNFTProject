@@ -22,7 +22,7 @@ enum CartViewState {
 final class CartViewPresenterImpl: CartViewPresenter{
     
     func viewDidLoad() {
-        <#code#>
+        
     }
     
     
