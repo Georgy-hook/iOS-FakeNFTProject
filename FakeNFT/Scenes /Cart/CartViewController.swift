@@ -7,8 +7,13 @@
 
 import UIKit
 
+protocol CartView:AnyObject, ErrorView, LoadingView {
+    func setTableView(with nfts:[Nft])
+    func setPrice(with price:Float)
+    func cartIsEmpty()
+}
+
 final class CartViewController:UIViewController{
-    
     // MARK: - Init
     
     init(presenter: CartViewPresenter) {
@@ -51,7 +56,8 @@ final class CartViewController:UIViewController{
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.bodyRegular
+        label.font = UIFont.bodyBold
+        label.text = "0 ETH"
         label.textColor = UIColor(named: "YP Green")
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -65,32 +71,29 @@ final class CartViewController:UIViewController{
         return view
     }()
     
-    // MARK: - Variables
-    
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.bodyBold
+        label.text = NSLocalizedString("Сart is empty", comment: "")
+        label.isHidden = true
+        label.textColor = UIColor(named: "YP Black")
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    var activityIndicator = UIActivityIndicatorView(style: .medium)
     private let cartTableView = CartTableView()
-    private let presenter: CartViewPresenter
     
+    // MARK: - Variables
+    private let presenter: CartViewPresenter
     let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureUI()
         addSubviews()
         applyConstraints()
-        
-        let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
-        
-        cartService.loadNFTs(with: "1"){[weak self] result in
-            guard let self = self else { return }
-            switch result {
-            case .success(let nfts):
-                cartTableView.set(with: nfts)
-            case .failure(let error):
-                print(error)
-            }
-        }
+        presenter.viewDidLoad()
     }
 }
 
@@ -98,12 +101,15 @@ final class CartViewController:UIViewController{
 extension CartViewController {
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func addSubviews() {
         view.addSubview(grayView)
         view.addSubview(sortButton)
         view.addSubview(cartTableView)
+        view.addSubview(activityIndicator)
+        view.addSubview(placeholderLabel)
         grayView.addSubview(priceLabel)
         grayView.addSubview(amountLabel)
         grayView.addSubview(payButton)
@@ -131,8 +137,31 @@ extension CartViewController {
             payButton.topAnchor.constraint(equalTo: grayView.topAnchor, constant: 16),
             payButton.bottomAnchor.constraint(equalTo: grayView.bottomAnchor, constant: -16),
             payButton.widthAnchor.constraint(equalToConstant: 240),
-            
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }
 
+// MARK: - CartView protocol
+extension CartViewController:CartView{
+    func setTableView(with nfts:[Nft]){
+        cartTableView.set(with: nfts)
+    }
+    
+    func setPrice(with price:Float){
+        priceLabel.text = "\(price) ETH"
+    }
+    
+    func cartIsEmpty(){
+        grayView.isHidden = true
+        sortButton.isHidden = true
+        cartTableView.isHidden = true
+        priceLabel.isHidden = true
+        amountLabel.isHidden = true
+        payButton.isHidden = true
+        placeholderLabel.isHidden = false
+    }
+}
