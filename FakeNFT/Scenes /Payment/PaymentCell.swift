@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 class PaymentCell: UICollectionViewCell {
     
@@ -15,6 +16,7 @@ class PaymentCell: UICollectionViewCell {
         let imageView = UIImageView()
         imageView.image = UIImage(named: "Vector")
         imageView.layer.cornerRadius = 12
+        imageView.backgroundColor = UIColor(named: "YP Black")
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -39,6 +41,7 @@ class PaymentCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = UIColor(named: "YP LightGray")
+        layer.cornerRadius = 12
         addSubviews()
         applyConstraints()
     }
@@ -72,7 +75,19 @@ extension PaymentCell {
 
 // MARK: - Cell's methods
 extension PaymentCell {
-    func set(){
-        
+    func set(with currency:CurrencyModelElement){
+        nameLabel.text = currency.title
+        abbreviationLabel.text = currency.name
+        guard let url = URL(string: currency.image) else { return }
+        currencyImageView.kf.setImage(with: url)
+    }
+    
+    func selected(){
+        layer.borderColor = UIColor(named: "YP Black")?.cgColor
+        layer.borderWidth = 1
+    }
+    
+    func deselected(){
+        layer.borderWidth = 0
     }
 }

@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol PaymentView:AnyObject, ErrorView, LoadingView {
+    func setCollectionView(with currencies:CurrencyModel)
+}
+    
 final class PaymentViewController:UIViewController{
     // MARK: - Init
     
@@ -74,6 +78,9 @@ final class PaymentViewController:UIViewController{
         return label
     }()
     
+    var activityIndicator = UIActivityIndicatorView()
+    let paymentCollectionView = PaymentCollectionView()
+    
     // MARK: - Variables
     private let presenter: PaymentViewPresenter
     
@@ -83,6 +90,12 @@ final class PaymentViewController:UIViewController{
         configureUI()
         addSubviews()
         applyConstraints()
+        presenter.viewDidLoad()
+    }
+    
+    // MARK: - Actions
+    @objc func didBackButtonTapped(){
+        dismiss(animated: true)
     }
 }
 
@@ -90,12 +103,16 @@ final class PaymentViewController:UIViewController{
 extension PaymentViewController{
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        backButton.addTarget(self, action: #selector(didBackButtonTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {
         view.addSubview(titleLabel)
         view.addSubview(backButton)
         view.addSubview(grayView)
+        view.addSubview(activityIndicator)
+        view.addSubview(paymentCollectionView)
         grayView.addSubview(payButton)
         grayView.addSubview(agreementLabel)
         grayView.addSubview(linkLabel)
@@ -121,6 +138,18 @@ extension PaymentViewController{
             agreementLabel.topAnchor.constraint(equalTo: grayView.topAnchor, constant: 16),
             linkLabel.topAnchor.constraint(equalTo: agreementLabel.bottomAnchor),
             linkLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            paymentCollectionView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor),
+            paymentCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            paymentCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            paymentCollectionView.bottomAnchor.constraint(equalTo: grayView.topAnchor),
         ])
+    }
+}
+
+extension PaymentViewController: PaymentView{
+    func setCollectionView(with currencies:CurrencyModel){
+        paymentCollectionView.set(with: currencies)
     }
 }

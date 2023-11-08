@@ -19,7 +19,7 @@ final class CurrencyStorageImpl:CurrencyStorage{
     
     func saveCurrency(_ currency: CurrencyModel) {
         syncQueue.async { [weak self] in
-            self?.storage[currency.id] = currency
+            
         }
     }
     
