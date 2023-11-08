@@ -2,14 +2,10 @@ import UIKit
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
-    // MARK: Private properties
-    private let activityIndicator: InterfaceActivityIndicator = ActivityIndicator()
-    
     func application(
         _: UIApplication,
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        activityIndicator.customActivityIndicator()
         return true
     }
 

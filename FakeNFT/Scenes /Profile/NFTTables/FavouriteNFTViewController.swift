@@ -76,11 +76,14 @@ extension FavouriteNFTViewController: UICollectionViewDelegate & UICollectionVie
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+        favoritesNFTProfile.remove(at: indexPath.row)
+        collectionView.deleteItems(at: [indexPath])
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(indexPath: indexPath) as FavouriteNFTCell
         let favoritesNFTProfile = favoritesNFTProfile[indexPath.row]
         if let image = favoritesNFTProfile.images.first {
+            cell.nftImageView.kf.indicatorType = .activity
             cell.nftImageView.kf.setImage(with: image)
         }
         cell.nameLabel.text = favoritesNFTProfile.name

@@ -4,6 +4,10 @@
 
 import UIKit
 
+protocol InterfaceEditingProfileViewController: AnyObject {
+    func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
+}
+
 final class  EditingProfileViewController: UIViewController {
     // MARK: Private properties
     private lazy var closeButton: UIButton = {
@@ -93,7 +97,6 @@ final class  EditingProfileViewController: UIViewController {
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
         profileViewController.updateDataProfile(image: avatarImageView.image?.toPngString(), name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
-        
     }
     
     // MARK: Selectors
@@ -107,7 +110,7 @@ final class  EditingProfileViewController: UIViewController {
 }
 
 // MARK: - InterfaceProfileViewController
-extension EditingProfileViewController: InterfaceProfileViewController {
+extension EditingProfileViewController: InterfaceEditingProfileViewController {
     func configureDataProfile(image: String?, name: String?, description: String?, website: String?) {
         avatarImageView.image = image?.toImage()
         nameTextField.text = name
@@ -160,7 +163,6 @@ extension EditingProfileViewController: UITextFieldDelegate {
             limitLabel.isHidden = true
             setupUI()
         }
-        
         return updatedText.count <= 38
     }
 }

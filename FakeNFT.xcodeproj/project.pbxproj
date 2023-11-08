@@ -61,6 +61,7 @@
 		6610663B2AF6DDF100DA66FB /* MyNFTLabelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */; };
 		6610663D2AF6DEA300DA66FB /* TextFieldTypeProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */; };
 		6626FABC2AF65CBB004CC8EF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */; };
+		665CD8D02AFAB3AF0072D83C /* ProfilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665CD8CF2AFAB3AF0072D83C /* ProfilePresenter.swift */; };
 		666592E72AF7AEF400AF8A29 /* FavouriteNFTViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592E62AF7AEF400AF8A29 /* FavouriteNFTViewController.swift */; };
 		666592E92AF7AF1700AF8A29 /* FavouriteNFTCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */; };
 		666592EB2AF7B65C00AF8A29 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592EA2AF7B65C00AF8A29 /* Profile.swift */; };
@@ -147,6 +148,7 @@
 		6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTLabelType.swift; sourceTree = "<group>"; };
 		6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTypeProfile.swift; sourceTree = "<group>"; };
 		6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		665CD8CF2AFAB3AF0072D83C /* ProfilePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePresenter.swift; sourceTree = "<group>"; };
 		666592E62AF7AEF400AF8A29 /* FavouriteNFTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteNFTViewController.swift; sourceTree = "<group>"; };
 		666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteNFTCell.swift; sourceTree = "<group>"; };
 		666592EA2AF7B65C00AF8A29 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -406,7 +408,6 @@
 				6610661C2AF69FE400DA66FB /* LabelTypeProfile.swift */,
 				6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */,
 				6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */,
-				660005472AF9784700840E59 /* RatingStackView.swift */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -415,6 +416,7 @@
 			isa = PBXGroup;
 			children = (
 				6610661F2AF6A07C00DA66FB /* ProfileViewController.swift */,
+				665CD8CF2AFAB3AF0072D83C /* ProfilePresenter.swift */,
 				661066212AF6A08200DA66FB /* EditingProfileViewController.swift */,
 				661066232AF6A08700DA66FB /* WebViewerController.swift */,
 				661066312AF6BFD800DA66FB /* NFTTables */,
@@ -429,6 +431,7 @@
 				661066262AF6A09B00DA66FB /* ProfileLabel.swift */,
 				661066282AF6A0A200DA66FB /* ProfileTextField.swift */,
 				661066382AF6DCDB00DA66FB /* MyNFTLabel.swift */,
+				660005472AF9784700840E59 /* RatingStackView.swift */,
 			);
 			path = SubViews;
 			sourceTree = "<group>";
@@ -647,6 +650,7 @@
 			files = (
 				6610662E2AF6A17300DA66FB /* UIView.swift in Sources */,
 				3FC8C38B29D242E90081F015 /* ProductDetailsTableViewCell.swift in Sources */,
+				665CD8D02AFAB3AF0072D83C /* ProfilePresenter.swift in Sources */,
 				3F478ECF29DB474E00F6D39E /* Colors.swift in Sources */,
 				0C79EE662A76DDFF00EE90EA /* NftDetailViewController.swift in Sources */,
 				E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */,

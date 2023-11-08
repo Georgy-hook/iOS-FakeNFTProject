@@ -111,12 +111,12 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
         return 140
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell() as MyNFTCell
+        //let cell = tableView.dequeueReusableCell() as MyNFTCell
+        let cell = MyNFTCell()
         let myNFTProfile = myNFTProfile[indexPath.row]
         if let image = myNFTProfile.images.first {
-            cell.nftImageView.kf.setImage(with: image, completionHandler: { _ in
-                UIBlockingProgressHUD.dismiss()
-            })
+            cell.nftImageView.kf.indicatorType = .activity
+            cell.nftImageView.kf.setImage(with: image)
         }
         favoritesNFT.forEach { nft in
             if myNFTProfile.id == nft {
