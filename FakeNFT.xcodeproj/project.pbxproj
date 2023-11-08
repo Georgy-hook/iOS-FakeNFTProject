@@ -55,6 +55,7 @@
 		667E2ED92AFA7DEA00AB5E99 /* PaymentViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667E2ED82AFA7DEA00AB5E99 /* PaymentViewPresenter.swift */; };
 		667E2EDB2AFA7E0D00AB5E99 /* PaymentCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667E2EDA2AFA7E0D00AB5E99 /* PaymentCollectionView.swift */; };
 		667E2EDD2AFA7E2400AB5E99 /* PaymentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667E2EDC2AFA7E2400AB5E99 /* PaymentCell.swift */; };
+		667E2EE02AFB914600AB5E99 /* GeometricParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667E2EDF2AFB914600AB5E99 /* GeometricParams.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
 /* End PBXBuildFile section */
@@ -127,6 +128,7 @@
 		667E2ED82AFA7DEA00AB5E99 /* PaymentViewPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentViewPresenter.swift; sourceTree = "<group>"; };
 		667E2EDA2AFA7E0D00AB5E99 /* PaymentCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentCollectionView.swift; sourceTree = "<group>"; };
 		667E2EDC2AFA7E2400AB5E99 /* PaymentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentCell.swift; sourceTree = "<group>"; };
+		667E2EDF2AFB914600AB5E99 /* GeometricParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricParams.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		E1CD40D92A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 		0CF2C2D92A783C1600FDC837 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				667E2EDE2AFB913900AB5E99 /* Structs */,
 				0CF2C2DF2A784C5600FDC837 /* Views */,
 				0CF2C2DE2A784C4C00FDC837 /* Protocols */,
 			);
@@ -382,6 +385,14 @@
 			path = Payment;
 			sourceTree = "<group>";
 		};
+		667E2EDE2AFB913900AB5E99 /* Structs */ = {
+			isa = PBXGroup;
+			children = (
+				667E2EDF2AFB914600AB5E99 /* GeometricParams.swift */,
+			);
+			path = Structs;
+			sourceTree = "<group>";
+		};
 		E19CD5A92A98B55900CA39A5 /* Cell */ = {
 			isa = PBXGroup;
 			children = (
@@ -586,6 +597,7 @@
 				0C79EE682A76DE0900EE90EA /* NftDetailPresenter.swift in Sources */,
 				667E2EDB2AFA7E0D00AB5E99 /* PaymentCollectionView.swift in Sources */,
 				6626FACE2AF69986004CC8EF /* CartCell.swift in Sources */,
+				667E2EE02AFB914600AB5E99 /* GeometricParams.swift in Sources */,
 				3F68069B29CBBAF100B4F915 /* ProductDetailsTableViewController.swift in Sources */,
 				0CFCB7402A78002A0009A829 /* NftService.swift in Sources */,
 				667E2EDD2AFA7E2400AB5E99 /* PaymentCell.swift in Sources */,

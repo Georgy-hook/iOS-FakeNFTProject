@@ -38,7 +38,6 @@ final class CartCell: UITableViewCell{
     
     private let NFTImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "Pin")
         imageView.layer.cornerRadius = 12
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false

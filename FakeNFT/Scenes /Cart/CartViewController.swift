@@ -95,6 +95,14 @@ final class CartViewController:UIViewController{
         applyConstraints()
         presenter.viewDidLoad()
     }
+    
+    // MARK: - Actions
+    @objc func payButtonDidTapped(){
+        let paymentViewPresenter = PaymentViewPresenterImpl()
+        let paymentViewController = PaymentViewController(presenter: paymentViewPresenter)
+        paymentViewController.modalPresentationStyle = .fullScreen
+        present(paymentViewController, animated: true)
+    }
 }
 
 // MARK: - Layout
@@ -102,6 +110,7 @@ extension CartViewController {
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        payButton.addTarget(self, action: #selector(payButtonDidTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {
