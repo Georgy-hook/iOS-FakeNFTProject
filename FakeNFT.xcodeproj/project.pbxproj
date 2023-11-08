@@ -118,6 +118,7 @@
 		3FC8C38A29D242E90081F015 /* ProductDetailsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailsTableViewCell.swift; sourceTree = "<group>"; };
 		3FC8C39029D2453B0081F015 /* ExampleRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleRequest.swift; sourceTree = "<group>"; };
 		3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatters+Presets.swift"; sourceTree = "<group>"; };
+		66247F4C2AFBC249007B7BA5 /* CartEpicDecomposition.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CartEpicDecomposition.md; sourceTree = "<group>"; };
 		6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		6626FAC72AF69986004CC8EF /* CartViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartViewController.swift; sourceTree = "<group>"; };
 		6626FAC82AF69986004CC8EF /* CartViewPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CartViewPresenter.swift; sourceTree = "<group>"; };
@@ -375,6 +376,14 @@
 			path = Requests;
 			sourceTree = "<group>";
 		};
+		66247F4B2AFBC12E007B7BA5 /* Decomposition */ = {
+			isa = PBXGroup;
+			children = (
+				66247F4C2AFBC249007B7BA5 /* CartEpicDecomposition.md */,
+			);
+			path = Decomposition;
+			sourceTree = "<group>";
+		};
 		6626FAC62AF69986004CC8EF /* Cart */ = {
 			isa = PBXGroup;
 			children = (
@@ -425,6 +434,7 @@
 		E1CD40DA2A96BE9B00BE7FE8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				66247F4B2AFBC12E007B7BA5 /* Decomposition */,
 				3F68069F29CBBAF200B4F915 /* Assets.xcassets */,
 				3F6806A129CBBAF200B4F915 /* LaunchScreen.storyboard */,
 				6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */,
