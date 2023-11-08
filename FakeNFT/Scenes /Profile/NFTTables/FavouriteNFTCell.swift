@@ -4,8 +4,12 @@
 
 import UIKit
 
-final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying {
-    // MARK: Private properties
+protocol InterfaceFavouriteNFTCell: AnyObject {
+    var delegate: FavouriteNFTViewController? { get set }
+}
+
+final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, InterfaceFavouriteNFTCell {
+    // MARK: UI
     let nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
@@ -13,20 +17,21 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying {
         imageView.layer.cornerRadius = 12
         return imageView
     }()
-    
-    var isLiked = true
-    let ratingStar = RatingStackView()
-    let nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
-    
-    // MARK: Public Properties
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
-        button.addTarget(self, action: #selector(addLike), for: .touchUpInside)
+        button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
         return button
     }()
+    
+    // MARK: Delegate
+    weak var delegate: FavouriteNFTViewController?
+    
+    // MARK: Public Properties
+    let ratingStar = RatingStackView()
+    let nameLabel = MyNFTLabel(labelType: .big, text: nil)
+    let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
     
     // MARK: Initialisation
     override init(frame: CGRect) {
@@ -38,15 +43,12 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying {
     }
     
     // MARK: Selectors
-    @objc func addLike() {
-        if isLiked {
-            likeButton.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
-            isLiked = false
-        } else {
-            likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
-            isLiked = true
+    @objc func checkButtonTapped(sender : UIButton){
+        if let cell = sender.superview?.superview as? UICollectionViewCell, let indexPath = delegate?.collectionView.indexPath(for: cell) {
+            delegate?.presenter.removeFromCollection(indexPath.row)
+            delegate?.collectionView.deleteItems(at: [indexPath])
+            delegate?.reloadData()
         }
-        
     }
 }
 

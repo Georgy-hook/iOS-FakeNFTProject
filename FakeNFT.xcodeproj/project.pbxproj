@@ -70,6 +70,8 @@
 		666592F52AF7FA2700AF8A29 /* GeometricParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592F42AF7FA2700AF8A29 /* GeometricParams.swift */; };
 		666592F72AF810F800AF8A29 /* ProfileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592F62AF810F800AF8A29 /* ProfileStorage.swift */; };
 		666592F92AF8154B00AF8A29 /* ProfileService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592F82AF8154B00AF8A29 /* ProfileService.swift */; };
+		66BF079C2AFBC141004AF7F7 /* MyNFTPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66BF079B2AFBC141004AF7F7 /* MyNFTPresenter.swift */; };
+		66BF079E2AFBE7FD004AF7F7 /* FavouriteNFTPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66BF079D2AFBE7FD004AF7F7 /* FavouriteNFTPresenter.swift */; };
 		E19CD5AB2A98B56600CA39A5 /* NftImageCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */; };
 		E1A1B9DA2AA01CE400C3AFBC /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */; };
 /* End PBXBuildFile section */
@@ -157,6 +159,8 @@
 		666592F42AF7FA2700AF8A29 /* GeometricParams.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeometricParams.swift; sourceTree = "<group>"; };
 		666592F62AF810F800AF8A29 /* ProfileStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileStorage.swift; sourceTree = "<group>"; };
 		666592F82AF8154B00AF8A29 /* ProfileService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileService.swift; sourceTree = "<group>"; };
+		66BF079B2AFBC141004AF7F7 /* MyNFTPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTPresenter.swift; sourceTree = "<group>"; };
+		66BF079D2AFBE7FD004AF7F7 /* FavouriteNFTPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteNFTPresenter.swift; sourceTree = "<group>"; };
 		E19CD5AA2A98B56600CA39A5 /* NftImageCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftImageCollectionViewCell.swift; sourceTree = "<group>"; };
 		E1A1B9D92AA01CE400C3AFBC /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		E1CD40D92A96BE7D00BE7FE8 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
@@ -452,8 +456,10 @@
 			isa = PBXGroup;
 			children = (
 				661066322AF6C01000DA66FB /* MyNFTViewController.swift */,
+				66BF079B2AFBC141004AF7F7 /* MyNFTPresenter.swift */,
 				661066342AF6CB7500DA66FB /* MyNFTCell.swift */,
 				666592E62AF7AEF400AF8A29 /* FavouriteNFTViewController.swift */,
+				66BF079D2AFBE7FD004AF7F7 /* FavouriteNFTPresenter.swift */,
 				666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */,
 			);
 			path = NFTTables;
@@ -662,6 +668,7 @@
 				661066272AF6A09B00DA66FB /* ProfileLabel.swift in Sources */,
 				666592F32AF7DACE00AF8A29 /* String.swift in Sources */,
 				0CFCB7422A78013E0009A829 /* Nft.swift in Sources */,
+				66BF079C2AFBC141004AF7F7 /* MyNFTPresenter.swift in Sources */,
 				0CF2C2DD2A783CE600FDC837 /* ErrorView.swift in Sources */,
 				666592F92AF8154B00AF8A29 /* ProfileService.swift in Sources */,
 				661066182AF69EFC00DA66FB /* ImagesAssets.swift in Sources */,
@@ -686,6 +693,7 @@
 				666592F12AF7DA3900AF8A29 /* UIImage.swift in Sources */,
 				0CFCB7462A78064B0009A829 /* NftDetailCellModel.swift in Sources */,
 				0CFCB74B2A780EA80009A829 /* UIView+Constraints.swift in Sources */,
+				66BF079E2AFBE7FD004AF7F7 /* FavouriteNFTPresenter.swift in Sources */,
 				666592EB2AF7B65C00AF8A29 /* Profile.swift in Sources */,
 				3F6806D729CBC50A00B4F915 /* CellsReusingUtils.swift in Sources */,
 				661066222AF6A08200DA66FB /* EditingProfileViewController.swift in Sources */,

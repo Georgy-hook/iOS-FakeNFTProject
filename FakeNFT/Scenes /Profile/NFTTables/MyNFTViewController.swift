@@ -5,15 +5,20 @@
 import UIKit
 import Kingfisher
 
-final class MyNFTViewController: UIViewController & InterfaceMyNFTViewController {
+protocol InterfaceMyNFTController: AnyObject  {
+    var presenter: InterfaceMyNFTPresenter { get set }
+    var myNFT: [String] { get set }
+    func reloadData()
+}
+
+final class MyNFTViewController: UIViewController & InterfaceMyNFTController, InterfaceMyNFTViewController {
     // MARK: Public properties
     var myNFT: [String] = []
     var favoritesNFT: [String] = []
     
     // MARK: Private properties
-    private lazy var myNFTProfile: [Nft] = []
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
-    private let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .systemBackground
@@ -26,36 +31,28 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTViewController
         return tableView
     }()
     
+    // MARK: Presenter
+    var presenter: InterfaceMyNFTPresenter = MyNFTPresenter()
+    
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.view = self
+        presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        loadRequest(myNFT)
         showEmptyLabel()
     }
     
-    // MARK: Load Request
-    func loadRequest(_ myNFT: [String]) {
-        assert(Thread.isMainThread)
-        myNFT.forEach { [weak self] nft in
-            guard let self = self else { return }
-            self.nftService.loadNft(id: nft) { result in
-                switch result {
-                case .success(let nft):
-                    self.myNFTProfile.append(nft)
-                    self.tableView.reloadData()
-                case .failure(let error):
-                    print(error)
-                }
-            }
-        }
+    // MARK: Methods
+    func reloadData() {
+        tableView.reloadData()
     }
     
-    // MARK: Methods
     private func showEmptyLabel() {
         myNFT.isEmpty ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
     }
+    
     private func setupNavigationBar() {
         if let navBar = navigationController?.navigationBar {
             let editItem = UIBarButtonItem(image: UIImage(named: ImagesAssets.sort.rawValue), style: .plain, target: self, action: #selector(filterNFT))
@@ -67,22 +64,20 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTViewController
             navBar.topItem?.setLeftBarButton(backItem, animated: true)
         }
     }
+    
     private func showFilterAlert() {
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
         let priceAction = UIAlertAction(title: "По цене", style: .default) { [weak self] _ in
             guard let self else { return }
-            myNFTProfile = myNFTProfile.sorted { $0.price < $1.price }
-            tableView.reloadData()
+            self.presenter.sortedByPrice()
         }
         let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { [weak self] _ in
              guard let self else { return }
-            myNFTProfile = myNFTProfile.sorted { $0.rating < $1.rating }
-            tableView.reloadData()
+            self.presenter.sortedByRating()
         }
         let nameAction = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
              guard let self else { return }
-            myNFTProfile = myNFTProfile.sorted { $0.name < $1.name }
-            tableView.reloadData()
+            self.presenter.sortedByPrice()
         }
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
         
@@ -105,7 +100,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTViewController
 // MARK: UITableViewDelegate & UITableViewDataSource
 extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return myNFTProfile.count
+        return presenter.collectionsCount
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 140
@@ -113,7 +108,9 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //let cell = tableView.dequeueReusableCell() as MyNFTCell
         let cell = MyNFTCell()
-        let myNFTProfile = myNFTProfile[indexPath.row]
+        guard let myNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
+            return UITableViewCell()
+        }
         if let image = myNFTProfile.images.first {
             cell.nftImageView.kf.indicatorType = .activity
             cell.nftImageView.kf.setImage(with: image)

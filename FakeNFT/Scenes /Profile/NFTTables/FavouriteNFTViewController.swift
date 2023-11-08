@@ -5,17 +5,21 @@
 import UIKit
 import Kingfisher
 
-final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTViewController {
+protocol InterfaceFavouriteNFTController: AnyObject {
+    var presenter: InterfaceFavouriteNFTPresenter { get set }
+    var favoritesNFT: [String] { get set }
+    func reloadData()
+}
+
+final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTController, InterfaceFavouriteNFTViewController {
     // MARK: Public properties
     var favoritesNFT: [String] = []
     
     // MARK: Private properties
-    private lazy var favoritesNFTProfile: [Nft] = []
-    private let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет избранных NFT")
     private var params: GeometricParams = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 7)
     
-    private lazy var collectionView: UICollectionView = {
+    lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.register(FavouriteNFTCell.self)
         collectionView.backgroundColor = .systemBackground
@@ -26,36 +30,29 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
         return collectionView
     }()
     
+    // MARK: Presenter
+    var presenter: InterfaceFavouriteNFTPresenter = FavouriteNFTPresenter()
+    
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.view = self
+        presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
         showEmptyLabel()
-        loadRequest(favoritesNFT)
-    }
-    
-    // MARK: Load Request
-    func loadRequest(_ favoritesNFT: [String]) {
-        assert(Thread.isMainThread)
-        favoritesNFT.forEach { [weak self] nft in
-            guard let self = self else { return }
-            self.nftService.loadNft(id: nft) { result in
-                switch result {
-                case .success(let nft):
-                    self.favoritesNFTProfile.append(nft)
-                    self.collectionView.reloadData()
-                case .failure(let error):
-                    print(error)
-                }
-            }
-        }
     }
     
     // MARK: Methods
-    private func showEmptyLabel() {
-        favoritesNFT.isEmpty ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
+    func reloadData() {
+        showEmptyLabel()
+        collectionView.reloadData()
     }
+    
+    private func showEmptyLabel() {
+        presenter.collectionsCount == 0 ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
+    }
+    
     private func setupNavigationBar() {
         if let navBar = navigationController?.navigationBar {
             let backItem = UIBarButtonItem(image: UIImage(named: ImagesAssets.backWard.rawValue), style: .plain, target: self, action: #selector(goBack))
@@ -72,16 +69,17 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
 // MARK: - UICollectionViewDelegate & UICollectionViewDataSource
 extension FavouriteNFTViewController: UICollectionViewDelegate & UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return favoritesNFTProfile.count
+        return presenter.collectionsCount
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        favoritesNFTProfile.remove(at: indexPath.row)
-        collectionView.deleteItems(at: [indexPath])
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(indexPath: indexPath) as FavouriteNFTCell
-        let favoritesNFTProfile = favoritesNFTProfile[indexPath.row]
+        cell.delegate = self
+        guard let favoritesNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
+            return UICollectionViewCell()
+        }
         if let image = favoritesNFTProfile.images.first {
             cell.nftImageView.kf.indicatorType = .activity
             cell.nftImageView.kf.setImage(with: image)
