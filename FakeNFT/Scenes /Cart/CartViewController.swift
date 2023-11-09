@@ -7,10 +7,11 @@
 
 import UIKit
 
-protocol CartView:AnyObject, ErrorView, LoadingView {
+protocol CartView:AnyObject, ErrorView, LoadingView, SortOptionsView {
     func setTableView(with nfts:[Nft])
     func setPrice(with price:Float)
     func cartIsEmpty()
+    func setCount(with count:Int)
 }
 
 final class CartViewController:UIViewController{
@@ -49,7 +50,7 @@ final class CartViewController:UIViewController{
         let label = UILabel()
         label.font = UIFont.caption1
         label.textColor = UIColor(named: "YP Black")
-        label.text = "3 NFT"
+        label.text = "0 NFT"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -105,6 +106,10 @@ final class CartViewController:UIViewController{
         paymentViewController.modalPresentationStyle = .fullScreen
         present(paymentViewController, animated: true)
     }
+    
+    @objc func sortButtonDidTapped(){
+        presenter.makeSortModel()
+    }
 }
 
 // MARK: - Layout
@@ -113,6 +118,7 @@ extension CartViewController {
         view.backgroundColor = UIColor(named: "YP White")
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         payButton.addTarget(self, action: #selector(payButtonDidTapped), for: .touchUpInside)
+        sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {
@@ -164,6 +170,10 @@ extension CartViewController:CartView{
     
     func setPrice(with price:Float){
         priceLabel.text = "\(price) ETH"
+    }
+    
+    func setCount(with count:Int){
+        amountLabel.text = "\(count) NFT"
     }
     
     func cartIsEmpty(){

@@ -11,6 +11,7 @@ import Foundation
 
 protocol CartViewPresenter {
     func viewDidLoad()
+    func makeSortModel()
 }
 
 // MARK: - State
@@ -23,21 +24,43 @@ final class CartViewPresenterImpl: CartViewPresenter{
     // MARK: - Properties
     weak var view: CartView?
     private let service: CartService
+    private var nfts: [Nft] = [] {
+        didSet {
+            view?.setTableView(with: nfts)
+        }
+    }
     private var state = CartViewState.initial {
         didSet {
             stateDidChanged()
         }
     }
     
+    private var sortOption = SortOption.name {
+        didSet {
+            sort(with: sortOption)
+        }
+    }
     // MARK: - Init
-
+    
     init(service: CartService) {
         self.service = service
+        if let savedSortOption = UserDefaults.standard.string(forKey: "SortOptionKey") {
+            if let sortOption = SortOption(rawValue: savedSortOption) {
+                self.sortOption = sortOption
+            }
+        }
     }
     
     // MARK: - Functions
     func viewDidLoad() {
         state = .loading
+    }
+    
+    func makeSortModel(){
+        view?.showSortOptions{ [weak self] sortOption in
+            self?.sortOption = sortOption
+            UserDefaults.standard.set(sortOption.rawValue, forKey: "SortOptionKey")
+        }
     }
     
     private func stateDidChanged() {
@@ -54,8 +77,10 @@ final class CartViewPresenterImpl: CartViewPresenter{
                 return
             }
             let total = calculateTotalPrice(with: nfts)
-            view?.setTableView(with: nfts)
+            self.nfts = nfts
+            sort(with: sortOption)
             view?.setPrice(with: total)
+            view?.setCount(with: nfts.count)
         case .failed(let error):
             let errorModel = makeErrorModel(error)
             view?.hideLoading()
@@ -85,7 +110,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
         default:
             message = NSLocalizedString("Error.unknown", comment: "")
         }
-
+        
         let actionText = NSLocalizedString("Error.repeat", comment: "")
         return ErrorModel(message: message, actionText: actionText) { [weak self] in
             self?.state = .loading
@@ -98,5 +123,16 @@ final class CartViewPresenterImpl: CartViewPresenter{
             total += $0.price
         }
         return total
+    }
+    
+    private func sort(with sortOption: SortOption){
+        switch sortOption {
+        case .price:
+            nfts = nfts.sorted { $0.price < $1.price }
+        case .rating:
+            nfts = nfts.sorted { $0.rating < $1.rating }
+        case .name:
+            nfts = nfts.sorted { $0.name < $1.name }
+        }
     }
 }
