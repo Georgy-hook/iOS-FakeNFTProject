@@ -22,13 +22,18 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     }
     
     // MARK: Private properties
-    private var myNFTProfile: [Nft] = []
-    private let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    private var myNFTProfile: [Nft]
+    private let nftService: NftServiceImpl 
     
     // MARK: MyNFTViewController
     weak var view: InterfaceMyNFTController?
     
     // MARK: Initialisation
+    init() {
+        self.myNFTProfile = []
+        self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    }
+    
     func viewDidLoad() {
         guard let view else { return }
         loadRequest(view.myNFT) { [weak self] nft in
@@ -39,7 +44,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     }
     
     // MARK: Load Request
-    func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
+    private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
         myNFT.forEach { [weak self] nft in
             guard let self = self else { return }
@@ -47,8 +52,8 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                 switch result {
                 case .success(let nft):
                     completion(nft)
-                case .failure(let error):
-                    print(error)
+                case .failure:
+                    self.view?.showErrorAlert()
                 }
             }
         }

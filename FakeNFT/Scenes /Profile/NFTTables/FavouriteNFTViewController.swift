@@ -9,11 +9,12 @@ protocol InterfaceFavouriteNFTController: AnyObject {
     var presenter: InterfaceFavouriteNFTPresenter { get set }
     var favoritesNFT: [String] { get set }
     func reloadData()
+    func showErrorAlert()
 }
 
 final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTController, InterfaceFavouriteNFTViewController {
     // MARK: Public properties
-    var favoritesNFT: [String] = []
+    var favoritesNFT: [String] //= []
     
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет избранных NFT")
@@ -30,23 +31,37 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
         return collectionView
     }()
     
+    // MARK: Initialisation
+    init() {
+        self.emptyLabel.isHidden = true
+        self.favoritesNFT = []
+        self.presenter = FavouriteNFTPresenter()
+        super.init(nibName: nil, bundle: nil)
+        presenter.view = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: Presenter
-    var presenter: InterfaceFavouriteNFTPresenter = FavouriteNFTPresenter()
+    var presenter: InterfaceFavouriteNFTPresenter
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.view = self
         presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        showEmptyLabel()
     }
     
     // MARK: Methods
     func reloadData() {
-        showEmptyLabel()
         collectionView.reloadData()
+        showEmptyLabel()
+    }
+    func showErrorAlert() {
+        self.showErrorLoadAlert()
     }
     
     private func showEmptyLabel() {
@@ -69,7 +84,7 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
 // MARK: - UICollectionViewDelegate & UICollectionViewDataSource
 extension FavouriteNFTViewController: UICollectionViewDelegate & UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return presenter.collectionsCount
+        return presenter.collectionsCount 
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)

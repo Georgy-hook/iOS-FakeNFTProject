@@ -7,6 +7,8 @@ import Kingfisher
 
 protocol InterfaceProfileViewController: AnyObject {
     var presenter: InterfaceProfilePresenter { get set }
+    func reloadTable()
+    func showErrorAlert()
 }
 
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
@@ -61,13 +63,23 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         return tableView
     }()
     
+    // MARK: Initialisation
+    init() {
+        self.presenter = ProfilePresenter()
+        super.init(nibName: nil, bundle: nil)
+        self.presenter.view = self
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: Presenter
-    var presenter: InterfaceProfilePresenter = ProfilePresenter()
+    var presenter: InterfaceProfilePresenter
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.view = self
+        presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
         updateDataProfile()
@@ -75,15 +87,15 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     // MARK: Methods
     private func updateDataProfile() {
-        presenter.setupDataProfile() { profile in
+        presenter.setupDataProfile() { [weak self] profile in
             guard let profile else { return }
+            guard let self else { return }
             self.updateAvatar(with: profile.avatar)
             self.nameLabel.text = profile.name
             self.descriptionLabel.text = profile.description
             self.websiteLabel.text = profile.website
         }
     }
-
     //MARK: - KingFisher
     func updateAvatar(with url: String) {
         let cache = ImageCache.default
@@ -92,16 +104,14 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         let processor = RoundCornerImageProcessor(cornerRadius: 60)
         avatarImageView.kf.setImage(with: URL(string: url),
                                     placeholder: UIImage(named: "placeholder"),
-                                    options: [.processor(processor),  .transition(.fade(1))],
-                                    completionHandler: { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success:
-                self.tableView.reloadData()
-            case .failure(let error):
-                print("\(error)")
-            }
-        })
+                                    options: [.processor(processor),  .transition(.fade(1))])
+    }
+    
+    func reloadTable() {
+        tableView.reloadData()
+    }
+    func showErrorAlert() {
+        self.showErrorLoadAlert()
     }
     
     // MARK: Setup ViewControllers
@@ -211,7 +221,7 @@ extension ProfileViewController {
         view.addSubviews(stackView, descriptionLabel, websiteLabel, tableView)
         stackView.addSubviews(avatarImageView, nameLabel)
         NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -16),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             

@@ -9,12 +9,13 @@ protocol InterfaceMyNFTController: AnyObject  {
     var presenter: InterfaceMyNFTPresenter { get set }
     var myNFT: [String] { get set }
     func reloadData()
+    func showErrorAlert()
 }
 
 final class MyNFTViewController: UIViewController & InterfaceMyNFTController, InterfaceMyNFTViewController {
     // MARK: Public properties
-    var myNFT: [String] = []
-    var favoritesNFT: [String] = []
+    var myNFT: [String]
+    var favoritesNFT: [String]
     
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
@@ -31,13 +32,24 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
         return tableView
     }()
     
+    // MARK: Initialisation
+    init() {
+        self.myNFT = []
+        self.favoritesNFT = []
+        self.presenter = MyNFTPresenter()
+        super.init(nibName: nil, bundle: nil)
+        self.presenter.view = self
+    }
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: Presenter
-    var presenter: InterfaceMyNFTPresenter = MyNFTPresenter()
+    var presenter: InterfaceMyNFTPresenter 
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.view = self
         presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
@@ -47,6 +59,9 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
     // MARK: Methods
     func reloadData() {
         tableView.reloadData()
+    }
+    func showErrorAlert() {
+        self.showErrorLoadAlert()
     }
     
     private func showEmptyLabel() {
@@ -106,7 +121,6 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
         return 140
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //let cell = tableView.dequeueReusableCell() as MyNFTCell
         let cell = MyNFTCell()
         guard let myNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
             return UITableViewCell()
@@ -127,7 +141,6 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
         return cell
     }
 }
-
 
 // MARK: - Setup views, constraints
 private extension MyNFTViewController {

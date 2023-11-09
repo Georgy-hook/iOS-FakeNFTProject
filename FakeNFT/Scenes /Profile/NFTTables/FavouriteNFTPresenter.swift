@@ -18,13 +18,19 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     // MARK: Private properties
-    private var favoritesNFTProfile: [Nft] = []
-    private let nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    private var favoritesNFTProfile: [Nft]
+    private let nftService: NftServiceImpl 
+    
+    // MARK: Initialisation
+    init() {
+        self.favoritesNFTProfile = []
+        self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+    }
     
     // MARK: FavouriteNFTViewController
     weak var view: InterfaceFavouriteNFTController?
     
-    // MARK: Initialisation
+    // MARK: Life cycle
     func viewDidLoad() {
         guard let view else { return }
         loadRequest(view.favoritesNFT) { [weak self] nft in
@@ -35,7 +41,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     // MARK: Load Request
-    func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
+    private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
         favoritesNFT.forEach { [weak self] nft in
             guard let self = self else { return }
@@ -43,8 +49,8 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
                 switch result {
                 case .success(let nft):
                     completion(nft)
-                case .failure(let error):
-                    print(error)
+                case .failure:
+                    self.view?.showErrorAlert()
                 }
             }
         }

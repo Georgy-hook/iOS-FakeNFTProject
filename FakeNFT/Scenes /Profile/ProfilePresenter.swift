@@ -18,6 +18,7 @@ protocol InterfaceProfilePresenter: AnyObject {
     var favoritesNFT: [String] { get set }
     var titleRows: [String] { get set }
     var view: InterfaceProfileViewController? { get set }
+    func viewDidLoad()
     func setupDataProfile(_ completion: @escaping(Profile?)->())
     func setupDelegateMyNFT(viewController: MyNFTViewController)
     func setupDelegateFavouriteNFT(viewController: FavouriteNFTViewController)
@@ -25,9 +26,9 @@ protocol InterfaceProfilePresenter: AnyObject {
 }
 final class ProfilePresenter: InterfaceProfilePresenter {
     // MARK: Public Properties
-    var myNFT = [String]()
-    var favoritesNFT = [String]()
-    var titleRows: [String] = [ ]
+    var myNFT: [String]
+    var favoritesNFT: [String]
+    var titleRows: [String] 
     
     // MARK: Delegates
     weak var delegateToEditing: InterfaceEditingProfileViewController?
@@ -35,10 +36,23 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     weak var delegateToFavouriteNFT: InterfaceFavouriteNFTViewController?
     
     // MARK: Private properties
-    private let profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
+    private let profileService: ProfileServiceImpl
     
     // MARK: ProfileViewController
     weak var view: InterfaceProfileViewController?
+    
+    // MARK: Initialisation
+    init() {
+        self.myNFT = [String]()
+        self.favoritesNFT = [String]()
+        self.titleRows = [ ]
+        self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
+    }
+    
+    // MARK: Life cycle
+    func viewDidLoad() {
+        
+    }
     
     // MARK: Setup delegates
     func setupDelegateMyNFT(viewController: MyNFTViewController) {
@@ -70,9 +84,10 @@ final class ProfilePresenter: InterfaceProfilePresenter {
                     "Избранные NFT (\(favoritesNFT.count))",
                     "О разработчике"
                 ]
+                self.view?.reloadTable()
                 completion(profile)
-            case .failure(let error):
-                print(error)
+            case .failure:
+                self.view?.showErrorAlert()
             }
         }
     }
