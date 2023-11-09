@@ -11,6 +11,14 @@ protocol InterfaceProfileViewController: AnyObject {
 
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
     // MARK: Private properties
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.alignment = .center
+        stackView.distribution = .fillEqually
+        stackView.spacing = 16
+        stackView.axis = .horizontal
+        return stackView
+    }()
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
@@ -20,6 +28,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }()
     private let nameLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.font = .systemFont(ofSize: 22, weight: .bold)
         return label
     }()
@@ -31,14 +40,16 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         label.setLineSpacing(lineSpacing: 5)
         return label
     }()
-    private lazy var websiteButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .clear
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
-        button.addTarget(self, action: #selector(goToWebSite), for: .touchUpInside)
-        return button
+
+    private let websiteLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textColor = .systemBlue
+        label.lineBreakMode = .byClipping
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        return label
     }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .systemBackground
@@ -69,7 +80,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
             self.updateAvatar(with: profile.avatar)
             self.nameLabel.text = profile.name
             self.descriptionLabel.text = profile.description
-            self.websiteButton.setTitle(profile.website, for: .normal)
+            self.websiteLabel.text = profile.website
         }
     }
 
@@ -104,6 +115,10 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         }
     }
     
+    private func goToWebSite() {
+        showWebViewController(with: websiteLabel.text ?? String())
+    }
+    
     private func showWebViewController(with URLString: String) {
         let webViewerController = WebViewerController(urlString: URLString)
         let navigationController = UINavigationController(rootViewController: webViewerController)
@@ -134,16 +149,13 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     private func showEditingProfileViewController() {
         let viewController = EditingProfileViewController()
-        presenter.setupDelegateEditingProfile(viewController: viewController, image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.title(for: .normal))
+        presenter.setupDelegateEditingProfile(viewController: viewController, image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
         present(viewController, animated: true)
     }
     
     // MARK: Selectors
     @objc private func editProfileData() {
         showEditingProfileViewController()
-    }
-    @objc private func goToWebSite() {
-        showWebViewController(with: websiteButton.titleLabel?.text ?? String())
     }
 }
 
@@ -153,7 +165,7 @@ extension ProfileViewController {
         avatarImageView.image = image?.toImage()
         nameLabel.text = name
         descriptionLabel.text = description
-        websiteButton.setTitle(website, for: .normal)
+        websiteLabel.text = website
     }
 }
 
@@ -193,29 +205,34 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
 }
 
 // MARK: - Setup views, constraints
-private extension ProfileViewController {
+extension ProfileViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
-        view.addSubviews(avatarImageView, nameLabel, descriptionLabel, websiteButton, tableView)
-        
+        view.addSubviews(stackView, descriptionLabel, websiteLabel, tableView)
+        stackView.addSubviews(avatarImageView, nameLabel)
         NSLayoutConstraint.activate([
-            avatarImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
-            avatarImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            stackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 108),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            avatarImageView.topAnchor.constraint(equalTo: stackView.topAnchor),
+            avatarImageView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             avatarImageView.widthAnchor.constraint(equalToConstant: 70),
             avatarImageView.heightAnchor.constraint(equalToConstant: 70),
             
-            nameLabel.topAnchor.constraint(equalTo: avatarImageView.topAnchor, constant: 16),
+            nameLabel.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
             nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.trailingAnchor, constant: 16),
-            nameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            nameLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
             
-            descriptionLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 20),
+            descriptionLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 40),
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            websiteButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 8),
-            websiteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            websiteLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 12),
+            websiteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            websiteLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            tableView.topAnchor.constraint(equalTo: websiteButton.topAnchor, constant: 40),
+            tableView.topAnchor.constraint(equalTo: websiteLabel.bottomAnchor, constant: 40),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.heightAnchor.constraint(equalToConstant: 162)

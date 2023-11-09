@@ -63,7 +63,7 @@ final class  EditingProfileViewController: UIViewController {
     }()
     private let limitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = "Ограничение 80 символов"
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .red
         label.numberOfLines = 1
@@ -97,6 +97,7 @@ final class  EditingProfileViewController: UIViewController {
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
         profileViewController.updateDataProfile(image: avatarImageView.image?.toPngString(), name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
+        profileViewController.setupUI()
     }
     
     // MARK: Selectors
@@ -136,7 +137,7 @@ extension EditingProfileViewController: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let newText = (textView.text as NSString).replacingCharacters(in: range, with: text)
         let numberOfChars = newText.count
-        return numberOfChars < 138
+        return numberOfChars < 200
     }
 }
 
@@ -156,14 +157,14 @@ extension EditingProfileViewController: UITextFieldDelegate {
         guard let stringRange = Range(range, in: currentText) else {
             return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-        if updatedText.count >= 38 {
+        if updatedText.count >= 80 {
             limitLabel.isHidden = false
             newConstraints()
         } else {
             limitLabel.isHidden = true
             setupUI()
         }
-        return updatedText.count <= 38
+        return updatedText.count <= 80
     }
 }
 

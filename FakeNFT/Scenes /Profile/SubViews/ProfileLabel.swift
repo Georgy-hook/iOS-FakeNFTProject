@@ -22,6 +22,7 @@ final class ProfileLabel: UILabel {
     // MARK: Methods
     private func configureLabelType() {
         self.textColor = .label
+        self.numberOfLines = 0
         self.font = .systemFont(ofSize: 22, weight: .bold)
     }
     private func switchTypeOfLabelType(_ label: LabelTypeProfile) {
