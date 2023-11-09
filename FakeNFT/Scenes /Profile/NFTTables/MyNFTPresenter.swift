@@ -8,11 +8,14 @@ protocol InterfaceMyNFTPresenter: AnyObject {
     var view: InterfaceMyNFTController? { get set }
     var collectionsCount: Int { get }
     func getCollectionsIndex(_ index: Int) -> Nft?
+    func typeSorted(type: sotringOption)
     func viewDidLoad()
-    func sortedByPrice()
-    func sortedByRating()
-    func sortedByName()
-    
+}
+
+enum sotringOption {
+    case price
+    case rating
+    case name
 }
 
 final class MyNFTPresenter: InterfaceMyNFTPresenter {
@@ -64,17 +67,27 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         return myNFTProfile[index]
     }
     
-    func sortedByPrice() {
+    func typeSorted(type: sotringOption) {
+        switch type {
+        case .price: 
+            sortedByPrice()
+        case .rating:
+            sortedByRating()
+        case .name: 
+            sortedByName()
+        }
+    }
+    private func sortedByPrice() {
         myNFTProfile = myNFTProfile.sorted { $0.price < $1.price }
         view?.reloadData()
     }
     
-    func sortedByRating() {
+    private func sortedByRating() {
         myNFTProfile = myNFTProfile.sorted { $0.rating < $1.rating }
         view?.reloadData()
     }
         
-    func sortedByName() {
+    private func sortedByName() {
         myNFTProfile = myNFTProfile.sorted { $0.name < $1.name }
         view?.reloadData()
     }

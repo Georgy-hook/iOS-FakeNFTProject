@@ -409,9 +409,7 @@
 		661066192AF69FD400DA66FB /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				6610661C2AF69FE400DA66FB /* LabelTypeProfile.swift */,
-				6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */,
-				6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */,
+				667AF1A92AFD5FEF006F57A3 /* UIModels */,
 			);
 			path = Profile;
 			sourceTree = "<group>";
@@ -463,6 +461,16 @@
 				666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */,
 			);
 			path = NFTTables;
+			sourceTree = "<group>";
+		};
+		667AF1A92AFD5FEF006F57A3 /* UIModels */ = {
+			isa = PBXGroup;
+			children = (
+				6610661C2AF69FE400DA66FB /* LabelTypeProfile.swift */,
+				6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */,
+				6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */,
+			);
+			path = UIModels;
 			sourceTree = "<group>";
 		};
 		E19CD5A92A98B55900CA39A5 /* Cell */ = {

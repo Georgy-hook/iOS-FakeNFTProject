@@ -3,6 +3,7 @@
 //  Created by Adam West on 05.11.2023.
 
 import UIKit
+import Kingfisher
 
 protocol InterfaceFavouriteNFTCell: AnyObject {
     var delegate: FavouriteNFTViewController? { get set }
@@ -10,7 +11,7 @@ protocol InterfaceFavouriteNFTCell: AnyObject {
 
 final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, InterfaceFavouriteNFTCell {
     // MARK: UI
-    let nftImageView: UIImageView = {
+    private let nftImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
         imageView.sizeToFit()
@@ -29,9 +30,9 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     weak var delegate: FavouriteNFTViewController?
     
     // MARK: Public Properties
-    let ratingStar = RatingStackView()
-    let nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
+    private let ratingStar = RatingStackView()
+    private let nameLabel = MyNFTLabel(labelType: .big, text: nil)
+    private let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
     
     // MARK: Initialisation
     override init(frame: CGRect) {
@@ -44,6 +45,20 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     
     // MARK: Selectors
     @objc func checkButtonTapped(sender : UIButton){
+        deleteCell(sender: sender)
+    }
+    
+    // MARK: Methods
+    func configure(with nft: Nft) {
+        if let image = nft.images.first {
+            nftImageView.kf.indicatorType = .activity
+            nftImageView.kf.setImage(with: image)
+        }
+        nameLabel.text = nft.name
+        ratingStar.rating = nft.rating
+        priceLabel.text = String(nft.price)
+    }
+    private func deleteCell(sender: UIButton) {
         if let cell = sender.superview?.superview as? UICollectionViewCell, let indexPath = delegate?.collectionView.indexPath(for: cell) {
             delegate?.presenter.removeFromCollection(indexPath.row)
             delegate?.collectionView.deleteItems(at: [indexPath])
@@ -76,7 +91,7 @@ private extension FavouriteNFTCell {
             ratingStar.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
             
             priceLabel.topAnchor.constraint(equalTo: ratingStar.bottomAnchor, constant: 8),
-            priceLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
+            priceLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12)
         ])
     }
 }

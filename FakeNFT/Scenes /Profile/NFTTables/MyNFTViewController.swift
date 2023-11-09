@@ -3,7 +3,6 @@
 //  Created by Adam West on 04.11.2023.
 
 import UIKit
-import Kingfisher
 
 protocol InterfaceMyNFTController: AnyObject  {
     var presenter: InterfaceMyNFTPresenter { get set }
@@ -84,15 +83,15 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
         let alert = UIAlertController(title: nil, message: "Сортировка", preferredStyle: .actionSheet)
         let priceAction = UIAlertAction(title: "По цене", style: .default) { [weak self] _ in
             guard let self else { return }
-            self.presenter.sortedByPrice()
+            self.presenter.typeSorted(type: .price)
         }
         let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { [weak self] _ in
              guard let self else { return }
-            self.presenter.sortedByRating()
+            self.presenter.typeSorted(type: .rating)
         }
         let nameAction = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
              guard let self else { return }
-            self.presenter.sortedByPrice()
+            self.presenter.typeSorted(type: .name)
         }
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
         
@@ -101,6 +100,20 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
         alert.addAction(nameAction)
         alert.addAction(cancelAction)
         self.present(alert, animated: true)
+    }
+    
+    private func configureCell(with indexPath: IndexPath) -> UITableViewCell {
+        let cell = MyNFTCell()
+        guard let myNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
+            return UITableViewCell()
+        }
+        favoritesNFT.forEach { nft in
+            if myNFTProfile.id == nft {
+                cell.likeButton.isSelected = true
+            }
+        }
+        cell.configure(with: myNFTProfile)
+        return cell
     }
     
     // MARK: Selectors
@@ -121,23 +134,7 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
         return 140
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = MyNFTCell()
-        guard let myNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
-            return UITableViewCell()
-        }
-        if let image = myNFTProfile.images.first {
-            cell.nftImageView.kf.indicatorType = .activity
-            cell.nftImageView.kf.setImage(with: image)
-        }
-        favoritesNFT.forEach { nft in
-            if myNFTProfile.id == nft {
-                cell.likeButton.isSelected = true
-            }
-        }
-        cell.nameLabel.text = myNFTProfile.name
-        cell.ratingStar.rating = myNFTProfile.rating
-        cell.authorLabel.text = myNFTProfile.author
-        cell.priceLabel.text = String(myNFTProfile.price)
+        let cell = configureCell(with: indexPath)
         return cell
     }
 }

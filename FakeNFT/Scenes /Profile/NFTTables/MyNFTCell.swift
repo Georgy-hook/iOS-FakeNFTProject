@@ -3,16 +3,10 @@
 //  Created by Adam West on 04.11.2023.
 
 import UIKit
+import Kingfisher
 
 final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     // MARK: Public properties
-    var nftImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.layer.masksToBounds = true
-        imageView.sizeToFit()
-        imageView.layer.cornerRadius = 12
-        return imageView
-    }()
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
@@ -22,12 +16,19 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         return button
     }()
     
-    var nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    var ratingStar = RatingStackView()
-    var authorLabel = MyNFTLabel(labelType: .little, text: nil)
-    var priceLabel = MyNFTLabel(labelType: .big, text: nil)
-
     // MARK: Private properties
+    private var nftImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.masksToBounds = true
+        imageView.sizeToFit()
+        imageView.layer.cornerRadius = 12
+        return imageView
+    }()
+    private var nameLabel = MyNFTLabel(labelType: .big, text: nil)
+    private var ratingStar = RatingStackView()
+    private var authorLabel = MyNFTLabel(labelType: .little, text: nil)
+    private var priceLabel = MyNFTLabel(labelType: .big, text: nil)
+    
     private let fromAuthorLabel = MyNFTLabel(labelType: .middle, text: "от")
     private let namePriceLabel = MyNFTLabel(labelType: .little, text: "Цена")
     
@@ -38,6 +39,18 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Methods
+    func configure(with nft: Nft) {
+        if let image = nft.images.first {
+            nftImageView.kf.indicatorType = .activity
+            nftImageView.kf.setImage(with: image)
+        }
+        nameLabel.text = nft.name
+        ratingStar.rating = nft.rating
+        authorLabel.text = nft.author
+        priceLabel.text = String(nft.price)
     }
 }
 

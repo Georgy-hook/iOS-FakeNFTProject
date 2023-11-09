@@ -8,6 +8,7 @@ import Kingfisher
 protocol InterfaceProfileViewController: AnyObject {
     var presenter: InterfaceProfilePresenter { get set }
     func reloadTable()
+    func updateDataProfile()
     func showErrorAlert()
 }
 
@@ -82,20 +83,18 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        updateDataProfile()
     }
     
     // MARK: Methods
-    private func updateDataProfile() {
-        presenter.setupDataProfile() { [weak self] profile in
+    func updateDataProfile() {
+            let profile = self.presenter.profile
             guard let profile else { return }
-            guard let self else { return }
             self.updateAvatar(with: profile.avatar)
             self.nameLabel.text = profile.name
             self.descriptionLabel.text = profile.description
             self.websiteLabel.text = profile.website
-        }
     }
+    
     //MARK: - KingFisher
     func updateAvatar(with url: String) {
         let cache = ImageCache.default

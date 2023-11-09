@@ -14,7 +14,7 @@ protocol InterfaceFavouriteNFTController: AnyObject {
 
 final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTController, InterfaceFavouriteNFTViewController {
     // MARK: Public properties
-    var favoritesNFT: [String] //= []
+    var favoritesNFT: [String] 
     
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет избранных NFT")
@@ -75,6 +75,17 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
             navBar.topItem?.setLeftBarButton(backItem, animated: true)
         }
     }
+    
+    private func configureCell(with indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(indexPath: indexPath) as FavouriteNFTCell
+        cell.delegate = self
+        guard let favoritesNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
+            return UICollectionViewCell()
+        }
+        cell.configure(with: favoritesNFTProfile)
+        return cell
+    }
+    
     // MARK: Selectors
     @objc private func goBack() {
         dismiss(animated: true)
@@ -90,18 +101,7 @@ extension FavouriteNFTViewController: UICollectionViewDelegate & UICollectionVie
         collectionView.deselectItem(at: indexPath, animated: true)
     }
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(indexPath: indexPath) as FavouriteNFTCell
-        cell.delegate = self
-        guard let favoritesNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
-            return UICollectionViewCell()
-        }
-        if let image = favoritesNFTProfile.images.first {
-            cell.nftImageView.kf.indicatorType = .activity
-            cell.nftImageView.kf.setImage(with: image)
-        }
-        cell.nameLabel.text = favoritesNFTProfile.name
-        cell.ratingStar.rating = favoritesNFTProfile.rating
-        cell.priceLabel.text = String(favoritesNFTProfile.price)
+        let cell = configureCell(with: indexPath)
         return cell
     }
 }
