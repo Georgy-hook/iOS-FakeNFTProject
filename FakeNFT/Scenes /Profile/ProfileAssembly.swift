@@ -5,11 +5,24 @@
 import UIKit
 
 final class ProfileAssembly {
+    // MARK: Public Properties
+    var profilePresenter: ProfilePresenter {
+        ProfilePresenter()
+    }
+    var myNFTPresenter: MyNFTPresenter {
+        MyNFTPresenter()
+    }
+    var favouriteNFTPresenter: FavouriteNFTPresenter {
+        FavouriteNFTPresenter()
+    }
+    
+    // MARK: Private properties
     private let editingProfileViewController: EditingProfileViewController
     private let webViewerController: WebViewerController
     private let myNFTViewController: MyNFTViewController
     private let favouriteNFTViewController: FavouriteNFTViewController
     
+    // MARK: Initialisation
     init(editingProfileViewController: EditingProfileViewController, webViewerController: WebViewerController, myNFTViewController: MyNFTViewController, favouriteNFTViewController: FavouriteNFTViewController) {
         self.editingProfileViewController = editingProfileViewController
         self.webViewerController = webViewerController
@@ -17,21 +30,11 @@ final class ProfileAssembly {
         self.favouriteNFTViewController = favouriteNFTViewController
     }
     
+    // MARK: Public Methods
     public func profilePresenter(presenter: InterfaceProfilePresenter, input: InterfaceProfileViewController) {
         let presenter = presenter
         presenter.view = input
         presenter.viewDidLoad()
-    }
-    var profilePresenter: ProfilePresenter {
-        ProfilePresenter()
-    }
-    
-    var myNFTPresenter: MyNFTPresenter {
-        MyNFTPresenter()
-    }
-    
-    var favouriteNFTPresenter: FavouriteNFTPresenter {
-        FavouriteNFTPresenter()
     }
     
     public func buildwebViewer(with input: UIViewController, urlString: String) {

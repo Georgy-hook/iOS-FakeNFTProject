@@ -58,8 +58,8 @@ final class WebViewerController: UIViewController {
 }
 
 
-// MARK: -
-extension WebViewerController: UIWebViewDelegate, WKNavigationDelegate, WKUIDelegate {
+// MARK: - WKNavigationDelegate & WKUIDelegate
+extension WebViewerController: WKNavigationDelegate, WKUIDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         showActivityIndicator(show: false)
     }

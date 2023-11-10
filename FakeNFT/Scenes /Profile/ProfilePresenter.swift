@@ -10,9 +10,10 @@ protocol InterfaceProfilePresenter: AnyObject {
     var titleRows: [String] { get set }
     var profile: Profile? { get set }
     var view: InterfaceProfileViewController? { get set }
-    func viewDidLoad()
     func setupDelegateEditingProfile(viewController: EditingProfileViewController, image: String?, name: String?, description: String?, website: String?)
+    func viewDidLoad()
 }
+
 final class ProfilePresenter: InterfaceProfilePresenter {
     // MARK: Public Properties
     var myNFT: [String]
@@ -20,6 +21,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     var titleRows: [String] 
     var profile: Profile?
     
+    // MARK: Delegates
     weak var delegateToEditing: InterfaceEditingProfileViewController?
     weak var view: InterfaceProfileViewController?
     
@@ -36,6 +38,11 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        updateDataProfile()
+    }
+    
+    // MARK: Update Data Profile
+    private func updateDataProfile() {
         setupDataProfile { profile in
             guard let profile else { return }
             self.profile = profile
@@ -51,7 +58,6 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         }
     }
     
-    // MARK: Setup Network data
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
         profileService.loadProfile(id: "1") { [weak self] result in
             guard let self else { return }

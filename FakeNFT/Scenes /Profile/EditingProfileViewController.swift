@@ -77,13 +77,15 @@ final class  EditingProfileViewController: UIViewController {
     private let websiteLabel = ProfileLabel(labelType: .website)
     
     private let nameTextField = ProfileTextField(fieldType: .userName)
-    private let websiteTextField = ProfileTextField(fieldType: .website)
+    private var websiteTextField: UITextField = ProfileTextField(fieldType: .website)
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         _ = hideKeyboardWhenClicked
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -107,6 +109,20 @@ final class  EditingProfileViewController: UIViewController {
     }
     @objc private func loadPhoto() {
         loadLabel.isHidden = false
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            if websiteTextField.isEditing {
+                self.view.frame.origin.y -= nameLabel.bounds.height +  descriptionLabel.bounds.height + websiteTextField.bounds.height
+            }
+        }
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if self.view.frame.origin.y != 0 {
+            self.view.frame.origin.y = 0
+        }
     }
 }
 

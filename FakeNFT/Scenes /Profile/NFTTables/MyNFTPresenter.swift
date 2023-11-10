@@ -44,6 +44,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
     
+    // MARK: Life cycle
     func viewDidLoad() {
         setupDataProfile()
     }

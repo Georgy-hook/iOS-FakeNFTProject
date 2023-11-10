@@ -1,20 +1,21 @@
-//
 //  RatingStackView.swift
 //  FakeNFT
-//
-//  Created by Georgy on 06.11.2023.
-//
+//  Created by Georgy and Adam West on 06.11.2023.
 
 import UIKit
 
 class RatingStackView: UIStackView {
-    private var ratingButtons = [UIButton]()
+    // MARK: Public Properties
     var rating = 0 {
         didSet {
             updateButtonSelectionState()
         }
     }
     
+    // MARK: Private properties
+    private var ratingButtons = [UIButton]()
+    
+    // MARK: Initialisation
     override init(frame: CGRect) {
         super.init(frame: frame)
         translatesAutoresizingMaskIntoConstraints = false
@@ -26,6 +27,7 @@ class RatingStackView: UIStackView {
         setupButtons()
     }
     
+    // MARK: Methods
     private func setupButtons() {
         for _ in 0..<5 {
             let button = UIButton()

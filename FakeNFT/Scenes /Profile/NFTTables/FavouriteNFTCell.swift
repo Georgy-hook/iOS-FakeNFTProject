@@ -11,13 +11,6 @@ protocol InterfaceFavouriteNFTCell: AnyObject {
 
 final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, InterfaceFavouriteNFTCell {
     // MARK: UI
-    private let nftImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.layer.masksToBounds = true
-        imageView.sizeToFit()
-        imageView.layer.cornerRadius = 12
-        return imageView
-    }()
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
@@ -25,11 +18,18 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
         return button
     }()
+    private let nftImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.masksToBounds = true
+        imageView.sizeToFit()
+        imageView.layer.cornerRadius = 12
+        return imageView
+    }()
     
     // MARK: Delegate
     weak var delegate: FavouriteNFTViewController?
     
-    // MARK: Public Properties
+    // MARK: Private Properties
     private let ratingStar = RatingStackView()
     private let nameLabel = MyNFTLabel(labelType: .big, text: nil)
     private let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
@@ -43,11 +43,6 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Selectors
-    @objc func checkButtonTapped(sender : UIButton){
-        deleteCell(sender: sender)
-    }
-    
     // MARK: Methods
     func configure(with nft: Nft) {
         if let image = nft.images.first {
@@ -58,12 +53,18 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         ratingStar.rating = nft.rating
         priceLabel.text = String(nft.price)
     }
+    
     private func deleteCell(sender: UIButton) {
         if let cell = sender.superview?.superview as? UICollectionViewCell, let indexPath = delegate?.collectionView.indexPath(for: cell) {
             delegate?.presenter.removeFromCollection(indexPath.row)
             delegate?.collectionView.deleteItems(at: [indexPath])
             delegate?.reloadData()
         }
+    }
+    
+    // MARK: Selectors
+    @objc func checkButtonTapped(sender : UIButton){
+        deleteCell(sender: sender)
     }
 }
 
