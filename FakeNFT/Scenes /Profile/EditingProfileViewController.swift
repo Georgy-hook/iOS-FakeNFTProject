@@ -75,7 +75,6 @@ final class  EditingProfileViewController: UIViewController {
     private let nameLabel = ProfileLabel(labelType: .userName)
     private let descriptionLabel = ProfileLabel(labelType: .description)
     private let websiteLabel = ProfileLabel(labelType: .website)
-    
     private let nameTextField = ProfileTextField(fieldType: .userName)
     private var websiteTextField: UITextField = ProfileTextField(fieldType: .website)
     
