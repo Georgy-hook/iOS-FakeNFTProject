@@ -9,13 +9,16 @@ import WebKit
 
 final class WebViewerController: UIViewController {
     // MARK: Private properties
-    private let webView = WKWebView()
-    private let urlString: String
-    
+    private let webView: WKWebView
+    private let activity: UIActivityIndicatorView
+
     // MARK: Initialisation
-    init(urlString: String) {
-        self.urlString = urlString
+    init() {
+        self.webView = WKWebView()
+        self.activity = UIActivityIndicatorView(style: .large)
         super.init(nibName: nil, bundle: nil)
+        self.webView.navigationDelegate = self
+        self.webView.uiDelegate = self
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -25,7 +28,7 @@ final class WebViewerController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        loadRequest()
+        setupActivityIndicator()
     }
     
     // MARK: Selectors
@@ -34,12 +37,39 @@ final class WebViewerController: UIViewController {
     }
     
     // MARK: Methods
-    private func loadRequest() {
+    func loadRequest(with urlString: String) {
         guard let url = URL(string: urlString) else {
             dismiss(animated: true)
             return
         }
         webView.load(URLRequest(url: url))
+    }
+    
+    private func setupActivityIndicator() {
+        webView.addSubview(activity)
+        activity.center = self.view.center
+        activity.hidesWhenStopped = true
+    }
+    
+    private func showActivityIndicator(show: Bool) {
+        show ? activity.startAnimating():
+        activity.stopAnimating()
+    }
+}
+
+
+// MARK: -
+extension WebViewerController: UIWebViewDelegate, WKNavigationDelegate, WKUIDelegate {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        showActivityIndicator(show: false)
+    }
+    
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        showActivityIndicator(show: true)
+    }
+    
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        showActivityIndicator(show: false)
     }
 }
 

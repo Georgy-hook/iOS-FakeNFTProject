@@ -7,15 +7,11 @@ import Kingfisher
 
 protocol InterfaceFavouriteNFTController: AnyObject {
     var presenter: InterfaceFavouriteNFTPresenter { get set }
-    var favoritesNFT: [String] { get set }
     func reloadData()
     func showErrorAlert()
 }
 
-final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTController, InterfaceFavouriteNFTViewController {
-    // MARK: Public properties
-    var favoritesNFT: [String] 
-    
+final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFTController {
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет избранных NFT")
     private var params: GeometricParams = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 7)
@@ -34,7 +30,6 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
     // MARK: Initialisation
     init() {
         self.emptyLabel.isHidden = true
-        self.favoritesNFT = []
         self.presenter = FavouriteNFTPresenter()
         super.init(nibName: nil, bundle: nil)
         presenter.view = self

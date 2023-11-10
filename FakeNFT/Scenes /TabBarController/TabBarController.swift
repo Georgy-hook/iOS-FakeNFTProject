@@ -8,6 +8,8 @@ final class TabBarController: UITabBarController {
         profileStorage: ProfileStorageImpl()
     )
     
+    let profileAssembly = ProfileAssembly(editingProfileViewController: EditingProfileViewController(), webViewerController: WebViewerController(), myNFTViewController: MyNFTViewController(), favouriteNFTViewController: FavouriteNFTViewController())
+    
 
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),
@@ -35,25 +37,21 @@ final class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         let catalogController = TestCatalogViewController(
             servicesAssembly: servicesAssembly
         )
         catalogController.tabBarItem = catalogTabBarItem
 
-        let profileController = UINavigationController(rootViewController: ProfileViewController())
-
+        let profileViewController = ProfileViewController(profileAssembly: profileAssembly)
+        let profileController = UINavigationController(rootViewController: profileViewController)
         profileController.tabBarItem = profileTabBarItem
         
-        
-        let cartController = UIViewController() // Replace with the actual CartViewController
+        let cartController = UIViewController()
         cartController.tabBarItem = cartTabBarItem
-        
-        let statsController = UIViewController() // Replace with the actual StatsViewController
+        let statsController = UIViewController()
         statsController.tabBarItem = statsTabBarItem
 
         viewControllers = [catalogController, profileController, cartController, statsController]
-
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.tintColor = UIColor(named: "YP Blue")
         tabBar.unselectedItemTintColor = UIColor(named: "YP Black")

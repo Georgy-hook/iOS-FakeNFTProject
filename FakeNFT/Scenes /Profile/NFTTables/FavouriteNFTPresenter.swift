@@ -18,13 +18,17 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     // MARK: Private properties
+    private var favoritesNFT: [String]
     private var favoritesNFTProfile: [Nft]
     private let nftService: NftServiceImpl 
+    private let profileService: ProfileServiceImpl
     
     // MARK: Initialisation
     init() {
+        self.favoritesNFT = []
         self.favoritesNFTProfile = []
         self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+        self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
     
     // MARK: FavouriteNFTViewController
@@ -32,15 +36,27 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
-        guard let view else { return }
-        loadRequest(view.favoritesNFT) { [weak self] nft in
+        setupDataProfile()
+    }
+    
+    // MARK: Setup Data Profile
+    private func setupDataProfile() {
+        profileService.loadProfile(id: "1") { [weak self] result in
             guard let self else { return }
-            self.favoritesNFTProfile.append(nft)
-            self.view?.reloadData()
+            switch result {
+            case .success(let profile):
+                self.favoritesNFT = profile.likes
+                self.loadRequest(favoritesNFT) { [weak self] nft in
+                    guard let self else { return }
+                    self.favoritesNFTProfile.append(nft)
+                    self.view?.reloadData()
+                }
+            case .failure:
+                self.view?.showErrorAlert()
+            }
         }
     }
     
-    // MARK: Load Request
     private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
         favoritesNFT.forEach { [weak self] nft in

@@ -7,7 +7,8 @@ import Foundation
 protocol InterfaceMyNFTPresenter: AnyObject {
     var view: InterfaceMyNFTController? { get set }
     var collectionsCount: Int { get }
-    func getCollectionsIndex(_ index: Int) -> Nft?
+    func getCollectionsIndex(_ index: Int) -> Nft
+    func configureCell(_ indexpath: IndexPath) -> MyNFTCell
     func typeSorted(type: sotringOption)
     func viewDidLoad()
 }
@@ -25,31 +26,50 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     }
     
     // MARK: Private properties
+    private var myNFT: [String]
+    private var favoritesNFT: [String]
     private var myNFTProfile: [Nft]
     private let nftService: NftServiceImpl 
+    private let profileService: ProfileServiceImpl
     
     // MARK: MyNFTViewController
     weak var view: InterfaceMyNFTController?
     
     // MARK: Initialisation
     init() {
+        self.myNFT = []
+        self.favoritesNFT = []
         self.myNFTProfile = []
         self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
+        self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
     
     func viewDidLoad() {
-        guard let view else { return }
-        loadRequest(view.myNFT) { [weak self] nft in
+        setupDataProfile()
+    }
+    
+    // MARK: Setup Data Profile
+    private func setupDataProfile() {
+        profileService.loadProfile(id: "1") { [weak self] result in
             guard let self else { return }
-            self.myNFTProfile.append(nft)
-            self.view?.reloadData()
+            switch result {
+            case .success(let profile):
+                self.myNFT = profile.nfts
+                self.favoritesNFT = profile.likes
+                self.loadRequest(myNFT) { [weak self] nft in
+                    guard let self else { return }
+                    self.myNFTProfile.append(nft)
+                    self.view?.reloadData()
+                }
+            case .failure:
+                self.view?.showErrorAlert()
+            }
         }
     }
     
-    // MARK: Load Request
-    private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
+    private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        myNFT.forEach { [weak self] nft in
+        favoritesNFT.forEach { [weak self] nft in
             guard let self = self else { return }
             self.nftService.loadNft(id: nft) { result in
                 switch result {
@@ -63,10 +83,24 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     }
     
     // MARK: Methods
-    func getCollectionsIndex(_ index: Int) -> Nft? {
+    func getCollectionsIndex(_ index: Int) -> Nft {
         return myNFTProfile[index]
     }
     
+    func configureCell(_ indexpath: IndexPath) -> MyNFTCell {
+        let cell = MyNFTCell()
+        let myNFTProfile = getCollectionsIndex(indexpath.row)
+        let likesNFT = favoritesNFT.filter{ myNFT.contains($0) }
+        likesNFT.forEach { nftResult in
+            if myNFTProfile.id == nftResult {
+                cell.likeButton.isSelected = true
+            }
+        }
+        cell.configure(with: myNFTProfile)
+        return cell
+    }
+    
+    // MARK: Methods of sorting
     func typeSorted(type: sotringOption) {
         switch type {
         case .price: 

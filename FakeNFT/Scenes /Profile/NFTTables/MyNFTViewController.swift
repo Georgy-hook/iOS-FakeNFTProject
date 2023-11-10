@@ -6,16 +6,11 @@ import UIKit
 
 protocol InterfaceMyNFTController: AnyObject  {
     var presenter: InterfaceMyNFTPresenter { get set }
-    var myNFT: [String] { get set }
     func reloadData()
     func showErrorAlert()
 }
 
-final class MyNFTViewController: UIViewController & InterfaceMyNFTController, InterfaceMyNFTViewController {
-    // MARK: Public properties
-    var myNFT: [String]
-    var favoritesNFT: [String]
-    
+final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
 
@@ -33,8 +28,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
     
     // MARK: Initialisation
     init() {
-        self.myNFT = []
-        self.favoritesNFT = []
+        self.emptyLabel.isHidden = true
         self.presenter = MyNFTPresenter()
         super.init(nibName: nil, bundle: nil)
         self.presenter.view = self
@@ -52,19 +46,19 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
         presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
-        showEmptyLabel()
     }
     
     // MARK: Methods
     func reloadData() {
         tableView.reloadData()
+        showEmptyLabel()
     }
     func showErrorAlert() {
         self.showErrorLoadAlert()
     }
     
     private func showEmptyLabel() {
-        myNFT.isEmpty ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
+        presenter.collectionsCount == 0 ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
     }
     
     private func setupNavigationBar() {
@@ -103,16 +97,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController, In
     }
     
     private func configureCell(with indexPath: IndexPath) -> UITableViewCell {
-        let cell = MyNFTCell()
-        guard let myNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
-            return UITableViewCell()
-        }
-        favoritesNFT.forEach { nft in
-            if myNFTProfile.id == nft {
-                cell.likeButton.isSelected = true
-            }
-        }
-        cell.configure(with: myNFTProfile)
+        let cell = presenter.configureCell(indexPath)
         return cell
     }
     

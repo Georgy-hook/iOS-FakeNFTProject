@@ -13,6 +13,10 @@ protocol InterfaceProfileViewController: AnyObject {
 }
 
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
+    // MARK: Public Properties
+    var profileAssembly: ProfileAssembly
+    var presenter: InterfaceProfilePresenter
+    
     // MARK: Private properties
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -65,22 +69,19 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }()
     
     // MARK: Initialisation
-    init() {
-        self.presenter = ProfilePresenter()
+    init(profileAssembly: ProfileAssembly) {
+        self.profileAssembly = profileAssembly
+        self.presenter = profileAssembly.profilePresenter
         super.init(nibName: nil, bundle: nil)
-        self.presenter.view = self
+        self.profileAssembly.profilePresenter(presenter: presenter, input: self)
     }
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Presenter
-    var presenter: InterfaceProfilePresenter
-    
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
     }
@@ -120,46 +121,25 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
             let editItem = UIBarButtonItem(image: UIImage(named: ImagesAssets.editButton.rawValue), style: .plain, target: self, action: #selector(editProfileData))
             editItem.tintColor = .black
             navBar.topItem?.setRightBarButton(editItem, animated: true)
-            
         }
     }
     
-    private func goToWebSite() {
-        showWebViewController(with: websiteLabel.text ?? String())
-    }
-    
-    private func showWebViewController(with URLString: String) {
-        let webViewerController = WebViewerController(urlString: URLString)
-        let navigationController = UINavigationController(rootViewController: webViewerController)
-        present(navigationController, animated: true)
+    private func showWebViewController() {
+        guard let text = websiteLabel.text else { return }
+        profileAssembly.buildwebViewer(with: self, urlString: text)
     }
     
     private func showMyNFTViewController() {
-        let myNFTViewController = MyNFTViewController()
-        presenter.setupDelegateMyNFT(viewController: myNFTViewController)
-        myNFTViewController.title = "Мои NFT"
-        let navigationController = UINavigationController(rootViewController: myNFTViewController)
-        navigationController.navigationBar.barTintColor = .systemBackground
-        navigationController.navigationBar.shadowImage = UIImage()
-        navigationController.modalPresentationStyle = .fullScreen
-        present(navigationController, animated: true)
+        profileAssembly.buildMyNFT(with: self)
     }
     
     private func showFavouriteNFTViewController() {
-        let favouriteNFTViewController = FavouriteNFTViewController()
-        presenter.setupDelegateFavouriteNFT(viewController: favouriteNFTViewController)
-        favouriteNFTViewController.title = "Избранные NFT"
-        let navigationController = UINavigationController(rootViewController: favouriteNFTViewController)
-        navigationController.navigationBar.barTintColor = .systemBackground
-        navigationController.navigationBar.shadowImage = UIImage()
-        navigationController.modalPresentationStyle = .fullScreen
-        present(navigationController, animated: true)
+        profileAssembly.buildFavouriteNFT(with: self)
     }
     
     private func showEditingProfileViewController() {
-        let viewController = EditingProfileViewController()
-        presenter.setupDelegateEditingProfile(viewController: viewController, image: avatarImageView.image?.toPngString(), name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
-        present(viewController, animated: true)
+        let image = avatarImageView.image?.toPngString()
+        profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
     }
     
     // MARK: Selectors
@@ -207,7 +187,7 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
         switch indexPath.row {
         case 0: showMyNFTViewController()
         case 1: showFavouriteNFTViewController()
-        case 2: goToWebSite()
+        case 2: showWebViewController()
         default: return
         }
     }
