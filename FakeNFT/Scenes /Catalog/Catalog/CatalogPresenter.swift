@@ -16,13 +16,13 @@ protocol CatalogPresenterProtocol {
 
 final class CatalogPresenter: CatalogPresenterProtocol {
     
-    private let networkClient: NetworkClient
-    
     weak var view: CatalogViewControllerProtocol?
     
     var collectionsCount: Int {
         return collections.count
     }
+    
+    private let networkClient: NetworkClient
     
     private var collections: [CollectionModel] = []
     
@@ -35,18 +35,24 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     }
         
     func viewDidLoad() {
+        view?.showLoading()
         loadCollection()
     }
     
     private func loadCollection() {
         DispatchQueue.global().async {
-            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self) { result in
+            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self) { [weak self] result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let model):
-                        self.collections = model
-                        self.view?.updateTableView()
+                        assert(Thread.isMainThread)
+                        self?.view?.hideLoading()
+                        self?.collections = model
+                        self?.view?.updateTableView()
+                        self?.view?.endRefreshing()
                     case .failure(let error):
+                        self?.view?.hideLoading()
+                        self?.view?.endRefreshing()
                         print(error.localizedDescription)
                     }
                 }

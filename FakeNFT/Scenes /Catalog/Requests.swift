@@ -14,3 +14,11 @@ struct GetCollectionsRequest: NetworkRequest {
     var httpMethod: HttpMethod = .get
     var dto: Encodable?
 }
+
+struct GetProfileRequest: NetworkRequest {
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/profile/1")
+    }
+    var httpMethod: HttpMethod = .get
+    var dto: Encodable?
+}

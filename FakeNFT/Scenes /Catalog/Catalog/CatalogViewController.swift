@@ -8,16 +8,22 @@
 import UIKit
 import ProgressHUD
 
-protocol CatalogViewControllerProtocol: AnyObject {
-    var presenter: CatalogPresenterProtocol? { get set }
+protocol CatalogViewControllerProtocol: AnyObject & LoadingView {
+    var presenter: CatalogPresenterProtocol { get set }
     func updateTableView()
+    func endRefreshing()
 }
 
 final class CatalogViewController: UIViewController & CatalogViewControllerProtocol {
-        
-    var presenter: CatalogPresenterProtocol? = {
-        return CatalogPresenter()
-    }()
+    
+    var activityIndicator: UIActivityIndicatorView
+    var presenter: CatalogPresenterProtocol
+    
+    private lazy var refreshControl: UIRefreshControl = {
+           let refreshControl = UIRefreshControl()
+           refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+           return refreshControl
+       }()
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -29,23 +35,48 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
         return tableView
     }()
     
+    init(presenter: CatalogPresenterProtocol) {
+        self.presenter = presenter
+        self.activityIndicator = UIActivityIndicatorView(style: .medium)
+        super.init(nibName: nil, bundle: nil)
+        self.presenter.view = self
+        self.presenter.viewDidLoad()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        presenter?.view = self
-        presenter?.viewDidLoad()
         setupViews()
         setupConstraints()
+        setupPullToRefresh()
+    }
+
+    private func setupPullToRefresh() {
+        tableView.refreshControl = refreshControl
     }
         
     func updateTableView() {
         tableView.reloadData()
     }
     
+    func endRefreshing() {
+        refreshControl.endRefreshing()
+    }
+    
     // MARK: Selectors
+    @objc 
+    private func refreshData() {
+        refreshControl.beginRefreshing()
+        presenter.viewDidLoad()
+    }
+    
     @objc
     private func sortButtonTapped() {
-        #warning("Доделать сортировку")
+        // TODO: Доделать сортировку
         let controller = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
         controller.addAction(.init(title: "По названию", style: .default, handler: { /*[weak self]*/ _ in
             print("")
@@ -53,7 +84,7 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
         controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { /*[weak self]*/ _ in
             print("")
         }))
-        controller.addAction(.init(title: "Отмена", style: .cancel))
+        controller.addAction(.init(title: "Закрыть", style: .cancel))
         present(controller, animated: true)
     }
 }
@@ -63,16 +94,20 @@ extension CatalogViewController: UITableViewDelegate {
         187
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let collections = presenter?.getCollectionsIndex(indexPath.row) else { return }
-        let collectionViewController = CollectionViewController(collections: collections)
+        guard let collections = presenter.getCollectionsIndex(indexPath.row) else { return }
+        
+        let collectionPresenter = CollectionPresenter()
+        let collectionViewController = CollectionViewController(presenter: collectionPresenter)
+        
+        collectionViewController.setupCollections(collections)
+        collectionViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(collectionViewController, animated: true)
-        self.tabBarController?.tabBar.isHidden = true
     }
 }
 
 extension CatalogViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let collectionsCount = presenter?.collectionsCount else { return 0 }
+        let collectionsCount = presenter.collectionsCount
         return collectionsCount
     }
     
@@ -85,7 +120,7 @@ extension CatalogViewController: UITableViewDataSource {
     }
     
     private func setupCell(_ cell: CatalogCell, _ indexPath: IndexPath) {
-        guard let collections = presenter?.getCollectionsIndex(indexPath.row) else { return }
+        guard let collections = presenter.getCollectionsIndex(indexPath.row) else { return }
         cell.setupCell(collections)
     }
 }
@@ -96,7 +131,7 @@ private extension CatalogViewController {
         setupNavigationController()
         setupSortButton()
         view.backgroundColor = .background
-        view.addSubviews(tableView)
+        view.addSubviews(tableView, activityIndicator)
     }
     
     func setupSortButton() {
@@ -116,7 +151,11 @@ private extension CatalogViewController {
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+
         ])
     }
 }

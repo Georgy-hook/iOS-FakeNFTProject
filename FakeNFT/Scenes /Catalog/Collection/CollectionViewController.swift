@@ -8,29 +8,11 @@
 import UIKit
 
 protocol CollectionViewControllerProtocol: AnyObject {
-    // MARK: In progress
+    var presenter: CollectionPresenterProtocol { get set }
+    func updateProfileData()
 }
 
 final class CollectionViewController: UIViewController & CollectionViewControllerProtocol {
-    
-    var collections: CollectionModel
-    
-    init(collections: CollectionModel) {
-        self.collections = collections
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private enum Const {
-        static let cellMargins: CGFloat = 9
-        static let lineMargins: CGFloat = 8
-        static let cellCols: CGFloat = 3
-        static let cellHeight: CGFloat = 192
-        static let sideMargins: CGFloat = 16
-    }
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -42,7 +24,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private let coverImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
-        view.image = UIImage(named: "Beige")
+        view.image = UIImage(named: "Catalog.nulImage")
         view.layer.cornerRadius = 12
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         return view
@@ -51,7 +33,6 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private let nameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.text = "Beige"
         label.textColor = .black
         return label
     }()
@@ -67,8 +48,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private let authorNameLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .black
-        label.text = "John Doe"
+        label.textColor = .systemBlue
         label.numberOfLines = 0
         return label
     }()
@@ -84,28 +64,47 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        
         collectionView.dataSource = self
         collectionView.register(CollectionCell.self, forCellWithReuseIdentifier: CollectionCell.identifier)
         collectionView.delegate = self
-        
-       
-       
         collectionView.isScrollEnabled = false
         collectionView.backgroundColor = .clear
         return collectionView
     }()
     
+    var presenter: CollectionPresenterProtocol
+    
+    private var authorURL: String = ""
+    
+    init(presenter: CollectionPresenterProtocol) {
+        self.presenter = presenter
+        self.presenter.viewDidLoad()
+        super.init(nibName: nil, bundle: nil)
+        self.presenter.view = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         setupViews()
+     
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.setNavigationBarHidden(false, animated: true)
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            hidesBottomBarWhenPushed = false
+        }
     }
         
     private func setupNavigationBar() {
@@ -115,11 +114,27 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         navigationController?.navigationBar.topItem?.backBarButtonItem = backItem
     }
     
-    func setupAll() {
+    func setupCollections(_ collections: CollectionModel) {
         let urlString = collections.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let url = URL(string: urlString!)
+        coverImage.kf.indicatorType = .activity
         coverImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
+        
+        nameLabel.text = collections.name
+        descriptionLabel.text = collections.description
+        
+        
+        
     }
+    
+    func updateProfileData() {
+        guard let profile = presenter.profile else {
+            return
+        }
+        authorURL = profile.website
+        authorNameLabel.text = profile.name
+    }
+  
     
     private func setupViews() {
         view.backgroundColor = .white
@@ -135,7 +150,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         
         let collectionHeight = (Const.cellHeight + Const.lineMargins) * ceil(CGFloat(21) / Const.cellCols)
               collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
-}
+    }
     
     private func setupScrollView() {
         view.addSubviews(scrollView)
@@ -192,7 +207,11 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     
     @objc
     func didTapUserNameLabel(_ sender: Any) {
-
+        guard let urlString = authorURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: urlString)
+        else { return }
+        let webViewController = WebViewViewController(webSite: url)
+        navigationController?.pushViewController(webViewController, animated: true)
     }
     
     private func setupCollectionView() {
@@ -208,7 +227,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
 extension CollectionViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         numberOfItemsInSection section: Int) -> Int {
-        return 21
+        21
     }
     
     func collectionView(_ collectionView: UICollectionView,
@@ -255,5 +274,15 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout {
 extension CollectionViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+}
+
+private extension CollectionViewController {
+    enum Const {
+        static let cellMargins: CGFloat = 9
+        static let lineMargins: CGFloat = 8
+        static let cellCols: CGFloat = 3
+        static let cellHeight: CGFloat = 192
+        static let sideMargins: CGFloat = 16
     }
 }

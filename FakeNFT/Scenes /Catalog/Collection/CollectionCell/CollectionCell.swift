@@ -28,9 +28,7 @@ final class CollectionCell: UICollectionViewCell {
     
     private let starsImage: [UIImageView] = {
         (1...5).map { _ in
-            let view = UIImageView()
-            view.image = UIImage()
-            return view
+            UIImageView()
         }
     }()
     
@@ -141,16 +139,15 @@ final class CollectionCell: UICollectionViewCell {
     
     func setStarsState(_ state: Int) {
         starsImage.enumerated().forEach { position, star in
-            let color = position < state ? UIColor.yellow : UIColor.gray
-            star.image = UIImage(named: "Catalog.starImage")?.withTintColor(color, renderingMode: .alwaysOriginal)
+            star.image = position < state ? UIImage(named: "starDoneIcon") : UIImage(named: "defaultStarIcon")
         }
     }
     
     @objc
-    func likeButtonTap() {
+    private func likeButtonTap() {
     }
     
     @objc
-    func cardButtonTap() {
+    private func cardButtonTap() {
     }
 }

@@ -60,10 +60,17 @@ private extension CatalogCell {
             previewImage.topAnchor.constraint(equalTo: contentView.topAnchor),
             previewImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             previewImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            previewImage.heightAnchor.constraint(equalToConstant: 140),
+            previewImage.heightAnchor.constraint(equalToConstant: Constants.defaultHeight),
             
-            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 4),
+            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.defaultOffset),
             previewText.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
+    }
+}
+
+extension CatalogCell {
+    private enum Constants {
+        static let defaultHeight: CGFloat = 140
+        static let defaultOffset: CGFloat = 4
     }
 }
