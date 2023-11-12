@@ -19,6 +19,7 @@ enum sotringOption {
     case name
 }
 
+
 final class MyNFTPresenter: InterfaceMyNFTPresenter {
     // MARK: Public Properties
     var collectionsCount: Int {
@@ -46,6 +47,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        view?.showLoading()
         setupDataProfile()
     }
     
@@ -75,8 +77,10 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
             self.nftService.loadNft(id: nft) { result in
                 switch result {
                 case .success(let nft):
+                    self.view?.hideLoading()
                     completion(nft)
                 case .failure:
+                    self.view?.hideLoading()
                     self.view?.showErrorAlert()
                 }
             }
@@ -127,3 +131,4 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         view?.reloadData()
     }
 }
+

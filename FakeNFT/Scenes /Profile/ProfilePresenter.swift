@@ -38,6 +38,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        view?.showLoading()
         updateDataProfile()
     }
     
@@ -63,8 +64,10 @@ final class ProfilePresenter: InterfaceProfilePresenter {
             guard let self else { return }
             switch result {
             case .success(let profile):
+                self.view?.hideLoading()
                 completion(profile)
             case .failure:
+                self.view?.hideLoading()
                 self.view?.showErrorAlert()
             }
         }

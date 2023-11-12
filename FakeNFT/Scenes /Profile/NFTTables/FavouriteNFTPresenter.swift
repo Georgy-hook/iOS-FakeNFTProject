@@ -36,6 +36,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        view?.showLoading()
         setupDataProfile()
     }
     
@@ -64,8 +65,10 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
             self.nftService.loadNft(id: nft) { result in
                 switch result {
                 case .success(let nft):
+                    self.view?.hideLoading()
                     completion(nft)
                 case .failure:
+                    self.view?.hideLoading()
                     self.view?.showErrorAlert()
                 }
             }

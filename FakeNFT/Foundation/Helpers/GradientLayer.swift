@@ -83,14 +83,14 @@ final class GradientLayer {
             }
         }
     }
-//    func stopLikeButton(_ cell: MyNFTCell, photo: Photo) {
-//        UIView.transition(with: cell.likeButton,
-//                          duration: 0.5,
-//                          options: .transitionCrossDissolve,
-//                          animations: {
-//            cell.setIsLiked(!photo.isLiked)
-//        }) { _ in
-//            cell.likeButton.layer.removeAllAnimations()
-//        }
-//    }
+    func stopLikeButton(_ cell: FavouriteNFTCell) {
+        UIView.transition(with: cell.likeButton,
+                          duration: 0.5,
+                          options: .transitionCrossDissolve,
+                          animations: {
+
+        }) { _ in
+            cell.likeButton.layer.removeAllAnimations()
+        }
+    }
 }

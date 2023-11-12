@@ -4,13 +4,16 @@
 
 import UIKit
 
-protocol InterfaceMyNFTController: AnyObject  {
+protocol InterfaceMyNFTController: AnyObject, LoadingView {
     var presenter: InterfaceMyNFTPresenter { get set }
     func reloadData()
     func showErrorAlert()
 }
 
 final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
+    // MARK: Public Properties
+    var activityIndicator: UIActivityIndicatorView
+    
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
 
@@ -30,6 +33,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
     init() {
         self.emptyLabel.isHidden = true
         self.presenter = MyNFTPresenter()
+        self.activityIndicator = UIActivityIndicatorView(style: .medium)
         super.init(nibName: nil, bundle: nil)
         self.presenter.view = self
     }
@@ -128,7 +132,7 @@ extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
 private extension MyNFTViewController {
     func setupUI() {
         navigationController?.navigationBar.backgroundColor = .systemBackground
-        view.addSubviews(tableView, emptyLabel)
+        view.addSubviews(tableView, emptyLabel, activityIndicator)
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -137,7 +141,10 @@ private extension MyNFTViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             emptyLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            emptyLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 }

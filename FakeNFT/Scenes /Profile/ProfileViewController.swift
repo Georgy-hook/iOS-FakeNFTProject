@@ -5,7 +5,7 @@
 import UIKit
 import Kingfisher
 
-protocol InterfaceProfileViewController: AnyObject {
+protocol InterfaceProfileViewController: AnyObject, LoadingView {
     var presenter: InterfaceProfilePresenter { get set }
     func reloadTable()
     func updateDataProfile()
@@ -14,6 +14,7 @@ protocol InterfaceProfileViewController: AnyObject {
 
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
     // MARK: Public Properties
+    var activityIndicator: UIActivityIndicatorView
     var profileAssembly: ProfileAssembly
     var presenter: InterfaceProfilePresenter
     
@@ -48,14 +49,30 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         return label
     }()
 
-    private let websiteLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.textColor = .systemBlue
-        label.lineBreakMode = .byClipping
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        return label
+//    private let websiteLabel: UILabel = {
+//        let label = UILabel()
+//        label.numberOfLines = 0
+//        label.textColor = .systemBlue
+//        label.lineBreakMode = .byClipping
+//        label.font = .systemFont(ofSize: 15, weight: .regular)
+//        return label
+//    }()
+    
+    private lazy var websiteButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("String()", for: .normal)
+        button.contentHorizontalAlignment = .left
+        button.setTitleColor(.systemBlue, for: .normal)
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textColor = .systemBlue
+        button.titleLabel?.lineBreakMode = .byClipping
+        button.titleLabel?.textAlignment = .left
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .regular)
+        button.tintColor = .systemBlue
+        button.addTarget(self, action: #selector(goToWebsite), for: .touchUpInside)
+        return button
     }()
+    
     
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
@@ -70,6 +87,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     // MARK: Initialisation
     init(profileAssembly: ProfileAssembly) {
+        self.activityIndicator = UIActivityIndicatorView(style: .medium)
         self.profileAssembly = profileAssembly
         self.presenter = profileAssembly.profilePresenter
         super.init(nibName: nil, bundle: nil)
@@ -88,12 +106,13 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     // MARK: Methods
     func updateDataProfile() {
-            let profile = self.presenter.profile
-            guard let profile else { return }
-            self.updateAvatar(with: profile.avatar)
-            self.nameLabel.text = profile.name
-            self.descriptionLabel.text = profile.description
-            self.websiteLabel.text = profile.website
+        let profile = presenter.profile
+        guard let profile else { return }
+        updateAvatar(with: profile.avatar)
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteButton.setTitle(profile.website, for: .normal)
+        //websiteLabel.text = profile.website
     }
     
     //MARK: - KingFisher
@@ -125,7 +144,8 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     
     private func showWebViewController() {
-        guard let text = websiteLabel.text else { return }
+        //guard let text = websiteLabel.text else { return }
+        guard let text = websiteButton.currentTitle else { return }
         profileAssembly.buildwebViewer(with: self, urlString: text)
     }
     
@@ -139,12 +159,17 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     private func showEditingProfileViewController() {
         let image = avatarImageView.image?.toPngString()
-        profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
+        //profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
+        profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.currentTitle)
     }
     
     // MARK: Selectors
     @objc private func editProfileData() {
         showEditingProfileViewController()
+    }
+    
+    @objc private func goToWebsite() {
+        showWebViewController()
     }
 }
 
@@ -154,7 +179,8 @@ extension ProfileViewController {
         avatarImageView.image = image?.toImage()
         nameLabel.text = name
         descriptionLabel.text = description
-        websiteLabel.text = website
+        websiteButton.setTitle(website, for: .normal)
+        //websiteLabel.text = website
     }
 }
 
@@ -197,8 +223,9 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
 extension ProfileViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
-        view.addSubviews(stackView, descriptionLabel, websiteLabel, tableView)
+        view.addSubviews(stackView, descriptionLabel, websiteButton, tableView, activityIndicator)
         stackView.addSubviews(avatarImageView, nameLabel)
+        
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: -16),
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -217,14 +244,17 @@ extension ProfileViewController {
             descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            websiteLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 12),
-            websiteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            websiteLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            websiteButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 12),
+            websiteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            websiteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            tableView.topAnchor.constraint(equalTo: websiteLabel.bottomAnchor, constant: 40),
+            tableView.topAnchor.constraint(equalTo: websiteButton.bottomAnchor, constant: 40),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.heightAnchor.constraint(equalToConstant: 162)
+            tableView.heightAnchor.constraint(equalToConstant: 162),
+            
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
     }
 }
