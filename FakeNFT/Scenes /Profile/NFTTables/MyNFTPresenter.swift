@@ -56,21 +56,23 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        profileService.loadProfile(id: "1") { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let profile):
-                self.myNFT = profile.nfts
-                self.favoritesNFT = profile.likes
-                self.loadRequest(myNFT) { [weak self] nft in
-                    guard let self else { return }
-                    self.myNFTProfile.append(nft)
-                    self.loadUser(nft: nft) {
-                        self.view?.reloadData()
+        DispatchQueue.main.async {
+            self.profileService.loadProfile(id: "1") { [weak self] result in
+                guard let self else { return }
+                switch result {
+                case .success(let profile):
+                    self.myNFT = profile.nfts
+                    self.favoritesNFT = profile.likes
+                    self.loadRequest(myNFT) { [weak self] nft in
+                        guard let self else { return }
+                        self.myNFTProfile.append(nft)
+                        self.loadUser(nft: nft) {
+                            self.view?.reloadData()
+                        }
                     }
+                case .failure:
+                    self.view?.showErrorAlert()
                 }
-            case .failure:
-                self.view?.showErrorAlert()
             }
         }
     }
@@ -108,7 +110,10 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     func configureCell(_ indexpath: IndexPath) -> MyNFTCell {
         let cell = MyNFTCell()
         let myNFTProfile = myNFTProfile[indexpath.row]
-        let myNFTUser = myNFTUsers[indexpath.row]
+        var myNFTUser = User()
+        if !myNFTUsers.isEmpty {
+            myNFTUser = myNFTUsers[indexpath.row]
+        }
         let likesNFT = favoritesNFT.filter{ myNFT.contains($0) }
         likesNFT.forEach { nftResult in
             if myNFTProfile.id == nftResult {

@@ -14,6 +14,7 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
+        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .highlighted)
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
         button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
         button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)

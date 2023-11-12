@@ -5,8 +5,6 @@
 import Foundation
 
 protocol InterfaceProfilePresenter: AnyObject {
-    var myNFT: [String] { get set }
-    var favoritesNFT: [String] { get set }
     var titleRows: [String] { get set }
     var profile: Profile? { get set }
     var view: InterfaceProfileViewController? { get set }
@@ -16,8 +14,6 @@ protocol InterfaceProfilePresenter: AnyObject {
 
 final class ProfilePresenter: InterfaceProfilePresenter {
     // MARK: Public Properties
-    var myNFT: [String]
-    var favoritesNFT: [String]
     var titleRows: [String] 
     var profile: Profile?
     
@@ -26,6 +22,8 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     weak var view: InterfaceProfileViewController?
     
     // MARK: Private properties
+    private var myNFT: [String]
+    private var favoritesNFT: [String]
     private let profileService: ProfileServiceImpl
     
     // MARK: Initialisation

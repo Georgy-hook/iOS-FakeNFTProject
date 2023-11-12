@@ -98,7 +98,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if profileAssembly.favouriteNftIsInit {
-            var count = profileAssembly.returnCountFavouriteNft()
+            let count = profileAssembly.returnCountFavouriteNft()
             self.presenter.titleRows[1] = "Избранные NFT (\(count))"
             self.tableView.reloadData()
         }
