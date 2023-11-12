@@ -16,6 +16,9 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         button.backgroundColor = .clear
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
         button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)
+        button.addTarget(self, action: #selector(stopAnimationOfLike), for: .touchUpOutside)
+
         return button
     }()
     private let nftImageView: UIImageView = {
@@ -63,6 +66,14 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     }
     
     // MARK: Selectors
+    @objc func animateLike(sender: UIButton) {
+        GradientLayer.shared.animateLikeButton(sender)
+    }
+    
+    @objc func stopAnimationOfLike() {
+        GradientLayer.shared.stopLikeButton(self)
+    }
+    
     @objc func checkButtonTapped(sender : UIButton){
         deleteCell(sender: sender)
     }
