@@ -15,7 +15,7 @@ final class WebViewerController: UIViewController {
     // MARK: Initialisation
     init() {
         self.webView = WKWebView()
-        self.activity = UIActivityIndicatorView(style: .large)
+        self.activity = UIActivityIndicatorView(style: .medium)
         super.init(nibName: nil, bundle: nil)
         self.webView.navigationDelegate = self
         self.webView.uiDelegate = self

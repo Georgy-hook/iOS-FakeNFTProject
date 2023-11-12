@@ -54,7 +54,7 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         }
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
-        priceLabel.text = String(nft.price)
+        priceLabel.text = "\(nft.price) ETH"
     }
     
     private func deleteCell(sender: UIButton) {
@@ -97,7 +97,6 @@ private extension FavouriteNFTCell {
             
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 7),
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
-            
             
             ratingStar.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             ratingStar.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),

@@ -18,6 +18,7 @@ class RatingStackView: UIStackView {
     // MARK: Initialisation
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.spacing = 2
         translatesAutoresizingMaskIntoConstraints = false
         setupButtons()
     }
@@ -34,9 +35,10 @@ class RatingStackView: UIStackView {
             button.setImage(UIImage(named: ImagesAssets.noStars.rawValue), for: .normal)
             button.setImage(UIImage(named: ImagesAssets.stars.rawValue), for: .selected)
             button.setImage(UIImage(named: ImagesAssets.stars.rawValue), for: [.highlighted, .selected])
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.heightAnchor.constraint(equalToConstant: 12).isActive = true
-            button.widthAnchor.constraint(equalToConstant: 12).isActive = true
+            NSLayoutConstraint.activate([
+                button.heightAnchor.constraint(equalToConstant: 12),
+                button.widthAnchor.constraint(equalToConstant: 12)
+            ])
             addArrangedSubview(button)
             ratingButtons.append(button)
         }
