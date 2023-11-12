@@ -8,7 +8,9 @@ final class TabBarController: UITabBarController {
         networkClient: DefaultNetworkClient(),
         nftStorage: NftStorageImpl()
     )
-
+    
+    let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
+    
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),
         image: UIImage(named: "YP Catalog"),
@@ -44,7 +46,12 @@ final class TabBarController: UITabBarController {
         let profileController = UIViewController() // Replace with the actual ProfileViewController
         profileController.tabBarItem = profileTabBarItem
         
-        let cartController = UIViewController() // Replace with the actual CartViewController
+        let cartPresenter = CartViewPresenterImpl(service: cartService)
+        let cartController = CartViewController(
+            presenter: cartPresenter
+        )
+        cartPresenter.view = cartController
+        
         cartController.tabBarItem = cartTabBarItem
         
         let statsController = UIViewController() // Replace with the actual StatsViewController
