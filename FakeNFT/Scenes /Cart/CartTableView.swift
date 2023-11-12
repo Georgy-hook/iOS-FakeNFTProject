@@ -10,12 +10,14 @@ import UIKit
 final class CartTableView:UITableView{
     // MARK: - Variables
     private var items:[Nft] = []
+    weak var delegateVC: CartViewControllerDelegate?
     
     // MARK: - Initiliazation
     init() {
         super.init(frame: .zero, style: .plain)
         translatesAutoresizingMaskIntoConstraints = false
         self.backgroundColor = .clear
+        self.allowsSelection = false
         delegate = self
         dataSource = self
         register(CartCell.self, forCellReuseIdentifier: CartCell.reuseId)
@@ -40,6 +42,7 @@ extension CartTableView:UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = self.dequeueReusableCell(withIdentifier: CartCell.reuseId) as? CartCell
         else { return UITableViewCell() }
+        cell.delegateVC = delegateVC
         cell.set(with: items[indexPath.row])
         return cell
     }

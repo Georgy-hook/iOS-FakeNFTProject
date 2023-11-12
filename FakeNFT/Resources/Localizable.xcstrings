@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "ru",
   "strings" : {
+    "Are you sure you want\nremove an item from the trash?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want\nremove an item from the trash?"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вы уверены, что хотите\nудалить объект из корзины?"
+          }
+        }
+      }
+    },
+    "Are you sure you want remove an item from the trash?" : {
+
+    },
     "By making a purchase, you agree to the terms and conditions" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -103,6 +123,23 @@
         }
       }
     },
+    "Delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Удалить"
+          }
+        }
+      }
+    },
     "Error.network" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -200,6 +237,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Цена"
+          }
+        }
+      }
+    },
+    "Return" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Return"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Вернуться"
           }
         }
       }

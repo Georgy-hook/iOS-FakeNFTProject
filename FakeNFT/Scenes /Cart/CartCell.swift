@@ -54,23 +54,18 @@ final class CartCell: UITableViewCell{
     
     private let ratingControl = RatingControl()
     
+    weak var delegateVC:CartViewControllerDelegate?
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = .clear
-        
+        backgroundColor = .clear    
         addSubviews()
         applyConstraints()
+
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    func set(with nft:Nft){
-        nameLabel.text = nft.name
-        priceLabel.text = "\(nft.price) ETH"
-        ratingControl.rating = nft.rating
-        NFTImageView.kf.setImage(with: nft.images.first, placeholder: UIImage(named: "Vector"))
     }
 }
 
@@ -104,5 +99,22 @@ extension CartCell {
             deleteButton.heightAnchor.constraint(equalToConstant: 40),
             deleteButton.widthAnchor.constraint(equalToConstant: 40),
         ])
+    }
+}
+
+// MARK: - Cell's methods
+extension CartCell{
+    func set(with nft:Nft){
+        nameLabel.text = nft.name
+        priceLabel.text = "\(nft.price) ETH"
+        ratingControl.rating = nft.rating
+        NFTImageView.kf.setImage(with: nft.images.first, placeholder: UIImage(named: "Vector"))
+        deleteButton.addTarget(self, action: #selector(didDeleteButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc func didDeleteButtonTapped(){
+        print("tapped")
+        guard let image = NFTImageView.image else { return }
+        delegateVC?.didCellDeleteButtonTapped(with: image)
     }
 }
