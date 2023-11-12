@@ -55,6 +55,7 @@ final class CartCell: UITableViewCell{
     private let ratingControl = RatingControl()
     
     weak var delegateVC:CartViewControllerDelegate?
+    private var nftID: String?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -72,11 +73,11 @@ final class CartCell: UITableViewCell{
 // MARK: - Layout
 extension CartCell {
     private func addSubviews() {
+        contentView.addSubview(deleteButton)
         addSubview(nameLabel)
         addSubview(priceLabel)
         addSubview(priceTitleLabel)
         addSubview(NFTImageView)
-        addSubview(deleteButton)
         addSubview(ratingControl)
     }
     
@@ -105,6 +106,7 @@ extension CartCell {
 // MARK: - Cell's methods
 extension CartCell{
     func set(with nft:Nft){
+        nftID = nft.id
         nameLabel.text = nft.name
         priceLabel.text = "\(nft.price) ETH"
         ratingControl.rating = nft.rating
@@ -113,8 +115,10 @@ extension CartCell{
     }
     
     @objc func didDeleteButtonTapped(){
-        print("tapped")
-        guard let image = NFTImageView.image else { return }
-        delegateVC?.didCellDeleteButtonTapped(with: image)
+        guard let image = NFTImageView.image,
+              let id = nftID
+        else { return }
+        
+        delegateVC?.didCellDeleteButtonTapped(with: image, id: id)
     }
 }

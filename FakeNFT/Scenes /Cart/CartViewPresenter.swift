@@ -12,12 +12,15 @@ import Foundation
 protocol CartViewPresenter {
     func viewDidLoad()
     func makeSortModel()
+    func didCellDeleteButtonTapped(with id:String)
+    func returnButtonDidTapped()
+    func deleteButtonDidTapped()
 }
 
 // MARK: - State
 
 enum CartViewState {
-    case initial, loading, failed(Error), data([Nft]), empty
+    case initial, loading, failed(Error), data([Nft]), empty, delete
 }
 
 final class CartViewPresenterImpl: CartViewPresenter{
@@ -40,6 +43,9 @@ final class CartViewPresenterImpl: CartViewPresenter{
             sort(with: sortOption)
         }
     }
+    private var deletedID:String?
+    private var profileID:String = "1"
+    
     // MARK: - Init
     
     init(service: CartService) {
@@ -63,6 +69,29 @@ final class CartViewPresenterImpl: CartViewPresenter{
         }
     }
     
+    func didCellDeleteButtonTapped(with id:String){
+        state = .delete
+        deletedID = id
+    }
+    
+    func returnButtonDidTapped(){
+        state = .data(nfts)
+    }
+    
+    func deleteButtonDidTapped() {
+        nfts.removeAll(where: {
+            $0.id == deletedID
+        })
+        
+        if nfts.isEmpty{
+            state = .empty
+        } else {
+            state = .data(nfts)
+        }
+        
+        service.removeFromCart(id: profileID, nfts: nfts){_ in }
+    }
+    
     private func stateDidChanged() {
         switch state {
         case .initial:
@@ -71,6 +100,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
             view?.showLoading()
             loadNfts()
         case .data(let nfts):
+            view?.deleteStateChanged(with: true)
             view?.hideLoading()
             guard !nfts.isEmpty else {
                 state = .empty
@@ -87,11 +117,14 @@ final class CartViewPresenterImpl: CartViewPresenter{
             view?.showError(errorModel)
         case .empty:
             view?.cartIsEmpty()
+            view?.deleteStateChanged(with: true)
+        case .delete:
+            view?.deleteStateChanged(with: false)
         }
     }
     
     private func loadNfts(){
-        service.loadNFTs(with: "1"){[weak self] result in
+        service.loadNFTs(with: profileID){[weak self] result in
             guard let self = self else { return }
             switch result {
             case .success(let nfts):

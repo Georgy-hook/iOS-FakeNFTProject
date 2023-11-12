@@ -1,13 +1,12 @@
 {
   "sourceLanguage" : "ru",
   "strings" : {
-    "Are you sure you want\nremove an item from the trash?" : {
-      "extractionState" : "manual",
+    "Are you sure you want remove an item from the trash?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Are you sure you want\nremove an item from the trash?"
+            "value" : "Are you sure you want remove an item from the trash?"
           }
         },
         "ru" : {
@@ -17,9 +16,6 @@
           }
         }
       }
-    },
-    "Are you sure you want remove an item from the trash?" : {
-
     },
     "By making a purchase, you agree to the terms and conditions" : {
       "extractionState" : "manual",

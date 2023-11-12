@@ -12,10 +12,11 @@ protocol CartView:AnyObject, ErrorView, LoadingView, SortOptionsView {
     func setPrice(with price:Float)
     func cartIsEmpty()
     func setCount(with count:Int)
+    func deleteStateChanged(with state:Bool)
 }
 
 protocol CartViewControllerDelegate:AnyObject{
-    func didCellDeleteButtonTapped(with image:UIImage)
+    func didCellDeleteButtonTapped(with image:UIImage, id: String)
 }
 
 final class CartViewController:UIViewController{
@@ -101,7 +102,6 @@ final class CartViewController:UIViewController{
         button.layer.cornerRadius = 12
         button.setTitleColor(UIColor(named: "YP Red"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
-        button.isHidden = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -113,7 +113,6 @@ final class CartViewController:UIViewController{
         button.layer.cornerRadius = 12
         button.setTitleColor(UIColor(named: "YP White"), for: .normal)
         button.backgroundColor = UIColor(named: "YP Black")
-        button.isHidden = true
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -121,6 +120,7 @@ final class CartViewController:UIViewController{
     let buttonsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
         stackView.spacing = 8
         stackView.isHidden = true
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -132,6 +132,7 @@ final class CartViewController:UIViewController{
         label.font = UIFont.caption2
         label.text = NSLocalizedString("Are you sure you want remove an item from the trash?", comment: "")
         label.isHidden = true
+        label.textAlignment = .center
         label.textColor = UIColor(named: "YP Black")
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -175,17 +176,26 @@ final class CartViewController:UIViewController{
     @objc func sortButtonDidTapped(){
         presenter.makeSortModel()
     }
+    
+    @objc func returnButtonDidTapped(){
+        presenter.returnButtonDidTapped()
+    }
+    
+    @objc func deleteButtonDidTapped(){
+        presenter.deleteButtonDidTapped()
+    }
 }
 
 // MARK: - Layout
 extension CartViewController {
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
-
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         cartTableView.delegateVC = self
         payButton.addTarget(self, action: #selector(payButtonDidTapped), for: .touchUpInside)
         sortButton.addTarget(self, action: #selector(sortButtonDidTapped), for: .touchUpInside)
+        returnButton.addTarget(self, action: #selector(returnButtonDidTapped), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteButtonDidTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {
@@ -240,7 +250,6 @@ extension CartViewController {
             nftImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             nftImageView.heightAnchor.constraint(equalToConstant: 108),
             nftImageView.widthAnchor.constraint(equalToConstant: 108),
-            acceptLabel.widthAnchor.constraint(equalToConstant: 108),
             acceptLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             acceptLabel.topAnchor.constraint(equalTo: nftImageView.bottomAnchor, constant: 16),
             buttonsStackView.topAnchor.constraint(equalTo: acceptLabel.bottomAnchor, constant: 20),
@@ -274,17 +283,20 @@ extension CartViewController:CartView{
         payButton.isHidden = true
         placeholderLabel.isHidden = false
     }
+    
+    func deleteStateChanged(with state:Bool){
+        tabBarController?.tabBar.isHidden = !state
+        blurView.isHidden = state
+        buttonsStackView.isHidden = state
+        acceptLabel.isHidden = state
+        nftImageView.isHidden = state
+    }
 }
 
 // MARK: - CartViewControllerDelegate protocol
 extension CartViewController:CartViewControllerDelegate{
-    func didCellDeleteButtonTapped(with image:UIImage){
-        blurView.isHidden = false
-        deleteButton.isHidden = false
-        returnButton.isHidden = false
-        buttonsStackView.isHidden = false
-        acceptLabel.isHidden = false
-        nftImageView.isHidden = false
+    func didCellDeleteButtonTapped(with image:UIImage, id: String){
+        presenter.didCellDeleteButtonTapped(with: id)
         nftImageView.image = image
     }
 }
