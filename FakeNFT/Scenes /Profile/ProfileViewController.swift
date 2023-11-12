@@ -95,6 +95,15 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         setupNavigationBar()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if profileAssembly.favouriteNftIsInit {
+            var count = profileAssembly.returnCountFavouriteNft()
+            self.presenter.titleRows[1] = "Избранные NFT (\(count))"
+            self.tableView.reloadData()
+        }
+    }
+    
     // MARK: Methods
     func updateDataProfile() {
         let profile = presenter.profile

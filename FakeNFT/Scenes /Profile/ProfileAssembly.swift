@@ -6,6 +6,8 @@ import UIKit
 
 final class ProfileAssembly {
     // MARK: Public Properties
+    public var favouriteNftIsInit = false
+    
     var profilePresenter: ProfilePresenter {
         ProfilePresenter()
     }
@@ -59,10 +61,15 @@ final class ProfileAssembly {
         navigationController.navigationBar.shadowImage = UIImage()
         navigationController.modalPresentationStyle = .fullScreen
         input.present(navigationController, animated: true)
+        favouriteNftIsInit = true
     }
     
     public func buildEditingProfile(presenter: InterfaceProfilePresenter, with input: UIViewController, image: String?, name: String?, description: String?, website: String?) {
         presenter.setupDelegateEditingProfile(viewController: editingProfileViewController, image: image, name: name, description: description, website: website)
         input.present(editingProfileViewController, animated: true)
+    }
+    
+    public func returnCountFavouriteNft() -> Int {
+        return favouriteNFTViewController.presenter.collectionsCount
     }
 }
