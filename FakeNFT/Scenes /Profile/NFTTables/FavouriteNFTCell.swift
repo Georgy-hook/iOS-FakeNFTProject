@@ -90,8 +90,8 @@ private extension FavouriteNFTCell {
             nftImageView.heightAnchor.constraint(equalToConstant: 80),
             nftImageView.widthAnchor.constraint(equalToConstant: 80),
             
-            likeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor),
-            likeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor),
+            likeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: -6),
+            likeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 6),
             likeButton.heightAnchor.constraint(equalToConstant: 42),
             likeButton.widthAnchor.constraint(equalToConstant: 42),
             

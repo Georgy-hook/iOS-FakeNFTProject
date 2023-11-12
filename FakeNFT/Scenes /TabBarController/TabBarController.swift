@@ -5,7 +5,8 @@ final class TabBarController: UITabBarController {
     let servicesAssembly = ServicesAssembly(
         networkClient: DefaultNetworkClient(),
         nftStorage: NftStorageImpl(),
-        profileStorage: ProfileStorageImpl()
+        profileStorage: ProfileStorageImpl(),
+        userStorage: UserStorageImpl()
     )
     
     let profileAssembly = ProfileAssembly(editingProfileViewController: EditingProfileViewController(), webViewerController: WebViewerController(), myNFTViewController: MyNFTViewController(), favouriteNFTViewController: FavouriteNFTViewController())
