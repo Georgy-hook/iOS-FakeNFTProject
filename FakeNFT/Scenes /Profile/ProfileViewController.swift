@@ -48,15 +48,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         label.setLineSpacing(lineSpacing: 5)
         return label
     }()
-
-//    private let websiteLabel: UILabel = {
-//        let label = UILabel()
-//        label.numberOfLines = 0
-//        label.textColor = .systemBlue
-//        label.lineBreakMode = .byClipping
-//        label.font = .systemFont(ofSize: 15, weight: .regular)
-//        return label
-//    }()
     
     private lazy var websiteButton: UIButton = {
         let button = UIButton()
@@ -112,7 +103,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         nameLabel.text = profile.name
         descriptionLabel.text = profile.description
         websiteButton.setTitle(profile.website, for: .normal)
-        //websiteLabel.text = profile.website
     }
     
     //MARK: - KingFisher
@@ -144,7 +134,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     
     private func showWebViewController() {
-        //guard let text = websiteLabel.text else { return }
         guard let text = websiteButton.currentTitle else { return }
         profileAssembly.buildwebViewer(with: self, urlString: text)
     }
@@ -159,7 +148,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     private func showEditingProfileViewController() {
         let image = avatarImageView.image?.toPngString()
-        //profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteLabel.text)
         profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.currentTitle)
     }
     
@@ -180,7 +168,6 @@ extension ProfileViewController {
         nameLabel.text = name
         descriptionLabel.text = description
         websiteButton.setTitle(website, for: .normal)
-        //websiteLabel.text = website
     }
 }
 
