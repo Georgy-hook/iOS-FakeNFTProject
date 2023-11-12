@@ -42,18 +42,20 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        profileService.loadProfile(id: "1") { [weak self] result in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            switch result {
-            case .success(let profile):
-                self.favoritesNFT = profile.likes
-                self.loadRequest(favoritesNFT) { [weak self] nft in
-                    guard let self else { return }
-                    self.favoritesNFTProfile.append(nft)
-                    self.view?.reloadData()
+            profileService.loadProfile(id: "1") { result in
+                switch result {
+                case .success(let profile):
+                    self.favoritesNFT = profile.likes
+                    self.loadRequest(self.favoritesNFT) { [weak self] nft in
+                        guard let self else { return }
+                        self.favoritesNFTProfile.append(nft)
+                        self.view?.reloadData()
+                    }
+                case .failure:
+                    self.view?.showErrorAlert()
                 }
-            case .failure:
-                self.view?.showErrorAlert()
             }
         }
     }

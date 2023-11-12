@@ -56,14 +56,14 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        DispatchQueue.main.async {
-            self.profileService.loadProfile(id: "1") { [weak self] result in
-                guard let self else { return }
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.profileService.loadProfile(id: "1") { [self] result in
                 switch result {
                 case .success(let profile):
                     self.myNFT = profile.nfts
                     self.favoritesNFT = profile.likes
-                    self.loadRequest(myNFT) { [weak self] nft in
+                    self.loadRequest(self.myNFT) { [weak self] nft in
                         guard let self else { return }
                         self.myNFTProfile.append(nft)
                         self.loadUser(nft: nft) {
@@ -79,30 +79,34 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        myNFT.forEach { [weak self] nft in
+        DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            self.nftService.loadNft(id: nft) { result in
-                switch result {
-                case .success(let nft):
-                    self.view?.hideLoading()
-                    completion(nft)
-                case .failure:
-                    self.view?.hideLoading()
-                    self.view?.showErrorAlert()
+            myNFT.forEach { nft in
+                self.nftService.loadNft(id: nft) { result in
+                    switch result {
+                    case .success(let nft):
+                        self.view?.hideLoading()
+                        completion(nft)
+                    case .failure:
+                        self.view?.hideLoading()
+                        self.view?.showErrorAlert()
+                    }
                 }
             }
         }
     }
     
     private func loadUser(nft: Nft, _ completion: @escaping()->()) {
-        userService.loadUser(id: nft.author) { [weak self] result in
+        DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            switch result {
-            case .success(let user):
-                self.myNFTUsers.append(user)
-                completion()
-            case .failure:
-                self.view?.showErrorAlert()
+            self.userService.loadUser(id: nft.author) { result in
+                switch result {
+                case .success(let user):
+                    self.myNFTUsers.append(user)
+                    completion()
+                case .failure:
+                    self.view?.showErrorAlert()
+                }
             }
         }
     }
@@ -111,14 +115,14 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         let cell = MyNFTCell()
         let myNFTProfile = myNFTProfile[indexpath.row]
         var myNFTUser = User()
-        if !myNFTUsers.isEmpty {
-            myNFTUser = myNFTUsers[indexpath.row]
-        }
         let likesNFT = favoritesNFT.filter{ myNFT.contains($0) }
         likesNFT.forEach { nftResult in
             if myNFTProfile.id == nftResult {
                 cell.likeButton.isSelected = true
             }
+        }
+        if myNFTUsers.count == self.myNFTProfile.count {
+            myNFTUser = myNFTUsers[indexpath.row]
         }
         cell.configure(with: myNFTProfile, user: myNFTUser)
         return cell

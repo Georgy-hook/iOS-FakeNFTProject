@@ -58,15 +58,17 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     }
     
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
-        profileService.loadProfile(id: "1") { [weak self] result in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            switch result {
-            case .success(let profile):
-                self.view?.hideLoading()
-                completion(profile)
-            case .failure:
-                self.view?.hideLoading()
-                self.view?.showErrorAlert()
+            self.profileService.loadProfile(id: "1") { result in
+                switch result {
+                case .success(let profile):
+                    self.view?.hideLoading()
+                    completion(profile)
+                case .failure:
+                    self.view?.hideLoading()
+                    self.view?.showErrorAlert()
+                }
             }
         }
     }
