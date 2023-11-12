@@ -67,15 +67,15 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     }
     
     // MARK: Selectors
-    @objc func animateLike(sender: UIButton) {
+    @objc private func animateLike(sender: UIButton) {
         GradientLayer.shared.animateLikeButton(sender)
     }
     
-    @objc func stopAnimationOfLike() {
+    @objc private func stopAnimationOfLike() {
         GradientLayer.shared.stopLikeButton(self)
     }
     
-    @objc func checkButtonTapped(sender : UIButton){
+    @objc private func checkButtonTapped(sender : UIButton){
         deleteCell(sender: sender)
     }
 }

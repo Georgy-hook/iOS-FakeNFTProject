@@ -48,8 +48,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
                 switch result {
                 case .success(let profile):
                     self.favoritesNFT = profile.likes
-                    self.loadRequest(self.favoritesNFT) { [weak self] nft in
-                        guard let self else { return }
+                    self.loadRequest(self.favoritesNFT) { nft in
                         self.favoritesNFTProfile.append(nft)
                         self.view?.reloadData()
                     }
@@ -62,16 +61,17 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        favoritesNFT.forEach { [weak self] nft in
-            guard let self = self else { return }
-            self.nftService.loadNft(id: nft) { result in
-                switch result {
-                case .success(let nft):
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            favoritesNFT.forEach { nft in
+                self.nftService.loadNft(id: nft) { result in
+                    switch result {
+                    case .success(let nft):
+                        completion(nft)
+                    case .failure:
+                        self.view?.showErrorAlert()
+                    }
                     self.view?.hideLoading()
-                    completion(nft)
-                case .failure:
-                    self.view?.hideLoading()
-                    self.view?.showErrorAlert()
                 }
             }
         }

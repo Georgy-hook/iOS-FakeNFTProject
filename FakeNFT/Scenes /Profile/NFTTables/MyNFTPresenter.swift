@@ -58,13 +58,12 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private func setupDataProfile() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.profileService.loadProfile(id: "1") { [self] result in
+            self.profileService.loadProfile(id: "1") { result in
                 switch result {
                 case .success(let profile):
                     self.myNFT = profile.nfts
                     self.favoritesNFT = profile.likes
-                    self.loadRequest(self.myNFT) { [weak self] nft in
-                        guard let self else { return }
+                    self.loadRequest(self.myNFT) { nft in
                         self.myNFTProfile.append(nft)
                         self.loadUser(nft: nft) {
                             self.view?.reloadData()
@@ -80,7 +79,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             myNFT.forEach { nft in
                 self.nftService.loadNft(id: nft) { result in
                     switch result {

@@ -42,8 +42,9 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     
     // MARK: Update Data Profile
     private func updateDataProfile() {
-        setupDataProfile { profile in
+        setupDataProfile { [weak self] profile in
             guard let profile else { return }
+            guard let self else { return }
             self.profile = profile
             self.myNFT = profile.nfts
             self.favoritesNFT = profile.likes
@@ -63,12 +64,11 @@ final class ProfilePresenter: InterfaceProfilePresenter {
             self.profileService.loadProfile(id: "1") { result in
                 switch result {
                 case .success(let profile):
-                    self.view?.hideLoading()
                     completion(profile)
                 case .failure:
-                    self.view?.hideLoading()
                     self.view?.showErrorAlert()
                 }
+                self.view?.hideLoading()
             }
         }
     }
