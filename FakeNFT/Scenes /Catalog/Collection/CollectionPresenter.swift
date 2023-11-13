@@ -32,6 +32,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     
     var isCollectionLoadError = false
     
+    private var order: OrderModel = OrderModel(nfts: [])
+        
     private let networkClient: NetworkClient
     
     private let loadGroup = DispatchGroup()
@@ -45,20 +47,41 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     }
     
     func loadProfile() {
-        //self.loadGroup.enter()
-        DispatchQueue.global().async {
+        self.loadGroup.enter()
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
             self.networkClient.send(request: GetProfileRequest(),
                                     type: ProfileModel.self,
-                                    onResponse: {result in
+                                    onResponse: { [weak self] result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let profile):
-                        self.profile = profile
-                        self.view?.updateProfileData()
+                        self?.profile = profile
+                        self?.view?.updateProfileData()
+                    case .failure(_):
+                        self?.isCollectionLoadError = true
+                    }
+                    self?.loadGroup.leave()
+                }
+            })
+        }
+    }
+    
+    func loadOrder() {
+        self.loadGroup.enter()
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: GetOrderRequest(),
+                                    type: OrderModel.self,
+                                    onResponse: {result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let model):
+                        self.order = model
                     case .failure(_):
                         self.isCollectionLoadError = true
                     }
-                    //self.loadGroup.leave()
+                    self.loadGroup.leave()
                 }
             })
         }

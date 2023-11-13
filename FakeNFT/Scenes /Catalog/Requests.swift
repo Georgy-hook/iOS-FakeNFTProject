@@ -22,3 +22,11 @@ struct GetProfileRequest: NetworkRequest {
     var httpMethod: HttpMethod = .get
     var dto: Encodable?
 }
+
+struct GetOrderRequest: NetworkRequest {
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)/orders/1")
+    }
+    var httpMethod: HttpMethod = .get
+    var dto: Encodable?
+}

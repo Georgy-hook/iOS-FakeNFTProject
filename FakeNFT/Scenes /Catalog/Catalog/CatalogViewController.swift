@@ -76,13 +76,14 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
     
     @objc
     private func sortButtonTapped() {
-        // TODO: Доделать сортировку
         let controller = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
-        controller.addAction(.init(title: "По названию", style: .default, handler: { /*[weak self]*/ _ in
-            print("")
+        controller.addAction(.init(title: "По названию", style: .default, handler: { [weak self] _ in
+            self?.presenter.sort(param: .NFTName)
+            self?.tableView.reloadData()
         }))
-        controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { /*[weak self]*/ _ in
-            print("")
+        controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { [weak self] _ in
+            self?.presenter.sort(param: .NFTCount)
+            self?.tableView.reloadData()
         }))
         controller.addAction(.init(title: "Закрыть", style: .cancel))
         present(controller, animated: true)
