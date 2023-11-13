@@ -36,37 +36,42 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        view?.showLoading()
         setupDataProfile()
     }
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        profileService.loadProfile(id: "1") { [weak self] result in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            switch result {
-            case .success(let profile):
-                self.favoritesNFT = profile.likes
-                self.loadRequest(favoritesNFT) { [weak self] nft in
-                    guard let self else { return }
-                    self.favoritesNFTProfile.append(nft)
-                    self.view?.reloadData()
+            profileService.loadProfile(id: "1") { result in
+                switch result {
+                case .success(let profile):
+                    self.favoritesNFT = profile.likes
+                    self.loadRequest(self.favoritesNFT) { nft in
+                        self.favoritesNFTProfile.append(nft)
+                        self.view?.reloadData()
+                    }
+                case .failure:
+                    self.view?.showErrorAlert()
                 }
-            case .failure:
-                self.view?.showErrorAlert()
             }
         }
     }
     
     private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        favoritesNFT.forEach { [weak self] nft in
-            guard let self = self else { return }
-            self.nftService.loadNft(id: nft) { result in
-                switch result {
-                case .success(let nft):
-                    completion(nft)
-                case .failure:
-                    self.view?.showErrorAlert()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            favoritesNFT.forEach { nft in
+                self.nftService.loadNft(id: nft) { result in
+                    switch result {
+                    case .success(let nft):
+                        completion(nft)
+                    case .failure:
+                        self.view?.showErrorAlert()
+                    }
+                    self.view?.hideLoading()
                 }
             }
         }

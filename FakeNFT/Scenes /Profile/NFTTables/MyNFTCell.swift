@@ -10,6 +10,7 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
+        button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .highlighted)
         button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .selected)
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: [.highlighted, .selected])
@@ -42,15 +43,15 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     }
     
     // MARK: Methods
-    func configure(with nft: Nft) {
+    func configure(with nft: Nft, user: User) {
         if let image = nft.images.first {
             nftImageView.kf.indicatorType = .activity
             nftImageView.kf.setImage(with: image)
         }
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
-        authorLabel.text = nft.author
-        priceLabel.text = String(nft.price)
+        authorLabel.text = user.name
+        priceLabel.text = "\(nft.price) ETH"
     }
 }
 
@@ -89,8 +90,9 @@ private extension MyNFTCell {
             namePriceLabel.leadingAnchor.constraint(lessThanOrEqualTo: priceLabel.leadingAnchor),
             
             priceLabel.topAnchor.constraint(equalTo: namePriceLabel.bottomAnchor, constant: 2),
-            priceLabel.leadingAnchor.constraint(lessThanOrEqualTo: authorLabel.trailingAnchor, constant: 39),
-            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            priceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: ratingStar.trailingAnchor, constant: 39 + 12)
+            
         ])
     }
 }

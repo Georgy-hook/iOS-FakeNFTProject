@@ -14,8 +14,12 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
+        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .highlighted)
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
         button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)
+        button.addTarget(self, action: #selector(stopAnimationOfLike), for: .touchUpOutside)
+
         return button
     }()
     private let nftImageView: UIImageView = {
@@ -51,7 +55,7 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         }
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
-        priceLabel.text = String(nft.price)
+        priceLabel.text = "\(nft.price) ETH"
     }
     
     private func deleteCell(sender: UIButton) {
@@ -63,7 +67,15 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     }
     
     // MARK: Selectors
-    @objc func checkButtonTapped(sender : UIButton){
+    @objc private func animateLike(sender: UIButton) {
+        GradientLayer.shared.animateLikeButton(sender)
+    }
+    
+    @objc private func stopAnimationOfLike() {
+        GradientLayer.shared.stopLikeButton(self)
+    }
+    
+    @objc private func checkButtonTapped(sender : UIButton){
         deleteCell(sender: sender)
     }
 }
@@ -79,14 +91,13 @@ private extension FavouriteNFTCell {
             nftImageView.heightAnchor.constraint(equalToConstant: 80),
             nftImageView.widthAnchor.constraint(equalToConstant: 80),
             
-            likeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor),
-            likeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor),
+            likeButton.topAnchor.constraint(equalTo: nftImageView.topAnchor, constant: -6),
+            likeButton.trailingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 6),
             likeButton.heightAnchor.constraint(equalToConstant: 42),
             likeButton.widthAnchor.constraint(equalToConstant: 42),
             
             nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 7),
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),
-            
             
             ratingStar.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
             ratingStar.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 12),

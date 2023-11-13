@@ -5,8 +5,6 @@
 import Foundation
 
 protocol InterfaceProfilePresenter: AnyObject {
-    var myNFT: [String] { get set }
-    var favoritesNFT: [String] { get set }
     var titleRows: [String] { get set }
     var profile: Profile? { get set }
     var view: InterfaceProfileViewController? { get set }
@@ -16,8 +14,6 @@ protocol InterfaceProfilePresenter: AnyObject {
 
 final class ProfilePresenter: InterfaceProfilePresenter {
     // MARK: Public Properties
-    var myNFT: [String]
-    var favoritesNFT: [String]
     var titleRows: [String] 
     var profile: Profile?
     
@@ -26,6 +22,8 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     weak var view: InterfaceProfileViewController?
     
     // MARK: Private properties
+    private var myNFT: [String]
+    private var favoritesNFT: [String]
     private let profileService: ProfileServiceImpl
     
     // MARK: Initialisation
@@ -38,13 +36,15 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     
     // MARK: Life cycle
     func viewDidLoad() {
+        view?.showLoading()
         updateDataProfile()
     }
     
     // MARK: Update Data Profile
     private func updateDataProfile() {
-        setupDataProfile { profile in
+        setupDataProfile { [weak self] profile in
             guard let profile else { return }
+            guard let self else { return }
             self.profile = profile
             self.myNFT = profile.nfts
             self.favoritesNFT = profile.likes
@@ -59,13 +59,16 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     }
     
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
-        profileService.loadProfile(id: "1") { [weak self] result in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            switch result {
-            case .success(let profile):
-                completion(profile)
-            case .failure:
-                self.view?.showErrorAlert()
+            self.profileService.loadProfile(id: "1") { result in
+                switch result {
+                case .success(let profile):
+                    completion(profile)
+                case .failure:
+                    self.view?.showErrorAlert()
+                }
+                self.view?.hideLoading()
             }
         }
     }

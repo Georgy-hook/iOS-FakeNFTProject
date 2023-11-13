@@ -1,9 +1,6 @@
-//
 //  MyNFTLabel.swift
 //  FakeNFT
-//
 //  Created by Adam West on 04.11.2023.
-//
 
 import Foundation
 
