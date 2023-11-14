@@ -1,16 +1,17 @@
-//  GradientLayer.swift
+//  AnimateLikeButton.swift
 //  ImageFeed
 //  Created by Adam West on 21.08.23.
 
-import Foundation
-
 import UIKit
 
-final class GradientLayer {
-    static var shared = GradientLayer()
-    
+protocol InterfaceAnimateLikeButton {
+    func animateLikeButton(_ sender: UIButton)
+    func stopLikeButton(_ cell: FavouriteNFTCell)
+}
+
+final class AnimateLikeButton: InterfaceAnimateLikeButton {
     // MARK: Added pulse animation to like button(cell)
-    func animateLikeButton(_ sender: UIButton) {
+    public func animateLikeButton(_ sender: UIButton) {
         UIView.animateKeyframes(withDuration: 1,
                                 delay: 0,
                                 options: .repeat) {
@@ -29,7 +30,7 @@ final class GradientLayer {
         }
     }
     
-    func stopLikeButton(_ cell: FavouriteNFTCell) {
+    public func stopLikeButton(_ cell: FavouriteNFTCell) {
         UIView.transition(with: cell.likeButton,
                           duration: 1,
                           options: .transitionCrossDissolve) {

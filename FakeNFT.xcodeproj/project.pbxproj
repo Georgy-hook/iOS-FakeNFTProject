@@ -56,7 +56,7 @@
 		661066302AF6A17900DA66FB /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610662F2AF6A17900DA66FB /* UILabel.swift */; };
 		661066332AF6C01000DA66FB /* MyNFTViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066322AF6C01000DA66FB /* MyNFTViewController.swift */; };
 		661066352AF6CB7500DA66FB /* MyNFTCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066342AF6CB7500DA66FB /* MyNFTCell.swift */; };
-		661066372AF6CBE000DA66FB /* GradientLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066362AF6CBE000DA66FB /* GradientLayer.swift */; };
+		661066372AF6CBE000DA66FB /* AnimateLikeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066362AF6CBE000DA66FB /* AnimateLikeButton.swift */; };
 		661066392AF6DCDB00DA66FB /* MyNFTLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066382AF6DCDB00DA66FB /* MyNFTLabel.swift */; };
 		6610663B2AF6DDF100DA66FB /* MyNFTLabelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */; };
 		6610663D2AF6DEA300DA66FB /* TextFieldTypeProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */; };
@@ -150,7 +150,7 @@
 		6610662F2AF6A17900DA66FB /* UILabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		661066322AF6C01000DA66FB /* MyNFTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTViewController.swift; sourceTree = "<group>"; };
 		661066342AF6CB7500DA66FB /* MyNFTCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTCell.swift; sourceTree = "<group>"; };
-		661066362AF6CBE000DA66FB /* GradientLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GradientLayer.swift; sourceTree = "<group>"; };
+		661066362AF6CBE000DA66FB /* AnimateLikeButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimateLikeButton.swift; sourceTree = "<group>"; };
 		661066382AF6DCDB00DA66FB /* MyNFTLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTLabel.swift; sourceTree = "<group>"; };
 		6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTLabelType.swift; sourceTree = "<group>"; };
 		6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTypeProfile.swift; sourceTree = "<group>"; };
@@ -412,7 +412,7 @@
 		6600053B2AF8FED100840E59 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				661066362AF6CBE000DA66FB /* GradientLayer.swift */,
+				661066362AF6CBE000DA66FB /* AnimateLikeButton.swift */,
 				666592F42AF7FA2700AF8A29 /* GeometricParams.swift */,
 				6600053C2AF8FEE100840E59 /* UIBlockingProgressHUD.swift */,
 				6600053E2AF8FEE600840E59 /* ActivityIndicator.swift */,
@@ -703,7 +703,7 @@
 				668BC15B2B00E6C800678D0C /* UserRequest.swift in Sources */,
 				661066332AF6C01000DA66FB /* MyNFTViewController.swift in Sources */,
 				0CFCB7402A78002A0009A829 /* NftService.swift in Sources */,
-				661066372AF6CBE000DA66FB /* GradientLayer.swift in Sources */,
+				661066372AF6CBE000DA66FB /* AnimateLikeButton.swift in Sources */,
 				661066302AF6A17900DA66FB /* UILabel.swift in Sources */,
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				0CF2C2DB2A783C1B00FDC837 /* LoadingView.swift in Sources */,

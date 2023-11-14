@@ -34,12 +34,17 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     weak var delegate: FavouriteNFTViewController?
     
     // MARK: Private Properties
-    private let ratingStar = RatingStackView()
-    private let nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    private let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
+    private let nameLabel: MyNFTLabel
+    private let priceLabel: MyNFTLabel
+    private let ratingStar: RatingStackView
+    private let animateLikeButton: InterfaceAnimateLikeButton
     
     // MARK: Initialisation
     override init(frame: CGRect) {
+        self.ratingStar = RatingStackView()
+        self.animateLikeButton = AnimateLikeButton()
+        self.nameLabel = MyNFTLabel(labelType: .big, text: nil)
+        self.priceLabel = MyNFTLabel(labelType: .middle, text: nil)
         super.init(frame: frame)
         setupUI()
     }
@@ -68,11 +73,11 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     
     // MARK: Selectors
     @objc private func animateLike(sender: UIButton) {
-        GradientLayer.shared.animateLikeButton(sender)
+        animateLikeButton.animateLikeButton(sender)
     }
     
     @objc private func stopAnimationOfLike() {
-        GradientLayer.shared.stopLikeButton(self)
+        animateLikeButton.stopLikeButton(self)
     }
     
     @objc private func checkButtonTapped(sender : UIButton){
