@@ -52,16 +52,16 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             guard let self else { return }
             self.networkClient.send(request: GetProfileRequest(),
                                     type: ProfileModel.self,
-                                    onResponse: { [weak self] result in
+                                    onResponse: { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let profile):
-                        self?.profile = profile
-                        self?.view?.updateProfileData()
+                        self.profile = profile
+                        self.view?.updateProfileData()
                     case .failure(_):
-                        self?.isCollectionLoadError = true
+                        self.isCollectionLoadError = true
                     }
-                    self?.loadGroup.leave()
+                    self.loadGroup.leave()
                 }
             })
         }

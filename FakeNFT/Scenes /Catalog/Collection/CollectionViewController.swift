@@ -211,7 +211,8 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
               let url = URL(string: urlString)
         else { return }
         let webViewController = WebViewViewController(webSite: url)
-        navigationController?.pushViewController(webViewController, animated: true)
+        webViewController.modalPresentationStyle = .fullScreen
+        present(webViewController, animated: true)
     }
     
     private func setupCollectionView() {
