@@ -84,7 +84,8 @@ final class PaymentViewController:UIViewController{
     
     // MARK: - Variables
     private let presenter: PaymentViewPresenter
-    
+    private let link = "https://yandex.ru/legal/practicum_termsofuse/"
+
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,12 +96,12 @@ final class PaymentViewController:UIViewController{
     }
     
     // MARK: - Actions
-    @objc func didBackButtonTapped(){
+    @objc private func didBackButtonTapped(){
         dismiss(animated: true)
     }
     
-    @objc func linkLabelDidTapped(){
-        guard let url = URL(string: "https://yandex.ru/legal/practicum_termsofuse/") else { return }
+    @objc private func linkLabelDidTapped(){
+        guard let url = URL(string: link) else { return }
         let webView = WebViewViewController(webSite: url)
         webView.modalPresentationStyle = .fullScreen
         present(webView, animated: true)
@@ -108,7 +109,7 @@ final class PaymentViewController:UIViewController{
 }
 
 // MARK: - Layout
-extension PaymentViewController{
+private extension PaymentViewController{
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false

@@ -117,7 +117,7 @@ final class CartViewController:UIViewController{
         return button
     }()
     
-    let buttonsStackView: UIStackView = {
+    private let buttonsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
@@ -164,7 +164,7 @@ final class CartViewController:UIViewController{
     }
     
     // MARK: - Actions
-    @objc func payButtonDidTapped(){
+    @objc private func payButtonDidTapped(){
         let currencyService = CurrencyServiceImpl(networkClient: DefaultNetworkClient(), storage: CurrencyStorageImpl())
         let paymentViewPresenter = PaymentViewPresenterImpl(service: currencyService)
         let paymentViewController = PaymentViewController(presenter: paymentViewPresenter)
@@ -173,21 +173,21 @@ final class CartViewController:UIViewController{
         present(paymentViewController, animated: true)
     }
     
-    @objc func sortButtonDidTapped(){
+    @objc private func sortButtonDidTapped(){
         presenter.makeSortModel()
     }
     
-    @objc func returnButtonDidTapped(){
+    @objc private func returnButtonDidTapped(){
         presenter.returnButtonDidTapped()
     }
     
-    @objc func deleteButtonDidTapped(){
+    @objc private func deleteButtonDidTapped(){
         presenter.deleteButtonDidTapped()
     }
 }
 
 // MARK: - Layout
-extension CartViewController {
+private extension CartViewController {
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false

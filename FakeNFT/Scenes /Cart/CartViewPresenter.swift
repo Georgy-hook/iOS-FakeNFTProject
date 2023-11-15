@@ -83,12 +83,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
         nfts.removeAll(where: {
             $0.id == deletedID
         })
-        
-        if nfts.isEmpty{
-            state = .empty
-        } else {
-            state = .data(nfts)
-        }
+        state = nfts.isEmpty ? .empty:.data(nfts)
         
         service.removeFromCart(id: profileID, nfts: nfts){_ in }
     }

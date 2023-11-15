@@ -79,7 +79,7 @@ final class CartCell: UITableViewCell{
 }
 
 // MARK: - Layout
-extension CartCell {
+private extension CartCell {
     private func addSubviews() {
         contentView.addSubview(deleteButton)
         addSubview(nameLabel)
@@ -123,7 +123,7 @@ extension CartCell{
         deleteButton.addTarget(self, action: #selector(didDeleteButtonTapped), for: .touchUpInside)
     }
     
-    @objc func didDeleteButtonTapped(){
+    @objc private func didDeleteButtonTapped(){
         guard let image = NFTImageView.image,
               let id = nftID
         else { return }

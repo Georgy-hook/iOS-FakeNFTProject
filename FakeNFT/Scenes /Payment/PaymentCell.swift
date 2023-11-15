@@ -53,7 +53,7 @@ class PaymentCell: UICollectionViewCell {
 }
 
 // MARK: - Layout
-extension PaymentCell {
+private extension PaymentCell {
     private func addSubviews() {
         addSubview(currencyImageView)
         addSubview(abbreviationLabel)
