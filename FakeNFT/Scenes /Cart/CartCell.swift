@@ -41,6 +41,7 @@ final class CartCell: UITableViewCell{
         imageView.layer.cornerRadius = 12
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.kf.indicatorType = .activity
         return imageView
     }()
     
@@ -51,6 +52,13 @@ final class CartCell: UITableViewCell{
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    private let loadingIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView(style: .medium)
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+
     
     private let ratingControl = RatingControl()
     
@@ -106,11 +114,12 @@ extension CartCell {
 // MARK: - Cell's methods
 extension CartCell{
     func set(with nft:Nft){
+        let formattedPrice = AppNumberFormatter.shared.formatPrice(nft.price) ?? "0,0"
         nftID = nft.id
         nameLabel.text = nft.name
-        priceLabel.text = "\(nft.price) ETH"
+        priceLabel.text = "\(formattedPrice) ETH"
         ratingControl.rating = nft.rating
-        NFTImageView.kf.setImage(with: nft.images.first, placeholder: UIImage(named: "Vector"))
+        NFTImageView.kf.setImage(with: nft.images.first)
         deleteButton.addTarget(self, action: #selector(didDeleteButtonTapped), for: .touchUpInside)
     }
     

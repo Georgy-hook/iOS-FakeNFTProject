@@ -9,7 +9,7 @@ import UIKit
 
 protocol CartView:AnyObject, ErrorView, LoadingView, SortOptionsView {
     func setTableView(with nfts:[Nft])
-    func setPrice(with price:Float)
+    func setPrice(with price:String)
     func cartIsEmpty()
     func setCount(with count:Int)
     func deleteStateChanged(with state:Bool)
@@ -266,7 +266,7 @@ extension CartViewController:CartView{
         cartTableView.set(with: nfts)
     }
     
-    func setPrice(with price:Float){
+    func setPrice(with price:String){
         priceLabel.text = "\(price) ETH"
     }
     

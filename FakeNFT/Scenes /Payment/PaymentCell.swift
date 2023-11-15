@@ -19,6 +19,7 @@ class PaymentCell: UICollectionViewCell {
         imageView.backgroundColor = UIColor(named: "YP Black")
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.kf.indicatorType = .activity
         return imageView
     }()
     

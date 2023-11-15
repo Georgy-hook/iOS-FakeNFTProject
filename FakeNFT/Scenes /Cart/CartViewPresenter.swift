@@ -45,6 +45,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
     }
     private var deletedID:String?
     private var profileID:String = "1"
+    private let numberFormatter = AppNumberFormatter.shared
     
     // MARK: - Init
     
@@ -150,12 +151,13 @@ final class CartViewPresenterImpl: CartViewPresenter{
         }
     }
     
-    private func calculateTotalPrice(with ntfs:[Nft]) -> Float{
+    private func calculateTotalPrice(with ntfs:[Nft]) -> String{
         var total:Float = 0.0
         ntfs.forEach{
             total += $0.price
         }
-        return total
+        guard let totalString = numberFormatter.formatPrice(total) else { return "0.0"}
+        return totalString
     }
     
     private func sort(with sortOption: SortOption){
