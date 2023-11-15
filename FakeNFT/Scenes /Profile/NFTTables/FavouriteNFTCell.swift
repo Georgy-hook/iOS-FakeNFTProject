@@ -58,9 +58,10 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
             nftImageView.kf.indicatorType = .activity
             nftImageView.kf.setImage(with: image)
         }
+        let nftPrice = nft.price.formatPrice()
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
-        priceLabel.text = "\(nft.price) ETH"
+        priceLabel.text = "\(nftPrice) ETH"
     }
     
     private func deleteCell(sender: UIButton) {

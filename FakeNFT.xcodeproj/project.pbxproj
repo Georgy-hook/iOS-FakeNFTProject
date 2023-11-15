@@ -41,8 +41,6 @@
 		3FC8C38B29D242E90081F015 /* ProductDetailsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8C38A29D242E90081F015 /* ProductDetailsTableViewCell.swift */; };
 		3FC8C39129D2453B0081F015 /* ProfileRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8C39029D2453B0081F015 /* ProfileRequest.swift */; };
 		3FC8C39329D246BA0081F015 /* DateFormatters+Presets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */; };
-		6600053D2AF8FEE100840E59 /* UIBlockingProgressHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6600053C2AF8FEE100840E59 /* UIBlockingProgressHUD.swift */; };
-		6600053F2AF8FEE600840E59 /* ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6600053E2AF8FEE600840E59 /* ActivityIndicator.swift */; };
 		660005482AF9784700840E59 /* RatingStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 660005472AF9784700840E59 /* RatingStackView.swift */; };
 		661066182AF69EFC00DA66FB /* ImagesAssets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066172AF69EFC00DA66FB /* ImagesAssets.swift */; };
 		6610661D2AF69FE400DA66FB /* LabelTypeProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610661C2AF69FE400DA66FB /* LabelTypeProfile.swift */; };
@@ -61,6 +59,7 @@
 		6610663B2AF6DDF100DA66FB /* MyNFTLabelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */; };
 		6610663D2AF6DEA300DA66FB /* TextFieldTypeProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */; };
 		6626FABC2AF65CBB004CC8EF /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */; };
+		663FCF532B0510150093AADF /* Float.swift in Sources */ = {isa = PBXBuildFile; fileRef = 663FCF522B0510150093AADF /* Float.swift */; };
 		665CD8D02AFAB3AF0072D83C /* ProfilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 665CD8CF2AFAB3AF0072D83C /* ProfilePresenter.swift */; };
 		666592E72AF7AEF400AF8A29 /* FavouriteNFTViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592E62AF7AEF400AF8A29 /* FavouriteNFTViewController.swift */; };
 		666592E92AF7AF1700AF8A29 /* FavouriteNFTCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */; };
@@ -135,8 +134,6 @@
 		3FC8C38A29D242E90081F015 /* ProductDetailsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductDetailsTableViewCell.swift; sourceTree = "<group>"; };
 		3FC8C39029D2453B0081F015 /* ProfileRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRequest.swift; sourceTree = "<group>"; };
 		3FC8C39229D246BA0081F015 /* DateFormatters+Presets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatters+Presets.swift"; sourceTree = "<group>"; };
-		6600053C2AF8FEE100840E59 /* UIBlockingProgressHUD.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIBlockingProgressHUD.swift; sourceTree = "<group>"; };
-		6600053E2AF8FEE600840E59 /* ActivityIndicator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityIndicator.swift; sourceTree = "<group>"; };
 		660005472AF9784700840E59 /* RatingStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RatingStackView.swift; sourceTree = "<group>"; };
 		661066172AF69EFC00DA66FB /* ImagesAssets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagesAssets.swift; sourceTree = "<group>"; };
 		6610661C2AF69FE400DA66FB /* LabelTypeProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelTypeProfile.swift; sourceTree = "<group>"; };
@@ -155,6 +152,7 @@
 		6610663A2AF6DDF100DA66FB /* MyNFTLabelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTLabelType.swift; sourceTree = "<group>"; };
 		6610663C2AF6DEA300DA66FB /* TextFieldTypeProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTypeProfile.swift; sourceTree = "<group>"; };
 		6626FABB2AF65CBB004CC8EF /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		663FCF522B0510150093AADF /* Float.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Float.swift; sourceTree = "<group>"; };
 		665CD8CF2AFAB3AF0072D83C /* ProfilePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePresenter.swift; sourceTree = "<group>"; };
 		666592E62AF7AEF400AF8A29 /* FavouriteNFTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteNFTViewController.swift; sourceTree = "<group>"; };
 		666592E82AF7AF1700AF8A29 /* FavouriteNFTCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteNFTCell.swift; sourceTree = "<group>"; };
@@ -414,8 +412,6 @@
 			children = (
 				661066362AF6CBE000DA66FB /* AnimateLikeButton.swift */,
 				666592F42AF7FA2700AF8A29 /* GeometricParams.swift */,
-				6600053C2AF8FEE100840E59 /* UIBlockingProgressHUD.swift */,
-				6600053E2AF8FEE600840E59 /* ActivityIndicator.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -461,6 +457,7 @@
 				6610662F2AF6A17900DA66FB /* UILabel.swift */,
 				666592F02AF7DA3900AF8A29 /* UIImage.swift */,
 				666592F22AF7DACE00AF8A29 /* String.swift */,
+				663FCF522B0510150093AADF /* Float.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -707,7 +704,6 @@
 				661066302AF6A17900DA66FB /* UILabel.swift in Sources */,
 				3F6806D529CBBEC700B4F915 /* NetworkTask.swift in Sources */,
 				0CF2C2DB2A783C1B00FDC837 /* LoadingView.swift in Sources */,
-				6600053F2AF8FEE600840E59 /* ActivityIndicator.swift in Sources */,
 				3F68069729CBBAF100B4F915 /* AppDelegate.swift in Sources */,
 				660005482AF9784700840E59 /* RatingStackView.swift in Sources */,
 				668BC15F2B00E88B00678D0C /* UserStorage.swift in Sources */,
@@ -731,7 +727,6 @@
 				0CF2C2E12A784C7000FDC837 /* LinePageControl.swift in Sources */,
 				3F6806D329CBBE9600B4F915 /* NetworkRequest.swift in Sources */,
 				666592F72AF810F800AF8A29 /* ProfileStorage.swift in Sources */,
-				6600053D2AF8FEE100840E59 /* UIBlockingProgressHUD.swift in Sources */,
 				0CFCB7492A7808900009A829 /* TestCatalogController.swift in Sources */,
 				3F6806D129CBBE6B00B4F915 /* NetworkClient.swift in Sources */,
 				6610663B2AF6DDF100DA66FB /* MyNFTLabelType.swift in Sources */,
@@ -739,6 +734,7 @@
 				661066352AF6CB7500DA66FB /* MyNFTCell.swift in Sources */,
 				6610661D2AF69FE400DA66FB /* LabelTypeProfile.swift in Sources */,
 				666592E72AF7AEF400AF8A29 /* FavouriteNFTViewController.swift in Sources */,
+				663FCF532B0510150093AADF /* Float.swift in Sources */,
 				0CFCB7442A7802440009A829 /* NftDetailInput.swift in Sources */,
 				666592E92AF7AF1700AF8A29 /* FavouriteNFTCell.swift in Sources */,
 				0C79EE632A76DD1900EE90EA /* RequestConstants.swift in Sources */,

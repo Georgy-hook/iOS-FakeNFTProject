@@ -1,5 +1,5 @@
 //  ProfileViewController.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
@@ -115,7 +115,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     
     //MARK: - KingFisher
-    func updateAvatar(with url: String) {
+    private func updateAvatar(with url: String) {
         let cache = ImageCache.default
         cache.clearDiskCache()
         avatarImageView.kf.indicatorType = .activity
@@ -172,8 +172,9 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
 
 // MARK: Update data profile editingVC
 extension ProfileViewController {
-    func updateDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = image?.toImage()
+    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool) {
+        tumbler ? updateAvatar(with: image ?? String()) :
+        updateAvatar(with: presenter.profile?.avatar ?? String())
         nameLabel.text = name
         descriptionLabel.text = description
         websiteButton.setTitle(website, for: .normal)

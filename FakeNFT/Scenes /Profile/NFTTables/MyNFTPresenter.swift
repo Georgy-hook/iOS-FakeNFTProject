@@ -29,7 +29,11 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private var myNFT: [String]
     private var favoritesNFT: [String]
     private var myNFTProfile: [Nft]
-    private var myNFTUsers: [User]
+    private var myNFTUsers: [User] {
+        didSet {
+            view?.reloadData()
+        }
+    }
     private let nftService: NftServiceImpl
     private let profileService: ProfileServiceImpl
     private let userService: UserServiceImpl
@@ -65,9 +69,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                     self.favoritesNFT = profile.likes
                     self.loadRequest(self.myNFT) { nft in
                         self.myNFTProfile.append(nft)
-                        self.loadUser(nft: nft) {
-                            self.view?.reloadData()
-                        }
+                        self.loadUser(nft: nft) { }
                     }
                 case .failure:
                     self.view?.showErrorAlert()
@@ -84,12 +86,11 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                 self.nftService.loadNft(id: nft) { result in
                     switch result {
                     case .success(let nft):
-                        self.view?.hideLoading()
                         completion(nft)
                     case .failure:
-                        self.view?.hideLoading()
                         self.view?.showErrorAlert()
                     }
+                    self.view?.hideLoading()
                 }
             }
         }

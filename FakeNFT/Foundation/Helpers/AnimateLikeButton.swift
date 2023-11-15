@@ -1,5 +1,5 @@
 //  AnimateLikeButton.swift
-//  ImageFeed
+//  FakeNFT
 //  Created by Adam West on 21.08.23.
 
 import UIKit

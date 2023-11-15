@@ -1,5 +1,5 @@
 //  EditingProfileViewController.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
@@ -63,7 +63,7 @@ final class  EditingProfileViewController: UIViewController {
     }()
     private let limitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 80 символов"
+        label.text = "Ограничение 200 символов"
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .red
         label.numberOfLines = 1
@@ -72,12 +72,30 @@ final class  EditingProfileViewController: UIViewController {
         return label
     }()
     
-    private let nameLabel = ProfileLabel(labelType: .userName)
-    private let descriptionLabel = ProfileLabel(labelType: .description)
-    private let websiteLabel = ProfileLabel(labelType: .website)
+    private var tumblerUpdateAvatar: Bool
+    private let nameLabel: ProfileLabel
+    private let descriptionLabel: ProfileLabel
+    private let websiteLabel: ProfileLabel
+    private let nameTextField: ProfileTextField
+    private var websiteTextField: ProfileTextField
     
-    private let nameTextField = ProfileTextField(fieldType: .userName)
-    private var websiteTextField: UITextField = ProfileTextField(fieldType: .website)
+    
+    private var imageLink: String?
+    
+    // MARK: Initialisation
+    init() {
+        self.tumblerUpdateAvatar = false
+        self.nameLabel = ProfileLabel(labelType: .userName)
+        self.descriptionLabel = ProfileLabel(labelType: .description)
+        self.websiteLabel = ProfileLabel(labelType: .website)
+        self.nameTextField = ProfileTextField(fieldType: .userName)
+        self.websiteTextField = ProfileTextField(fieldType: .website)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: Life cycle
     override func viewDidLoad() {
@@ -90,16 +108,36 @@ final class  EditingProfileViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        loadLabel.isHidden = true
         updateDataProfile()
     }
     
     // MARK: Methods
     func updateDataProfile() {
+        var imagePhoto: String? = String()
+        tumblerUpdateAvatar ? (imagePhoto = self.imageLink) : (imagePhoto = self.avatarImageView.image?.toPngString())
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.updateDataProfile(image: avatarImageView.image?.toPngString(), name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
+        profileViewController.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: tumblerUpdateAvatar)
         profileViewController.setupUI()
+    }
+    
+    private func updateAvatarProfile() {
+        let alert = UIAlertController(title: "Сменить фото", message: "Загрузите ссылку на ваше изображение", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ок", style: .default) { _ in
+            self.tumblerUpdateAvatar = true
+        }
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { _ in
+            self.tumblerUpdateAvatar = false
+        }
+        alert.addTextField { [weak self] textfield in
+            textfield.placeholder = "Введите ссылку"
+            textfield.delegate = self
+        }
+        alert.addAction(okAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true, completion: nil)
     }
     
     // MARK: Selectors
@@ -109,6 +147,7 @@ final class  EditingProfileViewController: UIViewController {
     }
     @objc private func loadPhoto() {
         loadLabel.isHidden = false
+        updateAvatarProfile()
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -173,14 +212,17 @@ extension EditingProfileViewController: UITextFieldDelegate {
         guard let stringRange = Range(range, in: currentText) else {
             return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-        if updatedText.count >= 80 {
+        if updatedText.count >= 200 {
             limitLabel.isHidden = false
             newConstraints()
         } else {
             limitLabel.isHidden = true
             setupUI()
         }
-        return updatedText.count <= 80
+        return updatedText.count <= 200
+    }
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        imageLink = textField.text
     }
 }
 

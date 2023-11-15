@@ -20,7 +20,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     // MARK: Private properties
     private var favoritesNFT: [String]
     private var favoritesNFTProfile: [Nft]
-    private let nftService: NftServiceImpl 
+    private let nftService: NftServiceImpl
     private let profileService: ProfileServiceImpl
     
     // MARK: Initialisation
