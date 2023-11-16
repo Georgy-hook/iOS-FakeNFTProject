@@ -30,7 +30,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
-        imageView.sizeToFit()
+        imageView.contentMode = .scaleToFill
         imageView.layer.cornerRadius = 35
         return imageView
     }()
@@ -217,7 +217,7 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
 }
 
 // MARK: - Setup views, constraints
-extension ProfileViewController {
+private extension ProfileViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
         view.addSubviews(stackView, descriptionLabel, websiteButton, tableView, activityIndicator)

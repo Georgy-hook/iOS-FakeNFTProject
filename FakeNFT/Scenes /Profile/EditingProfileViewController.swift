@@ -8,7 +8,13 @@ protocol InterfaceEditingProfileViewController: AnyObject {
     func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
 }
 
-final class  EditingProfileViewController: UIViewController {
+protocol InterfaceEditingProfileController: AnyObject {
+    var presenter: InterfaceEditingProfilePresenter { get set }
+    
+}
+
+
+final class  EditingProfileViewController: UIViewController & InterfaceEditingProfileController {
     // MARK: Private properties
     private lazy var closeButton: UIButton = {
         let button = UIButton()
@@ -72,25 +78,28 @@ final class  EditingProfileViewController: UIViewController {
         return label
     }()
     
-    private var tumblerUpdateAvatar: Bool
     private let nameLabel: ProfileLabel
     private let descriptionLabel: ProfileLabel
     private let websiteLabel: ProfileLabel
     private let nameTextField: ProfileTextField
     private var websiteTextField: ProfileTextField
     
-    
-    private var imageLink: String?
+    // MARK: Presenter
+    var presenter: InterfaceEditingProfilePresenter
     
     // MARK: Initialisation
     init() {
-        self.tumblerUpdateAvatar = false
         self.nameLabel = ProfileLabel(labelType: .userName)
         self.descriptionLabel = ProfileLabel(labelType: .description)
         self.websiteLabel = ProfileLabel(labelType: .website)
         self.nameTextField = ProfileTextField(fieldType: .userName)
         self.websiteTextField = ProfileTextField(fieldType: .website)
+        
+        self.presenter = EditingProfilePresenter()
+       
         super.init(nibName: nil, bundle: nil)
+        
+        presenter.view = self
     }
     
     required init?(coder: NSCoder) {
@@ -101,35 +110,31 @@ final class  EditingProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        _ = hideKeyboardWhenClicked
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         loadLabel.isHidden = true
         updateDataProfile()
+        keyboardNotification()
     }
     
     // MARK: Methods
     func updateDataProfile() {
-        var imagePhoto: String? = String()
-        tumblerUpdateAvatar ? (imagePhoto = self.imageLink) : (imagePhoto = self.avatarImageView.image?.toPngString())
+        let imagePhoto: String? = presenter.updateImage(avatarImageView: avatarImageView.image?.toPngString())
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: tumblerUpdateAvatar)
-        profileViewController.setupUI()
+        profileViewController.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: presenter.updateTumbler(nil))
     }
     
     private func updateAvatarProfile() {
         let alert = UIAlertController(title: "Сменить фото", message: "Загрузите ссылку на ваше изображение", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Ок", style: .default) { _ in
-            self.tumblerUpdateAvatar = true
+            _ = self.presenter.updateTumbler(true)
         }
         let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { _ in
-            self.tumblerUpdateAvatar = false
+            _ = self.presenter.updateTumbler(false)
         }
         alert.addTextField { [weak self] textfield in
             textfield.placeholder = "Введите ссылку"
@@ -138,6 +143,11 @@ final class  EditingProfileViewController: UIViewController {
         alert.addAction(okAction)
         alert.addAction(cancelAction)
         self.present(alert, animated: true, completion: nil)
+    }
+    private func keyboardNotification() {
+        _ = hideKeyboardWhenClicked
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     // MARK: Selectors
@@ -150,7 +160,7 @@ final class  EditingProfileViewController: UIViewController {
         updateAvatarProfile()
     }
     
-    @objc func keyboardWillShow(notification: NSNotification) {
+    @objc private func keyboardWillShow(notification: NSNotification) {
         if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if websiteTextField.isEditing {
                 self.view.frame.origin.y -= nameLabel.bounds.height +  descriptionLabel.bounds.height + websiteTextField.bounds.height
@@ -158,7 +168,7 @@ final class  EditingProfileViewController: UIViewController {
         }
     }
 
-    @objc func keyboardWillHide(notification: NSNotification) {
+    @objc private func keyboardWillHide(notification: NSNotification) {
         if self.view.frame.origin.y != 0 {
             self.view.frame.origin.y = 0
         }
@@ -222,7 +232,7 @@ extension EditingProfileViewController: UITextFieldDelegate {
         return updatedText.count <= 200
     }
     func textFieldDidEndEditing(_ textField: UITextField) {
-        imageLink = textField.text
+        presenter.updateLink(newValue: textField.text)
     }
 }
 

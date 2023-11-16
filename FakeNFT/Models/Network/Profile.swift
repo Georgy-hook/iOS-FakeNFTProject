@@ -4,7 +4,7 @@
 
 import Foundation
 
-struct Profile: Decodable {
+struct Profile: Codable {
     let name: String
     let avatar: String
     let description: String
@@ -13,6 +13,7 @@ struct Profile: Decodable {
     var likes: [String]
     let id: String
     
+    // MARK: Default
     init(name: String, avatar: String, description: String, website: String, nfts: [String], likes: [String], id: String) {
         self.name = name
         self.avatar = avatar
@@ -22,6 +23,8 @@ struct Profile: Decodable {
         self.likes = likes
         self.id = id
     }
+    
+    // MARK: Empty
     init() {
         self.name = String()
         self.avatar = String()

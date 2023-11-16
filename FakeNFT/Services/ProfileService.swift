@@ -38,4 +38,17 @@ final class ProfileServiceImpl: ProfileService {
             }
         }
     }
+    
+    func updateProfile(name: String, avatar: String, description: String, website: String, nfts: [String], likes: [String], id: String, completion: @escaping ProfileCompletion) {
+        let request = ProfilePutRequest(name: name, avatar: avatar, description: description, website: website, nfts: nfts, likes: likes, id: id)
+        networkClient.send(request: request, type: Profile.self) { [weak profileStorage] result in
+            switch result {
+            case .success(let profile):
+                profileStorage?.saveProfile(profile)
+                completion(.success(profile))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 }
