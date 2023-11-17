@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CatalogPresenterProtocol {
+protocol CatalogPresenterProtocol: Sortable {
     var view: CatalogViewControllerProtocol? { get set }
     var collectionsCount: Int { get }
     func viewDidLoad()
@@ -22,12 +22,15 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         return collections.count
     }
     
+    private let sortingSaveService: SortingSaveServiceProtocol
     private let networkClient: NetworkClient
     
     private var collections: [CollectionModel] = []
     
-    init(networkClient: NetworkClient = DefaultNetworkClient()) {
+    init(networkClient: NetworkClient = DefaultNetworkClient(),
+         sortingSaveService: SortingSaveServiceProtocol = SortingSaveService(screen: .catalogue)) {
         self.networkClient = networkClient
+        self.sortingSaveService = sortingSaveService
     }
             
     func getCollectionsIndex(_ index: Int) -> CollectionModel? {
@@ -40,24 +43,36 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     }
     
     private func loadCollection() {
-        DispatchQueue.global().async {
-            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self) { [weak self] result in
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self) { result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success(let model):
                         assert(Thread.isMainThread)
-                        self?.view?.hideLoading()
-                        self?.collections = model
-                        self?.view?.updateTableView()
-                        self?.view?.endRefreshing()
+                        self.collections = model
+                        self.sort(param: (self.sortingSaveService.savedSorting))
+                        self.view?.updateTableView()
                     case .failure(let error):
-                        self?.view?.hideLoading()
-                        self?.view?.endRefreshing()
                         print(error.localizedDescription)
                     }
+                    self.view?.hideLoading()
+                    self.view?.endRefreshing()
                 }
             }
         }
     }
 }
 
+//MARK: - Sorting
+extension CatalogPresenter: Sortable {
+    func sort(param: Sort) {
+        sortingSaveService.saveSorting(param: param)
+        switch param {
+        case .NFTCount:
+            collections = collections.sorted(by: { $0.nfts.count > $1.nfts.count })
+        case .NFTName:
+            collections = collections.sorted(by: { $0.name < $1.name })
+        }
+    }
+}

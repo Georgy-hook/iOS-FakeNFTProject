@@ -14,6 +14,14 @@ final class WebViewViewController: UIViewController {
         webView.navigationDelegate = self
         return webView
     }()
+    
+    private lazy var backButton: UIButton = {
+        let button = UIButton()
+        button.setImage(UIImage(named: "backWard"), for: .normal)
+        button.backgroundColor = .clear
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 
     private var webSite: URL
 
@@ -52,17 +60,28 @@ final class WebViewViewController: UIViewController {
         navigationItem.leftBarButtonItem = nil
         navigationController?.navigationBar.tintColor = .black
     }
-
+    
     private func setupUI() {
-        view.addSubviews(webView)
+        view.addSubviews(webView, backButton)
         view?.backgroundColor = .white
-
+        backButton.addTarget(self, action: #selector(didBackButtonTapped), for: .touchUpInside)
+        
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            backButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 9),
+            backButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor , constant: 11),
+            backButton.widthAnchor.constraint(equalToConstant: 24),
+            backButton.heightAnchor.constraint(equalToConstant: 24),
+            
+            webView.topAnchor.constraint(equalTo: backButton.bottomAnchor),
             webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
+    }
+    
+    // MARK: - Actions
+    @objc func didBackButtonTapped(){
+        dismiss(animated: true)
     }
 }
 // MARK: - WKNavigationDelegate
@@ -80,4 +99,3 @@ extension WebViewViewController: WKNavigationDelegate {
         print(error)
     }
 }
-
