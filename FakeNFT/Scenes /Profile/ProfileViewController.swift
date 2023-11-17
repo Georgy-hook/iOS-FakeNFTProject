@@ -103,6 +103,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
             let count = profileAssembly.returnFavouriteNft().count
             self.presenter.titleRows[1] = "Избранные NFT (\(count))"
             self.presenter.updateFavouriteNft()
+            self.presenter.putUpdatedDataProfile()
             self.tableView.reloadData()
         }
     }

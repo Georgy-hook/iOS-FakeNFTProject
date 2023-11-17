@@ -121,7 +121,9 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
         profileViewController.presenter.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: presenter.updateTumbler(nil))
+        profileViewController.presenter.putUpdatedDataProfile()
         profileViewController.updateDataProfileAfterEditing()
+        
     }
     
     private func updateAvatarProfile() {

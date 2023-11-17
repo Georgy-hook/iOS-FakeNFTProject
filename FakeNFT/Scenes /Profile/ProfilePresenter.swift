@@ -11,6 +11,7 @@ protocol InterfaceProfilePresenter: AnyObject {
     func setupDelegateEditingProfile(viewController: EditingProfileViewController, image: String?, name: String?, description: String?, website: String?)
     func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool)
     func updateFavouriteNft()
+    func putUpdatedDataProfile()
     func viewDidLoad()
 }
 
@@ -95,5 +96,27 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         let favouriteNFTs = view.getFavouriteNFT()
         let favouriteNFTsID = favouriteNFTs.map { $0.id }
         profile?.likes = favouriteNFTsID
-    }   
+    }
+    
+    func putUpdatedDataProfile() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            guard let profile else { return }
+            self.profileService.updateProfile(
+                name: profile.name,
+                avatar: profile.avatar,
+                description: profile.description,
+                website: profile.website,
+                nfts: profile.nfts,
+                likes: profile.likes,
+                id: profile.id) { result in
+                    switch result {
+                    case .success(let profile):
+                        print(profile)
+                    case .failure(let error):
+                        print(error)
+                    }
+                }
+        }
+    }
 }
