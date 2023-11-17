@@ -10,6 +10,7 @@ protocol InterfaceProfileViewController: AnyObject, LoadingView {
     func reloadTable()
     func updateDataProfile()
     func showErrorAlert()
+    func getFavouriteNFT() -> [Nft]
 }
 
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
@@ -84,6 +85,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         super.init(nibName: nil, bundle: nil)
         self.profileAssembly.profilePresenter(presenter: presenter, input: self)
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -98,14 +100,24 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if profileAssembly.favouriteNftIsInit {
-            let count = profileAssembly.returnCountFavouriteNft()
+            let count = profileAssembly.returnFavouriteNft().count
             self.presenter.titleRows[1] = "Избранные NFT (\(count))"
+            self.presenter.updateFavouriteNft()
             self.tableView.reloadData()
         }
     }
     
     // MARK: Methods
     func updateDataProfile() {
+        let profile = presenter.profile
+        guard let profile else { return }
+        updateAvatar(with: profile.avatar)
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteButton.setTitle(profile.website, for: .normal)
+    }
+    
+    func updateDataProfileAfterEditing() {
         let profile = presenter.profile
         guard let profile else { return }
         updateAvatar(with: profile.avatar)
@@ -125,11 +137,15 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
                                     options: [.processor(processor),  .transition(.fade(1))])
     }
     
+    // MARK: Presenter methods
     func reloadTable() {
         tableView.reloadData()
     }
     func showErrorAlert() {
         self.showErrorLoadAlert()
+    }
+    func getFavouriteNFT() -> [Nft] {
+        return profileAssembly.returnFavouriteNft()
     }
     
     // MARK: Setup ViewControllers
@@ -167,17 +183,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     @objc private func goToWebsite() {
         showWebViewController()
-    }
-}
-
-// MARK: Update data profile editingVC
-extension ProfileViewController {
-    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool) {
-        tumbler ? updateAvatar(with: image ?? String()) :
-        updateAvatar(with: presenter.profile?.avatar ?? String())
-        nameLabel.text = name
-        descriptionLabel.text = description
-        websiteButton.setTitle(website, for: .normal)
     }
 }
 

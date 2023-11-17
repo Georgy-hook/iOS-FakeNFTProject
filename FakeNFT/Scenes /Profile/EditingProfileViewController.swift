@@ -10,9 +10,7 @@ protocol InterfaceEditingProfileViewController: AnyObject {
 
 protocol InterfaceEditingProfileController: AnyObject {
     var presenter: InterfaceEditingProfilePresenter { get set }
-    
 }
-
 
 final class  EditingProfileViewController: UIViewController & InterfaceEditingProfileController {
     // MARK: Private properties
@@ -89,16 +87,13 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
     
     // MARK: Initialisation
     init() {
+        self.presenter = EditingProfilePresenter()
         self.nameLabel = ProfileLabel(labelType: .userName)
         self.descriptionLabel = ProfileLabel(labelType: .description)
         self.websiteLabel = ProfileLabel(labelType: .website)
         self.nameTextField = ProfileTextField(fieldType: .userName)
         self.websiteTextField = ProfileTextField(fieldType: .website)
-        
-        self.presenter = EditingProfilePresenter()
-       
         super.init(nibName: nil, bundle: nil)
-        
         presenter.view = self
     }
     
@@ -125,7 +120,8 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: presenter.updateTumbler(nil))
+        profileViewController.presenter.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: presenter.updateTumbler(nil))
+        profileViewController.updateDataProfileAfterEditing()
     }
     
     private func updateAvatarProfile() {
@@ -144,6 +140,7 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
         alert.addAction(cancelAction)
         self.present(alert, animated: true, completion: nil)
     }
+    
     private func keyboardNotification() {
         _ = hideKeyboardWhenClicked
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -212,11 +209,13 @@ extension EditingProfileViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         limitLabel.isHidden = true
         setupUI()
         return true
     }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? String()
         guard let stringRange = Range(range, in: currentText) else {
@@ -231,6 +230,7 @@ extension EditingProfileViewController: UITextFieldDelegate {
         }
         return updatedText.count <= 200
     }
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
         presenter.updateLink(newValue: textField.text)
     }
@@ -290,6 +290,7 @@ private extension EditingProfileViewController {
             websiteTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
         ])
     }
+    
     private func newConstraints() {
         setupUI()
         NSLayoutConstraint.activate([

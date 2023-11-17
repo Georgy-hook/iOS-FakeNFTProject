@@ -12,9 +12,11 @@ protocol InterfaceEditingProfilePresenter: AnyObject {
 }
 
 final class EditingProfilePresenter: InterfaceEditingProfilePresenter {
-    // MARK: Public Properties
+    // MARK: Private properties
     private var imageLink: String?
-    var tumblerUpdateAvatar: Bool
+    private var tumblerUpdateAvatar: Bool
+    
+    // MARK: Controller 
     weak var view: InterfaceEditingProfileController?
     
     // MARK: Initialisation

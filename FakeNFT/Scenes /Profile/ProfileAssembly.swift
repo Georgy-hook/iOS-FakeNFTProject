@@ -69,7 +69,7 @@ final class ProfileAssembly {
         input.present(editingProfileViewController, animated: true)
     }
     
-    public func returnCountFavouriteNft() -> Int {
-        return favouriteNFTViewController.presenter.collectionsCount
+    public func returnFavouriteNft() -> [Nft] {
+        return favouriteNFTViewController.presenter.getCollectionFavoritesNFT()
     }
 }

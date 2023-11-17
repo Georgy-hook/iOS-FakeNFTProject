@@ -9,6 +9,8 @@ protocol InterfaceProfilePresenter: AnyObject {
     var profile: Profile? { get set }
     var view: InterfaceProfileViewController? { get set }
     func setupDelegateEditingProfile(viewController: EditingProfileViewController, image: String?, name: String?, description: String?, website: String?)
+    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool)
+    func updateFavouriteNft()
     func viewDidLoad()
 }
 
@@ -78,4 +80,20 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         delegateToEditing = viewController
         delegateToEditing?.configureDataProfile(image: image, name: name, description: description, website: website)
     }
+    
+    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool) {
+        if tumbler {
+            profile?.avatar = image ?? String()
+        }
+        profile?.name = name ?? String()
+        profile?.description = description ?? String()
+        profile?.website = website ?? String()
+    }
+    
+    func updateFavouriteNft() {
+        guard let view else { return }
+        let favouriteNFTs = view.getFavouriteNFT()
+        let favouriteNFTsID = favouriteNFTs.map { $0.id }
+        profile?.likes = favouriteNFTsID
+    }   
 }

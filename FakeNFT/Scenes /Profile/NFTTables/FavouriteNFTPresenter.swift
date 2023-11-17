@@ -9,6 +9,7 @@ protocol InterfaceFavouriteNFTPresenter: AnyObject {
     func viewDidLoad()
     func getCollectionsIndex(_ index: Int) -> Nft?
     func removeFromCollection(_ index: Int)
+    func getCollectionFavoritesNFT() -> [Nft]
 }
 
 final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
@@ -84,5 +85,9 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     func removeFromCollection(_ index: Int) {
         favoritesNFTProfile.remove(at: index)
+    }
+    
+    func getCollectionFavoritesNFT() -> [Nft] {
+        return favoritesNFTProfile
     }
 }
