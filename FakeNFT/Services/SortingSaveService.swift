@@ -16,10 +16,9 @@ final class SortingSaveService: SortingSaveServiceProtocol {
     var savedSorting: Sort {
         var sorting = Sort.NFTName
         
-        if sortConfig == "NFTName" { sorting = .NFTName }
-        if sortConfig == "NFTCount" { sorting = .NFTCount }
-        
-        if sortConfig == nil {
+        if let sortConfig, let sortFromConfig = Sort(rawValue: sortConfig) {
+            sorting = sortFromConfig
+        } else {
             switch screen {
             case .catalogue:
                 sorting = .NFTCount
@@ -53,9 +52,9 @@ final class SortingSaveService: SortingSaveServiceProtocol {
     private func saveSortingForScreen(param: Sort, key: String) {
         switch param {
         case .NFTCount:
-            userDefaults.set("NFTCount", forKey: key)
+            userDefaults.set(param.rawValue, forKey: key)
         case .NFTName:
-            userDefaults.set("NFTName", forKey: key)
+            userDefaults.set(param.rawValue, forKey: key)
         }
     }
 }

@@ -80,7 +80,7 @@ final class WebViewViewController: UIViewController {
     }
     
     // MARK: - Actions
-    @objc func didBackButtonTapped(){
+    @objc private func didBackButtonTapped(){
         dismiss(animated: true)
     }
 }
