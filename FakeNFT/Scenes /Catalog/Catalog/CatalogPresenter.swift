@@ -11,54 +11,56 @@ protocol CatalogPresenterProtocol: Sortable {
     var view: CatalogViewControllerProtocol? { get set }
     var collectionsCount: Int { get }
     func viewDidLoad()
-    func getCollectionsIndex(_ index: Int) -> CollectionModel?
+    func getCollectionIndex(_ index: Int) -> CollectionModel?
 }
 
 final class CatalogPresenter: CatalogPresenterProtocol {
     
+    // MARK: Public properties
     weak var view: CatalogViewControllerProtocol?
     
     var collectionsCount: Int {
         return collections.count
     }
     
+    // MARK: Private properties
+    private let interactor: CatalogInteractorProtocol
     private let sortingSaveService: SortingSaveServiceProtocol
-    private let networkClient: NetworkClient
     
     private var collections: [CollectionModel] = []
     
-    init(networkClient: NetworkClient = DefaultNetworkClient(),
+    // MARK: Init
+    init(interactor: CatalogInteractorProtocol,
          sortingSaveService: SortingSaveServiceProtocol = SortingSaveService(screen: .catalogue)) {
-        self.networkClient = networkClient
+        self.interactor = interactor
         self.sortingSaveService = sortingSaveService
     }
-            
-    func getCollectionsIndex(_ index: Int) -> CollectionModel? {
-        collections[index]
-    }
-        
+       
+    // MARK: Public func
     func viewDidLoad() {
         view?.showLoading()
         loadCollection()
     }
     
+    func getCollectionIndex(_ index: Int) -> CollectionModel? {
+        collections[index]
+    }
+     
+    // MARK: Private func
     private func loadCollection() {
-        DispatchQueue.global().async { [weak self] in
+        interactor.loadCollections { [weak self] result in
             guard let self else { return }
-            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let model):
-                        assert(Thread.isMainThread)
-                        self.collections = model
-                        self.sort(param: (self.sortingSaveService.savedSorting))
-                        self.view?.updateTableView()
-                    case .failure(let error):
-                        print(error.localizedDescription)
-                    }
-                    self.view?.hideLoading()
-                    self.view?.endRefreshing()
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let model):
+                    self.collections = model
+                    self.sort(param: (self.sortingSaveService.savedSorting))
+                    self.view?.updateTableView()
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
+                self.view?.hideLoading()
+                self.view?.endRefreshing()
             }
         }
     }

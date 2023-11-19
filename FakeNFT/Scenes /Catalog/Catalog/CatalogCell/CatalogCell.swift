@@ -9,6 +9,7 @@ import UIKit
 
 final class CatalogCell: UITableViewCell {
     
+    // MARK: Private properties
     private let previewImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -24,6 +25,7 @@ final class CatalogCell: UITableViewCell {
         return label
     }()
     
+    // MARK: Init
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()
@@ -44,7 +46,7 @@ final class CatalogCell: UITableViewCell {
         guard let urlString = collection.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
         previewImage.kf.indicatorType = .activity
-        previewImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
+        previewImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.collection.placeholder"))
     }
 }
 
@@ -60,17 +62,18 @@ private extension CatalogCell {
             previewImage.topAnchor.constraint(equalTo: contentView.topAnchor),
             previewImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             previewImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            previewImage.heightAnchor.constraint(equalToConstant: Constants.defaultHeight),
+            previewImage.heightAnchor.constraint(equalToConstant: Constants.imageHeight.rawValue),
             
-            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.defaultOffset),
+            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.topOffset.rawValue),
             previewText.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
 }
 
+// MARK: - Constants
 extension CatalogCell {
-    private enum Constants {
-        static let defaultHeight: CGFloat = 140
-        static let defaultOffset: CGFloat = 4
+    private enum Constants: CGFloat {
+        case imageHeight = 140
+        case topOffset = 4
     }
 }

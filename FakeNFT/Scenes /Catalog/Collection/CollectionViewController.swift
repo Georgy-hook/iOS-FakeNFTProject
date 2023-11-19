@@ -7,12 +7,21 @@
 
 import UIKit
 
-protocol CollectionViewControllerProtocol: AnyObject {
+protocol CollectionViewControllerProtocol: AnyObject & LoadingView {
     var presenter: CollectionPresenterProtocol { get set }
-    func updateProfileData()
+    func updateCollectionView()
+    func setupCollection(_ collections: CollectionModel)    
 }
 
 final class CollectionViewController: UIViewController & CollectionViewControllerProtocol {
+    
+    // MARK: Public properties
+    var activityIndicator = UIActivityIndicatorView(style: .medium)
+    
+    var presenter: CollectionPresenterProtocol
+    
+    // MARK: Private properties
+    private var authorURL: String = ""
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -24,7 +33,6 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private let coverImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
-        view.image = UIImage(named: "Catalog.nulImage")
         view.layer.cornerRadius = 12
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         return view
@@ -41,24 +49,26 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         let label = UILabel()
         label.textColor = .black
         label.font = .systemFont(ofSize: 13, weight: .medium)
-        label.text = "Автор коллекции:"
-        return label
-    }()
-    
-    private let authorNameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .systemBlue
-        label.numberOfLines = 0
         return label
     }()
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.text = "Персиковый — как облака над закатным солнцем в океане. В этой коллекции совмещены трогательная нежность и живая игривость сказочных зефирных зверей."
         label.textColor = .black
         label.numberOfLines = 0
+        return label
+    }()
+    
+    private lazy var authorNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .systemBlue
+        label.numberOfLines = 0
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(didTapUserNameLabel(_:)))
+        )
         return label
     }()
     
@@ -72,26 +82,22 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         return collectionView
     }()
     
-    var presenter: CollectionPresenterProtocol
-    
-    private var authorURL: String = ""
-    
+    // MARK: Init
     init(presenter: CollectionPresenterProtocol) {
         self.presenter = presenter
-        self.presenter.viewDidLoad()
         super.init(nibName: nil, bundle: nil)
         self.presenter.view = self
+        self.presenter.viewDidLoad()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+        
+    // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
         setupViews()
-     
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -106,15 +112,13 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
             hidesBottomBarWhenPushed = false
         }
     }
-        
-    private func setupNavigationBar() {
-        let backItem = UIBarButtonItem()
-        backItem.title = nil
-        backItem.tintColor = .black
-        navigationController?.navigationBar.topItem?.backBarButtonItem = backItem
-    }
     
-    func setupCollections(_ collections: CollectionModel) {
+    // MARK: Public func
+    func setupCollection(_ collections: CollectionModel) {
+        let author = presenter.getAuthor()
+        authorURL = author.website
+        authorNameLabel.text = author.name
+        
         let urlString = collections.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let url = URL(string: urlString!)
         coverImage.kf.indicatorType = .activity
@@ -122,23 +126,110 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         
         nameLabel.text = collections.name
         descriptionLabel.text = collections.description
-        
-        
-        
+        authorTitleLabel.text = "Автор коллекции:"
+        heightCollection(of: collections.nfts.count)
     }
     
-    func updateProfileData() {
-        guard let profile = presenter.profile else {
-            return
+    func updateCollectionView() {
+        collectionView.reloadData()
+    }
+    
+    // MARK: Private func
+    private func heightCollection(of nftsCount: Int) {
+        let collectionHeight = (
+            Constants.cellHeight.rawValue + Constants.lineMargins.rawValue) *
+            ceil(CGFloat(nftsCount) /
+            Constants.cellCols.rawValue
+        )
+        collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
+    }
+    
+    // MARK: Selectors
+    @objc
+    private func didTapUserNameLabel(_ sender: Any) {
+        guard let urlString = authorURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: urlString)
+        else { return }
+        let webViewController = WebViewViewController(webSite: url)
+        webViewController.modalPresentationStyle = .fullScreen
+        present(webViewController, animated: true)
+    }
+}
+
+// MARK: - UICollectionViewDataSource
+extension CollectionViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView,
+                        numberOfItemsInSection section: Int) -> Int {
+        presenter.getNftsCount()
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: CollectionCell.identifier,
+            for: indexPath
+        ) as? CollectionCell else {
+            assertionFailure("Failed to dequeue CollectionCell for indexPath: \(indexPath)")
+            return UICollectionViewCell()
         }
-        authorURL = profile.website
-        authorNameLabel.text = profile.name
+        
+        setupCell(cell, indexPath)
+
+        return cell
     }
-  
     
-    private func setupViews() {
+    private func setupCell(_ cell: CollectionCell, _ indexPath: IndexPath) {
+        presenter.getNftsIndex(indexPath.row) { nftsModel in
+            switch nftsModel {
+            case .success(let nftsModel):
+                cell.configureCell(nftsModel)
+                print(nftsModel)
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+extension CollectionViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath) -> CGSize {
+            let width = floor((collectionView.frame.width - Constants.cellMargins.rawValue * (Constants.cellCols.rawValue - 1)) / Constants.cellCols.rawValue)
+            return CGSize(width: width, height: Constants.cellHeight.rawValue)
+        }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+            return Constants.cellMargins.rawValue
+        }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return Constants.lineMargins.rawValue
+    }
+}
+
+// MARK: - UIGestureRecognizerDelegate
+extension CollectionViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
+
+// MARK: - Setup Views/Constraints
+private extension CollectionViewController {
+    func setupViews() {
         view.backgroundColor = .white
+        setupNavigationBar()
         setupScrollView()
+        setupActivityIndicator()
+        
         scrollView.addSubviews(coverImage, nameLabel, authorTitleLabel, authorNameLabel, descriptionLabel, collectionView)
         
         setupCoverImage()
@@ -147,12 +238,16 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         setupAuthorNameLabel()
         setupDescriptionLabel()
         setupCollectionView()
-        
-        let collectionHeight = (Const.cellHeight + Const.lineMargins) * ceil(CGFloat(21) / Const.cellCols)
-              collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
     }
     
-    private func setupScrollView() {
+    func setupNavigationBar() {
+        let backItem = UIBarButtonItem()
+        backItem.title = nil
+        backItem.tintColor = .black
+        navigationController?.navigationBar.topItem?.backBarButtonItem = backItem
+    }
+    
+    func setupScrollView() {
         view.addSubviews(scrollView)
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -162,7 +257,15 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         ])
     }
     
-    private func setupCoverImage() {
+    func setupActivityIndicator() {
+        view.addSubviews(activityIndicator)
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
+    
+    func setupCoverImage() {
         NSLayoutConstraint.activate([
             coverImage.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             coverImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -171,119 +274,54 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         ])
     }
     
-    private func setupNameLabel() {
+    func setupNameLabel() {
         scrollView.addSubviews(nameLabel)
         NSLayoutConstraint.activate([
             nameLabel.topAnchor.constraint(equalTo: coverImage.bottomAnchor, constant: 16),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Const.sideMargins)
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue)
         ])
     }
     
-    private func setupAuthorTitleLabel() {
+    func setupAuthorTitleLabel() {
         NSLayoutConstraint.activate([
             authorTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 13),
-            authorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Const.sideMargins)
+            authorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue)
         ])
     }
     
-    private func setupAuthorNameLabel() {
-        authorNameLabel.isUserInteractionEnabled = true
-        let guestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(didTapUserNameLabel(_:)))
-        authorNameLabel.addGestureRecognizer(guestureRecognizer)
+    func setupAuthorNameLabel() {
         NSLayoutConstraint.activate([
             authorNameLabel.topAnchor.constraint(equalTo: authorTitleLabel.topAnchor),
             authorNameLabel.leadingAnchor.constraint(equalTo: authorTitleLabel.trailingAnchor, constant: 4),
-            authorNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant:  -Const.sideMargins)
+            authorNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue)
         ])
     }
     
-    private func setupDescriptionLabel() {
+    func setupDescriptionLabel() {
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: authorNameLabel.bottomAnchor, constant: 5),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Const.sideMargins),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Const.sideMargins)
+            descriptionLabel.topAnchor.constraint(equalTo: authorTitleLabel.bottomAnchor, constant: 5),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue)
         ])
     }
     
-    @objc
-    func didTapUserNameLabel(_ sender: Any) {
-        guard let urlString = authorURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: urlString)
-        else { return }
-        let webViewController = WebViewViewController(webSite: url)
-        webViewController.modalPresentationStyle = .fullScreen
-        present(webViewController, animated: true)
-    }
-    
-    private func setupCollectionView() {
+    func setupCollectionView() {
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 16),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Const.sideMargins),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Const.sideMargins),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue),
             collectionView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
 }
 
-extension CollectionViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView,
-                        numberOfItemsInSection section: Int) -> Int {
-        21
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: CollectionCell.identifier,
-            for: indexPath
-        ) as? CollectionCell else {
-            assertionFailure("Error get cell")
-            return .init()
-        }
-        
-        
-        cell.configure()
-        
-
-        return cell
-    }
-}
-
-extension CollectionViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let width = floor((collectionView.frame.width - Const.cellMargins * (Const.cellCols - 1)) / Const.cellCols)
-            return CGSize(width: width, height: Const.cellHeight)
-        }
-    
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-            return Const.cellMargins
-        }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return Const.lineMargins
-    }
-}
-
-extension CollectionViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-}
-
+// MARK: - Constants
 private extension CollectionViewController {
-    enum Const {
-        static let cellMargins: CGFloat = 9
-        static let lineMargins: CGFloat = 8
-        static let cellCols: CGFloat = 3
-        static let cellHeight: CGFloat = 192
-        static let sideMargins: CGFloat = 16
+    enum Constants: CGFloat {
+        case cellMargins = 9
+        case lineMargins = 8
+        case cellCols = 3
+        case cellHeight = 192
+        case sideMargins = 16
     }
 }
