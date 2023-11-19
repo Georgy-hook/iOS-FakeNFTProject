@@ -19,6 +19,7 @@ class PaymentCell: UICollectionViewCell {
         imageView.backgroundColor = UIColor(named: "YP Black")
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.kf.indicatorType = .activity
         return imageView
     }()
     
@@ -52,7 +53,7 @@ class PaymentCell: UICollectionViewCell {
 }
 
 // MARK: - Layout
-extension PaymentCell {
+private extension PaymentCell {
     private func addSubviews() {
         addSubview(currencyImageView)
         addSubview(abbreviationLabel)

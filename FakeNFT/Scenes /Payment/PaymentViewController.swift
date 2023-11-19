@@ -75,6 +75,7 @@ final class PaymentViewController:UIViewController{
         label.text = NSLocalizedString("User agreement", comment: "")
         label.textColor = UIColor(named: "YP Blue")
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.isUserInteractionEnabled = true
         return label
     }()
     
@@ -83,7 +84,8 @@ final class PaymentViewController:UIViewController{
     
     // MARK: - Variables
     private let presenter: PaymentViewPresenter
-    
+    private let link = "https://yandex.ru/legal/practicum_termsofuse/"
+
     // MARK: - Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,17 +96,26 @@ final class PaymentViewController:UIViewController{
     }
     
     // MARK: - Actions
-    @objc func didBackButtonTapped(){
+    @objc private func didBackButtonTapped(){
         dismiss(animated: true)
+    }
+    
+    @objc private func linkLabelDidTapped(){
+        guard let url = URL(string: link) else { return }
+        let webView = WebViewViewController(webSite: url)
+        webView.modalPresentationStyle = .fullScreen
+        present(webView, animated: true)
     }
 }
 
 // MARK: - Layout
-extension PaymentViewController{
+private extension PaymentViewController{
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         backButton.addTarget(self, action: #selector(didBackButtonTapped), for: .touchUpInside)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(linkLabelDidTapped))
+        linkLabel.addGestureRecognizer(tapGesture)
     }
     
     private func addSubviews() {
