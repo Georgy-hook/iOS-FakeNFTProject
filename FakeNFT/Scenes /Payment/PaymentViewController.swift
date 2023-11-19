@@ -106,6 +106,10 @@ final class PaymentViewController:UIViewController{
         webView.modalPresentationStyle = .fullScreen
         present(webView, animated: true)
     }
+    
+    @objc private func didPayButtonTapped(){
+        
+    }
 }
 
 // MARK: - Layout
@@ -116,6 +120,7 @@ private extension PaymentViewController{
         backButton.addTarget(self, action: #selector(didBackButtonTapped), for: .touchUpInside)
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(linkLabelDidTapped))
         linkLabel.addGestureRecognizer(tapGesture)
+        payButton.addTarget(self, action: #selector(didPayButtonTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {

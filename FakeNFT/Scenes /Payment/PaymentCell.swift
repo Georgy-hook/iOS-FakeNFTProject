@@ -14,7 +14,6 @@ class PaymentCell: UICollectionViewCell {
     
     private let currencyImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "Vector")
         imageView.layer.cornerRadius = 12
         imageView.backgroundColor = UIColor(named: "YP Black")
         imageView.clipsToBounds = true
