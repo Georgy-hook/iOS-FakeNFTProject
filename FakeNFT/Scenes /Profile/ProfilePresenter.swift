@@ -64,11 +64,15 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.profileService.loadProfile(id: "1") { result in
+            let numberOfProfile = "1"
+            self.profileService.loadProfile(id: numberOfProfile) { result in
                 switch result {
                 case .success(let profile):
+                    self.encodeData(profile)
                     completion(profile)
                 case .failure:
+                    self.decodeData()
+                    completion(self.profile)
                     self.view?.showErrorAlert()
                 }
                 self.view?.hideLoading()
@@ -117,6 +121,24 @@ final class ProfilePresenter: InterfaceProfilePresenter {
                         print(error)
                     }
                 }
+        }
+    }
+}
+
+// MARK: - Default Data Profile
+private extension ProfilePresenter {
+    func encodeData(_ value: Profile) {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(value) {
+            UserDefaults.standard.set(encoded, forKey: "SavedProfile")
+        }
+    }
+    func decodeData() {
+        if let savedProfile = UserDefaults.standard.object(forKey: "SavedProfile") as? Data {
+            let decoder = JSONDecoder()
+            if let loadedProfile = try? decoder.decode(Profile.self, from: savedProfile) {
+                self.profile = loadedProfile
+            }
         }
     }
 }

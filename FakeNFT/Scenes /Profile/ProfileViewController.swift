@@ -52,7 +52,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     private lazy var websiteButton: UIButton = {
         let button = UIButton()
-        button.setTitle("String()", for: .normal)
+        button.setTitle("", for: .normal)
         button.contentHorizontalAlignment = .left
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.numberOfLines = 0
@@ -83,7 +83,6 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         self.profileAssembly = profileAssembly
         self.presenter = profileAssembly.profilePresenter
         super.init(nibName: nil, bundle: nil)
-        self.profileAssembly.profilePresenter(presenter: presenter, input: self)
     }
     
     required init?(coder: NSCoder) {
@@ -95,6 +94,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
+        profileAssembly.profilePresenter(presenter: presenter, input: self)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -144,6 +144,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     func showErrorAlert() {
         self.showErrorLoadAlert()
+        navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = false
     }
     func getFavouriteNFT() -> [Nft] {
         return profileAssembly.returnFavouriteNft()
