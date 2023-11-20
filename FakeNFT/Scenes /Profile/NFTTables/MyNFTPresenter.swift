@@ -6,18 +6,19 @@ import Foundation
 
 protocol InterfaceMyNFTPresenter: AnyObject {
     var view: InterfaceMyNFTController? { get set }
+    var delegateToFavouriteNft: InterfaceFavouriteNFTPresenter? { get set }
     var collectionsCount: Int { get }
     func configureCell(_ indexpath: IndexPath) -> MyNFTCell
     func typeSorted(type: sotringOption)
     func viewDidLoad()
 }
 
+// MARK: Sotring option
 enum sotringOption {
     case price
     case rating
     case name
 }
-
 
 final class MyNFTPresenter: InterfaceMyNFTPresenter {
     // MARK: Public Properties
@@ -27,6 +28,9 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: MyNFTViewController
     weak var view: InterfaceMyNFTController?
+    
+    // MARK: Delegate
+    var delegateToFavouriteNft: InterfaceFavouriteNFTPresenter?
     
     // MARK: Private properties
     private var myNFT: [String]
@@ -41,7 +45,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private let profileService: ProfileServiceImpl
     private let userService: UserServiceImpl
     
-    // MARK: Initialisation
+    // MARK: Initialization
     init() {
         self.myNFT = []
         self.favoritesNFT = []
@@ -78,6 +82,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         }
     }
     
+    // MARK: Load request & user
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
         DispatchQueue.main.async { [weak self] in
@@ -111,6 +116,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         }
     }
     
+    // MARK: Configure Cell
     func configureCell(_ indexpath: IndexPath) -> MyNFTCell {
         let cell = MyNFTCell()
         var myNFTProfile = myNFTProfile[indexpath.row]
@@ -127,12 +133,17 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         return cell
     }
     
+    // MARK: Add like Nft to favourite
     func isLikedNft(id: String, isLiked: Bool) {
        var searchNFT = myNFTProfile.first { $0.id == id }
         myNFTProfile.removeAll(where: { $0 == searchNFT })
         searchNFT?.like = isLiked
         guard let searchNFT else { return }
         myNFTProfile.append(searchNFT)
+    }
+    
+    func addLikeNftToFavourite(_ currentNft: Nft, isLiked: Bool) {
+        isLiked ? delegateToFavouriteNft?.addToCollectionFavoritesNFT(currentNft) : delegateToFavouriteNft?.removeFromCollectionFavoritesNFT(currentNft)
     }
     
     // MARK: Methods of sorting

@@ -10,6 +10,8 @@ protocol InterfaceFavouriteNFTPresenter: AnyObject {
     func getCollectionsIndex(_ index: Int) -> Nft?
     func removeFromCollection(_ index: Int)
     func getCollectionFavoritesNFT() -> [Nft]
+    func addToCollectionFavoritesNFT(_ currentNft: Nft)
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft)
 }
 
 final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
@@ -89,5 +91,19 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     func getCollectionFavoritesNFT() -> [Nft] {
         return favoritesNFTProfile
+    }
+    
+    func addToCollectionFavoritesNFT(_ currentNft: Nft) {
+        if favoritesNFTProfile.contains(where: {$0 == currentNft} ) {
+            return
+        } else {
+            favoritesNFTProfile.append(currentNft)
+            view?.reloadData()
+        }
+    }
+    
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft) {
+        favoritesNFTProfile.removeAll(where: {$0 == currentNft})
+        view?.reloadData()
     }
 }

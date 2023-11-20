@@ -28,6 +28,7 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         return imageView
     }()
     private var idOfCurrentNft: String
+    private var currentNft: Nft
     
     private var nameLabel: MyNFTLabel
     private var ratingStar: RatingStackView
@@ -41,6 +42,7 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     // MARK: Initialisation
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         self.idOfCurrentNft = String()
+        self.currentNft = Nft()
         self.nameLabel = MyNFTLabel(labelType: .big, text: nil)
         self.ratingStar = RatingStackView()
         self.authorLabel = MyNFTLabel(labelType: .little, text: nil)
@@ -68,6 +70,7 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         authorLabel.text = user.name
         priceLabel.text = "\(nftPrice) ETH"
         idOfCurrentNft = nft.id
+        currentNft = nft
         guard let like = nft.like else { return }
         like ? likeButtonImage() : noLikeButtonImage()
     }
@@ -76,9 +79,11 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         if sender.image(for: .normal) == UIImage(named: ImagesAssets.like.rawValue) {
             noLikeButtonImage()
             delegate?.isLikedNft(id: idOfCurrentNft, isLiked: false)
+            delegate?.addLikeNftToFavourite(currentNft, isLiked: false)
         } else {
             likeButtonImage()
             delegate?.isLikedNft(id: idOfCurrentNft, isLiked: true)
+            delegate?.addLikeNftToFavourite(currentNft, isLiked: true)
         }
     }
     

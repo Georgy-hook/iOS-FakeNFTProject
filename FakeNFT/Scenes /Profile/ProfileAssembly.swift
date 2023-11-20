@@ -32,6 +32,7 @@ final class ProfileAssembly {
     public func buildMyNFT(with input: UIViewController) {
         myNFTViewController.title = "Мои NFT"
         myNFTViewController.presenter.view = myNFTViewController
+        myNFTViewController.presenter.delegateToFavouriteNft = favouriteNFTViewController.presenter
         let navigationController = UINavigationController(rootViewController: myNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
         navigationController.navigationBar.shadowImage = UIImage()

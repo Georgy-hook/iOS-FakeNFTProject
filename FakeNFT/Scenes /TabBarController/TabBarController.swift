@@ -16,7 +16,8 @@ final class TabBarController: UITabBarController {
         myNFTViewController: MyNFTViewController(
             presenter: MyNFTPresenter()),
         favouriteNFTViewController: FavouriteNFTViewController(
-            presenter: FavouriteNFTPresenter()))
+            presenter: FavouriteNFTPresenter())
+    )
     
 
     private let catalogTabBarItem = UITabBarItem(
