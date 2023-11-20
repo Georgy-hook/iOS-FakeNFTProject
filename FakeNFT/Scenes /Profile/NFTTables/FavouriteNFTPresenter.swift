@@ -18,6 +18,9 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
         return favoritesNFTProfile.count
     }
     
+    // MARK: FavouriteNFTViewController
+    weak var view: InterfaceFavouriteNFTController?
+    
     // MARK: Private properties
     private var favoritesNFT: [String]
     private var favoritesNFTProfile: [Nft]
@@ -31,9 +34,6 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
         self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
         self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
-    
-    // MARK: FavouriteNFTViewController
-    weak var view: InterfaceFavouriteNFTController?
     
     // MARK: Life cycle
     func viewDidLoad() {

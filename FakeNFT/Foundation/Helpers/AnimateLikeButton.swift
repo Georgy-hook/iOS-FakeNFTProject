@@ -6,11 +6,11 @@ import UIKit
 
 protocol InterfaceAnimateLikeButton {
     func animateLikeButton(_ sender: UIButton)
-    func stopLikeButton(_ cell: FavouriteNFTCell)
+    func stopLikeButton(_ sender: UIButton)
 }
 
 final class AnimateLikeButton: InterfaceAnimateLikeButton {
-    // MARK: Added pulse animation to like button(cell)
+    // MARK: Added pulse animation to like button
     public func animateLikeButton(_ sender: UIButton) {
         UIView.animateKeyframes(withDuration: 1,
                                 delay: 0,
@@ -30,11 +30,11 @@ final class AnimateLikeButton: InterfaceAnimateLikeButton {
         }
     }
     
-    public func stopLikeButton(_ cell: FavouriteNFTCell) {
-        UIView.transition(with: cell.likeButton,
+    public func stopLikeButton(_ sender: UIButton) {
+        UIView.transition(with: sender,
                           duration: 1,
                           options: .transitionCrossDissolve) {
-            cell.likeButton.layer.removeAllAnimations()
+            sender.layer.removeAllAnimations()
         }
     }
 }

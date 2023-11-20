@@ -6,17 +6,19 @@ import UIKit
 import Kingfisher
 
 final class MyNFTCell: UITableViewCell & ReuseIdentifying {
+    // MARK: Delegate
+    weak var delegate: MyNFTPresenter?
+    
     // MARK: Public properties
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
-        button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .highlighted)
         button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
-        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .selected)
-        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: [.highlighted, .selected])
+        button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)
+        button.addTarget(self, action: #selector(stopAnimationOfLike(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(stopAnimationOfLike(sender:)), for: .touchUpOutside)
         return button
     }()
-    
     // MARK: Private properties
     private var nftImageView: UIImageView = {
         let imageView = UIImageView()
@@ -25,6 +27,8 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         imageView.layer.cornerRadius = 12
         return imageView
     }()
+    private var idOfCurrentNft: String
+    
     private var nameLabel: MyNFTLabel
     private var ratingStar: RatingStackView
     private var authorLabel: MyNFTLabel
@@ -32,18 +36,22 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
     
     private let fromAuthorLabel: MyNFTLabel
     private let namePriceLabel: MyNFTLabel
+    private let animateLikeButton: InterfaceAnimateLikeButton
     
     // MARK: Initialisation
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.idOfCurrentNft = String()
         self.nameLabel = MyNFTLabel(labelType: .big, text: nil)
         self.ratingStar = RatingStackView()
         self.authorLabel = MyNFTLabel(labelType: .little, text: nil)
         self.priceLabel = MyNFTLabel(labelType: .big, text: nil)
         self.fromAuthorLabel = MyNFTLabel(labelType: .middle, text: "от")
         self.namePriceLabel = MyNFTLabel(labelType: .little, text: "Цена")
+        self.animateLikeButton = AnimateLikeButton()
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -59,6 +67,39 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         ratingStar.rating = nft.rating
         authorLabel.text = user.name
         priceLabel.text = "\(nftPrice) ETH"
+        idOfCurrentNft = nft.id
+        guard let like = nft.like else { return }
+        like ? likeButtonImage() : noLikeButtonImage()
+    }
+    
+    private func changeLike(sender: UIButton) {
+        if sender.image(for: .normal) == UIImage(named: ImagesAssets.like.rawValue) {
+            noLikeButtonImage()
+            delegate?.isLikedNft(id: idOfCurrentNft, isLiked: false)
+        } else {
+            likeButtonImage()
+            delegate?.isLikedNft(id: idOfCurrentNft, isLiked: true)
+        }
+    }
+    
+    private func likeButtonImage() {
+        likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
+        likeButton.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .highlighted)
+    }
+    
+    private func noLikeButtonImage() {
+        likeButton.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
+        likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .highlighted)
+    }
+    
+    // MARK: Selectors
+    @objc private func animateLike(sender: UIButton) {
+        animateLikeButton.animateLikeButton(sender)
+        changeLike(sender: sender)
+    }
+    
+    @objc private func stopAnimationOfLike(sender: UIButton) {
+        animateLikeButton.stopLikeButton(sender)
     }
 }
 

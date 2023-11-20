@@ -25,6 +25,9 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         return myNFTProfile.count
     }
     
+    // MARK: MyNFTViewController
+    weak var view: InterfaceMyNFTController?
+    
     // MARK: Private properties
     private var myNFT: [String]
     private var favoritesNFT: [String]
@@ -37,9 +40,6 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private let nftService: NftServiceImpl
     private let profileService: ProfileServiceImpl
     private let userService: UserServiceImpl
-    
-    // MARK: MyNFTViewController
-    weak var view: InterfaceMyNFTController?
     
     // MARK: Initialisation
     init() {
@@ -113,32 +113,40 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     func configureCell(_ indexpath: IndexPath) -> MyNFTCell {
         let cell = MyNFTCell()
-        let myNFTProfile = myNFTProfile[indexpath.row]
-        var myNFTUser = User()
-        let likesNFT = favoritesNFT.filter{ myNFT.contains($0) }
-        likesNFT.forEach { nftResult in
-            if myNFTProfile.id == nftResult {
-                cell.likeButton.isSelected = true
-            }
+        var myNFTProfile = myNFTProfile[indexpath.row]
+        let likedIDs = myNFT.filter { favoritesNFT.contains($0) }
+        likedIDs.forEach { id in
+            myNFTProfile.id == id ? (myNFTProfile.like = true) : (myNFTProfile.like = false)
         }
+        var myNFTUser = User()
         if myNFTUsers.count == self.myNFTProfile.count {
             myNFTUser = myNFTUsers[indexpath.row]
         }
+        cell.delegate = self
         cell.configure(with: myNFTProfile, user: myNFTUser)
         return cell
+    }
+    
+    func isLikedNft(id: String, isLiked: Bool) {
+       var searchNFT = myNFTProfile.first { $0.id == id }
+        myNFTProfile.removeAll(where: { $0 == searchNFT })
+        searchNFT?.like = isLiked
+        guard let searchNFT else { return }
+        myNFTProfile.append(searchNFT)
     }
     
     // MARK: Methods of sorting
     func typeSorted(type: sotringOption) {
         switch type {
-        case .price: 
+        case .price:
             sortedByPrice()
         case .rating:
             sortedByRating()
-        case .name: 
+        case .name:
             sortedByName()
         }
     }
+    
     private func sortedByPrice() {
         myNFTProfile = myNFTProfile.sorted { $0.price < $1.price }
         view?.reloadData()
@@ -148,7 +156,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
         myNFTProfile = myNFTProfile.sorted { $0.rating < $1.rating }
         view?.reloadData()
     }
-        
+    
     private func sortedByName() {
         myNFTProfile = myNFTProfile.sorted { $0.name < $1.name }
         view?.reloadData()

@@ -9,7 +9,14 @@ final class TabBarController: UITabBarController {
         userStorage: UserStorageImpl()
     )
     
-    let profileAssembly = ProfileAssembly(editingProfileViewController: EditingProfileViewController(), webViewerController: WebViewerController(), myNFTViewController: MyNFTViewController(), favouriteNFTViewController: FavouriteNFTViewController())
+    let profileAssembly = ProfileAssembly(
+        editingProfileViewController: EditingProfileViewController(
+            presenter: EditingProfilePresenter()),
+        webViewerController: WebViewerController(),
+        myNFTViewController: MyNFTViewController(
+            presenter: MyNFTPresenter()),
+        favouriteNFTViewController: FavouriteNFTViewController(
+            presenter: FavouriteNFTPresenter()))
     
 
     private let catalogTabBarItem = UITabBarItem(
@@ -43,7 +50,10 @@ final class TabBarController: UITabBarController {
         )
         catalogController.tabBarItem = catalogTabBarItem
 
-        let profileViewController = ProfileViewController(profileAssembly: profileAssembly)
+        let profilePresenter = ProfilePresenter(profileAssembly: profileAssembly)
+        let profileViewController = ProfileViewController(presenter: profilePresenter) 
+        profilePresenter.view = profileViewController
+        
         let profileController = UINavigationController(rootViewController: profileViewController)
         profileController.tabBarItem = profileTabBarItem
         

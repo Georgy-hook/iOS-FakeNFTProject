@@ -4,40 +4,69 @@
 
 import Foundation
 
+// MARK: DataProfile
+struct DataProfile {
+    var image: String?
+    var name: String?
+    var description: String?
+    var website: String?
+}
+
+protocol InterfaceEditingProfileViewPresenter: AnyObject {
+    func configureDataProfile(image: String?, name: String?, description: String?, website: String?) -> DataProfile
+}
+
 protocol InterfaceEditingProfilePresenter: AnyObject {
     var view: InterfaceEditingProfileController? { get set }
     func updateImage(avatarImageView: String?) -> String?
-    func updateTumbler(_ newValue: Bool?) -> Bool
+    func shouldUpdatedImage(_ newValue: Bool?) -> Bool
     func updateLink(newValue: String?)
+    func dataProfileValues() -> DataProfile
 }
 
-final class EditingProfilePresenter: InterfaceEditingProfilePresenter {
+final class EditingProfilePresenter: InterfaceEditingProfilePresenter, InterfaceEditingProfileViewPresenter {
     // MARK: Private properties
     private var imageLink: String?
-    private var tumblerUpdateAvatar: Bool
+    private var shouldUpdateAvatar: Bool
+    private var dataProfile: DataProfile
     
-    // MARK: Controller 
+    // MARK: Controller
     weak var view: InterfaceEditingProfileController?
     
     // MARK: Initialisation
     init() {
-        self.tumblerUpdateAvatar = false
+        self.shouldUpdateAvatar = false
+        self.dataProfile = DataProfile()
     }
     
     // MARK: Methods
     func updateImage(avatarImageView: String?) -> String? {
-        return tumblerUpdateAvatar ? imageLink : avatarImageView
+        return shouldUpdateAvatar ? imageLink : avatarImageView
     }
     
     func updateLink(newValue: String?) {
         imageLink = newValue
     }
     
-    func updateTumbler(_ newValue: Bool?) -> Bool {
+    func shouldUpdatedImage(_ newValue: Bool?) -> Bool {
         guard let newValue else {
-            return tumblerUpdateAvatar
+            return shouldUpdateAvatar
         }
-        tumblerUpdateAvatar = newValue
-        return tumblerUpdateAvatar
+        shouldUpdateAvatar = newValue
+        return shouldUpdateAvatar
+    }
+    
+    // MARK: InterfaceEditingProfileViewPresenter delegate 
+    func configureDataProfile(image: String?, name: String?, description: String?, website: String?) -> DataProfile {
+        dataProfile = DataProfile(
+            image: image,
+            name: name,
+            description: description,
+            website: website)
+        return dataProfile
+    }
+    
+    func dataProfileValues() -> DataProfile {
+        return dataProfile
     }
 }

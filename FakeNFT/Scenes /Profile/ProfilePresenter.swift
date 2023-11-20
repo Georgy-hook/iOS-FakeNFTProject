@@ -5,35 +5,46 @@
 import Foundation
 
 protocol InterfaceProfilePresenter: AnyObject {
-    var titleRows: [String] { get set }
-    var profile: Profile? { get set }
+    var titleRowsCount: Int { get }
     var view: InterfaceProfileViewController? { get set }
-    func setupDelegateEditingProfile(viewController: EditingProfileViewController, image: String?, name: String?, description: String?, website: String?)
-    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool)
-    func updateFavouriteNft()
-    func putUpdatedDataProfile()
+    func getProfileData() -> Profile?
+    func getTitleRowsIndex(_ index: Int) -> String?
+    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, isUpdated: Bool)
+    func updateFavouriteNftCount()
+    func buildEditingProfile()
+    func buildMyNFT()
+    func buildFavouriteNFT()
+    func buildwebViewer(text: String)
+    func setupDelegateEditingProfile(viewController: InterfaceEditingProfileViewPresenter)
     func viewDidLoad()
 }
 
 final class ProfilePresenter: InterfaceProfilePresenter {
     // MARK: Public Properties
-    var titleRows: [String] 
-    var profile: Profile?
+    var titleRowsCount: Int {
+        return titleRows.count
+    }
     
-    // MARK: Delegates
-    weak var delegateToEditing: InterfaceEditingProfileViewController?
+    // MARK: Delegate
+    weak var delegateToEditing: InterfaceEditingProfileViewPresenter?
+    
+    // MARK: Controller
     weak var view: InterfaceProfileViewController?
     
     // MARK: Private properties
     private var myNFT: [String]
     private var favoritesNFT: [String]
+    private var titleRows: [String]
+    private var profile: Profile?
     private let profileService: ProfileServiceImpl
+    private var profileAssembly: ProfileAssembly
     
     // MARK: Initialisation
-    init() {
+    init(profileAssembly: ProfileAssembly) {
         self.myNFT = [String]()
         self.favoritesNFT = [String]()
         self.titleRows = [ ]
+        self.profileAssembly = profileAssembly
         self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
     
@@ -41,6 +52,16 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     func viewDidLoad() {
         view?.showLoading()
         updateDataProfile()
+    }
+    
+    // MARK: Get titleRows index
+    func getTitleRowsIndex(_ index: Int) -> String? {
+        return titleRows[index]
+    }
+    
+    // MARK: Get profile
+    func getProfileData() -> Profile? {
+        return profile
     }
     
     // MARK: Update Data Profile
@@ -80,14 +101,15 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         }
     }
     
-    // MARK: Setup delegate
-    func setupDelegateEditingProfile(viewController: EditingProfileViewController, image: String?, name: String?, description: String?, website: String?) {
+     // MARK: Setup delegate
+    func setupDelegateEditingProfile(viewController: InterfaceEditingProfileViewPresenter) {
         delegateToEditing = viewController
-        delegateToEditing?.configureDataProfile(image: image, name: name, description: description, website: website)
+        guard let profile else { return }
+        _ = delegateToEditing?.configureDataProfile(image: profile.avatar, name: profile.name, description: profile.description, website: profile.website)
     }
     
-    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, tumbler: Bool) {
-        if tumbler {
+    func updateDataProfile(image: String?, name: String?, description: String?, website: String?, isUpdated: Bool) {
+        if isUpdated {
             profile?.avatar = image ?? String()
         }
         profile?.name = name ?? String()
@@ -95,13 +117,24 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         profile?.website = website ?? String()
     }
     
-    func updateFavouriteNft() {
-        guard let view else { return }
-        let favouriteNFTs = view.getFavouriteNFT()
+    func updateFavouriteNftCount() {
+        if profileAssembly.favouriteNftIsInit {
+            let count = profileAssembly.returnFavouriteNft().count
+            titleRows[1] = "Избранные NFT (\(count))"
+            updateFavouriteNft()
+            #warning("X")
+            //putUpdatedDataProfile()
+            view?.reloadTable()
+        }
+    }
+    
+    private func updateFavouriteNft() {
+        let favouriteNFTs = profileAssembly.returnFavouriteNft()
         let favouriteNFTsID = favouriteNFTs.map { $0.id }
         profile?.likes = favouriteNFTsID
     }
     
+    // MARK: Make put Request to update data on server
     func putUpdatedDataProfile() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -113,19 +146,36 @@ final class ProfilePresenter: InterfaceProfilePresenter {
                 website: profile.website,
                 nfts: profile.nfts,
                 likes: profile.likes,
-                id: profile.id) { result in
-                    switch result {
-                    case .success(let profile):
-                        print(profile)
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
+                id: profile.id, nil) 
         }
+    }
+    
+    // MARK: Build All Controllers: 
+    private func viewAsProfileController() -> ProfileViewController {
+        guard let view = view as? ProfileViewController else {
+            return ProfileViewController(presenter: self)
+        }
+        return view
+    }
+    /// EditingProfile
+    func buildEditingProfile() {
+        profileAssembly.buildEditingProfile(with: viewAsProfileController(), presenter: self)
+    }
+    /// MyNFT
+    func buildMyNFT() {
+        profileAssembly.buildMyNFT(with: viewAsProfileController())
+    }
+    /// FavouriteNFT
+    func buildFavouriteNFT() {
+        profileAssembly.buildFavouriteNFT(with: viewAsProfileController())
+    }
+    /// WebViewer
+    func buildwebViewer(text: String) {
+        profileAssembly.buildwebViewer(with: viewAsProfileController(), urlString: text)
     }
 }
 
-// MARK: - Default Data Profile
+// MARK: - Decoding Data Profile
 private extension ProfilePresenter {
     func encodeData(_ value: Profile) {
         let encoder = JSONEncoder()

@@ -8,16 +8,6 @@ final class ProfileAssembly {
     // MARK: Public Properties
     public var favouriteNftIsInit = false
     
-    var profilePresenter: ProfilePresenter {
-        ProfilePresenter()
-    }
-    var myNFTPresenter: MyNFTPresenter {
-        MyNFTPresenter()
-    }
-    var favouriteNFTPresenter: FavouriteNFTPresenter {
-        FavouriteNFTPresenter()
-    }
-    
     // MARK: Private properties
     private let editingProfileViewController: EditingProfileViewController
     private let webViewerController: WebViewerController
@@ -33,20 +23,15 @@ final class ProfileAssembly {
     }
     
     // MARK: Public Methods
-    public func profilePresenter(presenter: InterfaceProfilePresenter, input: InterfaceProfileViewController) {
-        let presenter = presenter
-        presenter.view = input
-        presenter.viewDidLoad()
-    }
-    
-    public func buildwebViewer(with input: UIViewController, urlString: String) {
-        webViewerController.loadRequest(with: urlString)
-        let navigationController = UINavigationController(rootViewController: webViewerController)
-        input.present(navigationController, animated: true)
+    public func buildEditingProfile(with input: ProfileViewController, presenter: InterfaceProfilePresenter) {
+        editingProfileViewController.presenter.view = editingProfileViewController
+        input.presenter.setupDelegateEditingProfile(viewController: editingProfileViewController.presenter as! InterfaceEditingProfileViewPresenter)
+        input.present(editingProfileViewController, animated: true)
     }
     
     public func buildMyNFT(with input: UIViewController) {
         myNFTViewController.title = "Мои NFT"
+        myNFTViewController.presenter.view = myNFTViewController
         let navigationController = UINavigationController(rootViewController: myNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
         navigationController.navigationBar.shadowImage = UIImage()
@@ -56,6 +41,7 @@ final class ProfileAssembly {
     
     public func buildFavouriteNFT(with input: UIViewController) {
         favouriteNFTViewController.title = "Избранные NFT"
+        favouriteNFTViewController.presenter.view = favouriteNFTViewController
         let navigationController = UINavigationController(rootViewController: favouriteNFTViewController)
         navigationController.navigationBar.barTintColor = .systemBackground
         navigationController.navigationBar.shadowImage = UIImage()
@@ -64,9 +50,10 @@ final class ProfileAssembly {
         favouriteNftIsInit = true
     }
     
-    public func buildEditingProfile(presenter: InterfaceProfilePresenter, with input: UIViewController, image: String?, name: String?, description: String?, website: String?) {
-        presenter.setupDelegateEditingProfile(viewController: editingProfileViewController, image: image, name: name, description: description, website: website)
-        input.present(editingProfileViewController, animated: true)
+    public func buildwebViewer(with input: UIViewController, urlString: String) {
+        webViewerController.loadRequest(with: urlString)
+        let navigationController = UINavigationController(rootViewController: webViewerController)
+        input.present(navigationController, animated: true)
     }
     
     public func returnFavouriteNft() -> [Nft] {

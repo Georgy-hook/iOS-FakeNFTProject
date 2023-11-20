@@ -3,16 +3,16 @@
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
-
-protocol InterfaceEditingProfileViewController: AnyObject {
-    func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
-}
+import Kingfisher
 
 protocol InterfaceEditingProfileController: AnyObject {
     var presenter: InterfaceEditingProfilePresenter { get set }
 }
 
 final class  EditingProfileViewController: UIViewController & InterfaceEditingProfileController {
+    // MARK: Presenter
+    var presenter: InterfaceEditingProfilePresenter
+    
     // MARK: Private properties
     private lazy var closeButton: UIButton = {
         let button = UIButton()
@@ -82,19 +82,15 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
     private let nameTextField: ProfileTextField
     private var websiteTextField: ProfileTextField
     
-    // MARK: Presenter
-    var presenter: InterfaceEditingProfilePresenter
-    
     // MARK: Initialisation
-    init() {
-        self.presenter = EditingProfilePresenter()
+    init(presenter: InterfaceEditingProfilePresenter) {
+        self.presenter = presenter
         self.nameLabel = ProfileLabel(labelType: .userName)
         self.descriptionLabel = ProfileLabel(labelType: .description)
         self.websiteLabel = ProfileLabel(labelType: .website)
         self.nameTextField = ProfileTextField(fieldType: .userName)
         self.websiteTextField = ProfileTextField(fieldType: .website)
         super.init(nibName: nil, bundle: nil)
-        presenter.view = self
     }
     
     required init?(coder: NSCoder) {
@@ -104,6 +100,7 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureData()
         setupUI()
     }
     
@@ -114,14 +111,34 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
         keyboardNotification()
     }
     
-    // MARK: Methods
+    // MARK: Configuration of Data
+    private func configureData() {
+        let dataProfile = presenter.dataProfileValues()
+        updateAvatar(with: dataProfile.image ?? String())
+        nameTextField.text = dataProfile.name
+        descriptionTextView.text = dataProfile.description
+        websiteTextField.text = dataProfile.website
+    }
+    //MARK: - KingFisher
+    private func updateAvatar(with url: String) {
+        let cache = ImageCache.default
+        cache.clearDiskCache()
+        avatarImageView.kf.indicatorType = .activity
+        let processor = RoundCornerImageProcessor(cornerRadius: 60)
+        avatarImageView.kf.setImage(with: URL(string: url),
+                                    placeholder: UIImage(named: "placeholder"),
+                                    options: [.processor(processor),  .transition(.fade(1))])
+    }
+    
+    // MARK: Update Data after changing 
     func updateDataProfile() {
         let imagePhoto: String? = presenter.updateImage(avatarImageView: avatarImageView.image?.toPngString())
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.presenter.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, tumbler: presenter.updateTumbler(nil))
-        profileViewController.presenter.putUpdatedDataProfile()
+        profileViewController.presenter.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, isUpdated: presenter.shouldUpdatedImage(nil))
+        #warning("X")
+        //profileViewController.presenter.putUpdatedDataProfile()
         profileViewController.updateDataProfileAfterEditing()
         
     }
@@ -129,10 +146,10 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
     private func updateAvatarProfile() {
         let alert = UIAlertController(title: "Сменить фото", message: "Загрузите ссылку на ваше изображение", preferredStyle: .alert)
         let okAction = UIAlertAction(title: "Ок", style: .default) { _ in
-            _ = self.presenter.updateTumbler(true)
+            _ = self.presenter.shouldUpdatedImage(true)
         }
         let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { _ in
-            _ = self.presenter.updateTumbler(false)
+            _ = self.presenter.shouldUpdatedImage(false)
         }
         alert.addTextField { [weak self] textfield in
             textfield.placeholder = "Введите ссылку"
@@ -171,16 +188,6 @@ final class  EditingProfileViewController: UIViewController & InterfaceEditingPr
         if self.view.frame.origin.y != 0 {
             self.view.frame.origin.y = 0
         }
-    }
-}
-
-// MARK: - InterfaceProfileViewController
-extension EditingProfileViewController: InterfaceEditingProfileViewController {
-    func configureDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = image?.toImage()
-        nameTextField.text = name
-        descriptionTextView.text = description
-        websiteTextField.text = website
     }
 }
 
