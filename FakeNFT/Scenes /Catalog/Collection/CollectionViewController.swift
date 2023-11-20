@@ -113,7 +113,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         }
     }
     
-    // MARK: Public func
+    // MARK: Public methods
     func setupCollection(_ collections: CollectionModel) {
         let author = presenter.getAuthor()
         authorURL = author.website
@@ -134,7 +134,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         collectionView.reloadData()
     }
     
-    // MARK: Private func
+    // MARK: Private methods
     private func heightCollection(of nftsCount: Int) {
         let collectionHeight = (
             Constants.cellHeight.rawValue + Constants.lineMargins.rawValue) *
@@ -142,6 +142,8 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
             Constants.cellCols.rawValue
         )
         collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
+        
+        navigationController?.hidesBarsOnSwipe = nftsCount > 6
     }
     
     // MARK: Selectors

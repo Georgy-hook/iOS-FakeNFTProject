@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CatalogPresenterProtocol: Sortable {
-    var view: CatalogViewControllerProtocol? { get set }
+    var view: CatalogViewControllerProtocol! { get set }
     var collectionsCount: Int { get }
     func viewDidLoad()
     func getCollectionIndex(_ index: Int) -> CollectionModel?
@@ -17,7 +17,7 @@ protocol CatalogPresenterProtocol: Sortable {
 final class CatalogPresenter: CatalogPresenterProtocol {
     
     // MARK: Public properties
-    weak var view: CatalogViewControllerProtocol?
+    unowned var view: CatalogViewControllerProtocol!
     
     var collectionsCount: Int {
         return collections.count
@@ -36,9 +36,9 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         self.sortingSaveService = sortingSaveService
     }
        
-    // MARK: Public func
+    // MARK: Public methods
     func viewDidLoad() {
-        view?.showLoading()
+        view.showLoading()
         loadCollection()
     }
     
@@ -46,7 +46,7 @@ final class CatalogPresenter: CatalogPresenterProtocol {
         collections[index]
     }
      
-    // MARK: Private func
+    // MARK: Private methods
     private func loadCollection() {
         interactor.loadCollections { [weak self] result in
             guard let self else { return }
@@ -55,12 +55,12 @@ final class CatalogPresenter: CatalogPresenterProtocol {
                 case .success(let model):
                     self.collections = model
                     self.sort(param: (self.sortingSaveService.savedSorting))
-                    self.view?.updateTableView()
+                    self.view.updateTableView()
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
-                self.view?.hideLoading()
-                self.view?.endRefreshing()
+                self.view.hideLoading()
+                self.view.endRefreshing()
             }
         }
     }

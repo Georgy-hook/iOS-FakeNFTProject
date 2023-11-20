@@ -72,7 +72,7 @@ final class CollectionCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: Public func
+    // MARK: Public methods
     func configureCell(_ nfts: NftsModel?) {
         guard let nfts else { return }
         nameLabel.text = nfts.name
@@ -85,7 +85,7 @@ final class CollectionCell: UICollectionViewCell {
         cardImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
     }
     
-    // MARK: Private func
+    // MARK: Private methods
     private func setStarsState(_ state: Int) {
         starsImage.enumerated().forEach { position, star in
             star.image = position < state ? UIImage(named: "starDoneIcon") : UIImage(named: "defaultStarIcon")

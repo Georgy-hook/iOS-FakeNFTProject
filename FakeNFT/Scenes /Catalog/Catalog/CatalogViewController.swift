@@ -57,14 +57,25 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
         setupViews()
         setupConstraints()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.hidesBarsOnSwipe = true
+    }
      
-    // MARK: Public func
+    // MARK: Public methods
     func updateTableView() {
         tableView.reloadData()
     }
     
+    // MARK: Public methods
     func endRefreshing() {
         refreshControl.endRefreshing()
+    }
+    
+    private func scrollToTop() {
+        let indexPath = IndexPath(row: 0, section: 0)
+        tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
     
     // MARK: Selectors
@@ -80,10 +91,12 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
         controller.addAction(.init(title: "По названию", style: .default, handler: { [weak self] _ in
             self?.presenter.sort(param: .NFTName)
             self?.tableView.reloadData()
+            self?.scrollToTop()
         }))
         controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { [weak self] _ in
             self?.presenter.sort(param: .NFTCount)
             self?.tableView.reloadData()
+            self?.scrollToTop()
         }))
         controller.addAction(.init(title: "Закрыть", style: .cancel))
         present(controller, animated: true)
@@ -144,7 +157,6 @@ private extension CatalogViewController {
     }
     
     func setupNavigationController() {
-        navigationController?.hidesBarsOnSwipe = true
         navigationController?.navigationBar.backgroundColor = .clear
     }
     

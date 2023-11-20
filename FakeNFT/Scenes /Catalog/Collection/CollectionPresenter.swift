@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CollectionPresenterProtocol {
-    var view: CollectionViewControllerProtocol? { get set }
+    var view: CollectionViewControllerProtocol! { get set }
     func viewDidLoad()
     func getAuthor() -> AuthorModel
     func getNftsCount() -> Int
@@ -23,7 +23,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     }
       
     // MARK: Public properties
-    weak var view: CollectionViewControllerProtocol?
+    unowned var view: CollectionViewControllerProtocol!
     
     var isCollectionLoadError = false
     
@@ -45,9 +45,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         self.collections = collections
     }
     
-    // MARK: Public func
+    // MARK: Public methods
     func viewDidLoad() {
-        view?.showLoading()
+        view.showLoading()
         
         loadAuthor(collections.author)
         
@@ -67,9 +67,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             /// после завершения всех loadNfts
             self.loadGroup.notify(queue: .main) {
                 print("Обновляю UI")
-                self.view?.hideLoading()
-                self.view?.updateCollectionView()
-                self.view?.setupCollection(self.collections)
+                self.view.hideLoading()
+                self.view.updateCollectionView()
+                self.view.setupCollection(self.collections)
             }
         }
     }
@@ -94,7 +94,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         return nfts.count
     }
     
-    // MARK: Private func
+    // MARK: Private methods
     private func sortByName() {
         self.nfts.sort { (x, y) -> Bool in
             return x.name.localizedCaseInsensitiveCompare(y.name) == .orderedAscending
