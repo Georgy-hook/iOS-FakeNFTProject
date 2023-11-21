@@ -1,5 +1,5 @@
 //  UILabel.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import UIKit

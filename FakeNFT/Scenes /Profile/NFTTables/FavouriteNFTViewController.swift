@@ -15,6 +15,9 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
     // MARK: Public Properties
     var activityIndicator: UIActivityIndicatorView
     
+    // MARK: Presenter
+    var presenter: InterfaceFavouriteNFTPresenter
+    
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет избранных NFT")
     private var params: GeometricParams = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 7)
@@ -31,20 +34,16 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
     }()
     
     // MARK: Initialisation
-    init() {
+    init(presenter: InterfaceFavouriteNFTPresenter) {
+        self.presenter = presenter
         self.emptyLabel.isHidden = true
-        self.presenter = FavouriteNFTPresenter()
         self.activityIndicator = UIActivityIndicatorView(style: .medium)
         super.init(nibName: nil, bundle: nil)
-        presenter.view = self
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: Presenter
-    var presenter: InterfaceFavouriteNFTPresenter
     
     // MARK: Life cycle
     override func viewDidLoad() {
@@ -54,7 +53,7 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
         setupNavigationBar()
     }
     
-    // MARK: Methods
+    // MARK: Public methods
     func reloadData() {
         collectionView.reloadData()
         showEmptyLabel()
@@ -63,6 +62,7 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
         self.showErrorLoadAlert()
     }
     
+    // MARK: Private methods
     private func showEmptyLabel() {
         presenter.collectionsCount == 0 ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
     }

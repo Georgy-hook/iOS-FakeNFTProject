@@ -1,5 +1,5 @@
 //  GeometricParams.swift
-//  Tracker
+//  FakeNFT
 //  Created by Adam West on 02.09.23.
 
 import Foundation

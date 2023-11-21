@@ -14,6 +14,9 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
     // MARK: Public Properties
     var activityIndicator: UIActivityIndicatorView
     
+    // MARK: Presenter
+    var presenter: InterfaceMyNFTPresenter
+    
     // MARK: Private properties
     private var emptyLabel = MyNFTLabel(labelType: .big, text: "У Вас еще нет NFT")
 
@@ -30,19 +33,16 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
     }()
     
     // MARK: Initialisation
-    init() {
+    init(presenter: InterfaceMyNFTPresenter) {
+        self.presenter = presenter
         self.emptyLabel.isHidden = true
-        self.presenter = MyNFTPresenter()
         self.activityIndicator = UIActivityIndicatorView(style: .medium)
         super.init(nibName: nil, bundle: nil)
-        self.presenter.view = self
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: Presenter
-    var presenter: InterfaceMyNFTPresenter 
     
     // MARK: Life cycle
     override func viewDidLoad() {
@@ -52,7 +52,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
         setupNavigationBar()
     }
     
-    // MARK: Methods
+    // MARK: Public methods
     func reloadData() {
         tableView.reloadData()
         showEmptyLabel()
@@ -61,6 +61,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
         self.showErrorLoadAlert()
     }
     
+    // MARK: Private methods
     private func showEmptyLabel() {
         presenter.collectionsCount == 0 ? (emptyLabel.isHidden = false) : (emptyLabel.isHidden = true)
     }
@@ -114,7 +115,7 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
     }
 }
 
-// MARK: UITableViewDelegate & UITableViewDataSource
+// MARK: - UITableViewDelegate & UITableViewDataSource
 extension MyNFTViewController: UITableViewDelegate & UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return presenter.collectionsCount

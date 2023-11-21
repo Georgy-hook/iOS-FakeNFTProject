@@ -18,8 +18,7 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
         button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
         button.addTarget(self, action: #selector(checkButtonTapped(sender:)), for: .touchUpInside)
         button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)
-        button.addTarget(self, action: #selector(stopAnimationOfLike), for: .touchUpOutside)
-
+        button.addTarget(self, action: #selector(stopAnimationOfLike(sender:)), for: .touchUpOutside)
         return button
     }()
     private let nftImageView: UIImageView = {
@@ -34,12 +33,17 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     weak var delegate: FavouriteNFTViewController?
     
     // MARK: Private Properties
-    private let ratingStar = RatingStackView()
-    private let nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    private let priceLabel = MyNFTLabel(labelType: .middle, text: nil)
+    private let nameLabel: MyNFTLabel
+    private let priceLabel: MyNFTLabel
+    private let ratingStar: RatingStackView
+    private let animateLikeButton: InterfaceAnimateLikeButton
     
     // MARK: Initialisation
     override init(frame: CGRect) {
+        self.ratingStar = RatingStackView()
+        self.animateLikeButton = AnimateLikeButton()
+        self.nameLabel = MyNFTLabel(labelType: .big, text: nil)
+        self.priceLabel = MyNFTLabel(labelType: .middle, text: nil)
         super.init(frame: frame)
         setupUI()
     }
@@ -53,9 +57,10 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
             nftImageView.kf.indicatorType = .activity
             nftImageView.kf.setImage(with: image)
         }
+        let nftPrice = nft.price.formatPrice()
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
-        priceLabel.text = "\(nft.price) ETH"
+        priceLabel.text = "\(nftPrice) ETH"
     }
     
     private func deleteCell(sender: UIButton) {
@@ -68,11 +73,11 @@ final class FavouriteNFTCell: UICollectionViewCell & ReuseIdentifying, Interface
     
     // MARK: Selectors
     @objc private func animateLike(sender: UIButton) {
-        GradientLayer.shared.animateLikeButton(sender)
+        animateLikeButton.animateLikeButton(sender)
     }
     
-    @objc private func stopAnimationOfLike() {
-        GradientLayer.shared.stopLikeButton(self)
+    @objc private func stopAnimationOfLike(sender: UIButton) {
+        animateLikeButton.stopLikeButton(sender)
     }
     
     @objc private func checkButtonTapped(sender : UIButton){

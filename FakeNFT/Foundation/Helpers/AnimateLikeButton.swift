@@ -1,16 +1,17 @@
-//  GradientLayer.swift
-//  ImageFeed
+//  AnimateLikeButton.swift
+//  FakeNFT
 //  Created by Adam West on 21.08.23.
-
-import Foundation
 
 import UIKit
 
-final class GradientLayer {
-    static var shared = GradientLayer()
-    
-    // MARK: Added pulse animation to like button(cell)
-    func animateLikeButton(_ sender: UIButton) {
+protocol InterfaceAnimateLikeButton {
+    func animateLikeButton(_ sender: UIButton)
+    func stopLikeButton(_ sender: UIButton)
+}
+
+final class AnimateLikeButton: InterfaceAnimateLikeButton {
+    // MARK: Added pulse animation to like button
+    public func animateLikeButton(_ sender: UIButton) {
         UIView.animateKeyframes(withDuration: 1,
                                 delay: 0,
                                 options: .repeat) {
@@ -29,11 +30,11 @@ final class GradientLayer {
         }
     }
     
-    func stopLikeButton(_ cell: FavouriteNFTCell) {
-        UIView.transition(with: cell.likeButton,
+    public func stopLikeButton(_ sender: UIButton) {
+        UIView.transition(with: sender,
                           duration: 1,
                           options: .transitionCrossDissolve) {
-            cell.likeButton.layer.removeAllAnimations()
+            sender.layer.removeAllAnimations()
         }
     }
 }

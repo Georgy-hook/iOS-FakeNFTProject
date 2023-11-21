@@ -1,5 +1,5 @@
 //  WebViewerController.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import Foundation
@@ -70,6 +70,7 @@ extension WebViewerController: WKNavigationDelegate, WKUIDelegate {
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         showActivityIndicator(show: false)
+        self.showErrorLoadAlert()
     }
 }
 

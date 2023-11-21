@@ -9,6 +9,9 @@ protocol InterfaceFavouriteNFTPresenter: AnyObject {
     func viewDidLoad()
     func getCollectionsIndex(_ index: Int) -> Nft?
     func removeFromCollection(_ index: Int)
+    func getCollectionFavoritesNFT() -> [Nft]
+    func addToCollectionFavoritesNFT(_ currentNft: Nft)
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft)
 }
 
 final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
@@ -17,10 +20,13 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
         return favoritesNFTProfile.count
     }
     
+    // MARK: FavouriteNFTViewController
+    weak var view: InterfaceFavouriteNFTController?
+    
     // MARK: Private properties
     private var favoritesNFT: [String]
     private var favoritesNFTProfile: [Nft]
-    private let nftService: NftServiceImpl 
+    private let nftService: NftServiceImpl
     private let profileService: ProfileServiceImpl
     
     // MARK: Initialisation
@@ -30,9 +36,6 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
         self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
         self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
     }
-    
-    // MARK: FavouriteNFTViewController
-    weak var view: InterfaceFavouriteNFTController?
     
     // MARK: Life cycle
     func viewDidLoad() {
@@ -84,5 +87,23 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     func removeFromCollection(_ index: Int) {
         favoritesNFTProfile.remove(at: index)
+    }
+    
+    func getCollectionFavoritesNFT() -> [Nft] {
+        return favoritesNFTProfile
+    }
+    
+    func addToCollectionFavoritesNFT(_ currentNft: Nft) {
+        if favoritesNFTProfile.contains(where: {$0 == currentNft} ) {
+            return
+        } else {
+            favoritesNFTProfile.append(currentNft)
+            view?.reloadData()
+        }
+    }
+    
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft) {
+        favoritesNFTProfile.removeAll(where: {$0 == currentNft})
+        view?.reloadData()
     }
 }

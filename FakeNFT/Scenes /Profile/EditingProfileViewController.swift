@@ -1,14 +1,18 @@
 //  EditingProfileViewController.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
+import Kingfisher
 
-protocol InterfaceEditingProfileViewController: AnyObject {
-    func configureDataProfile(image: String?, name: String?, description: String?, website: String?)
+protocol InterfaceEditingProfileController: AnyObject {
+    var presenter: InterfaceEditingProfilePresenter { get set }
 }
 
-final class  EditingProfileViewController: UIViewController {
+final class  EditingProfileViewController: UIViewController & InterfaceEditingProfileController {
+    // MARK: Presenter
+    var presenter: InterfaceEditingProfilePresenter
+    
     // MARK: Private properties
     private lazy var closeButton: UIButton = {
         let button = UIButton()
@@ -63,7 +67,7 @@ final class  EditingProfileViewController: UIViewController {
     }()
     private let limitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 80 символов"
+        label.text = "Ограничение 200 символов"
         label.font = UIFont.systemFont(ofSize: 17)
         label.textColor = .red
         label.numberOfLines = 1
@@ -72,34 +76,91 @@ final class  EditingProfileViewController: UIViewController {
         return label
     }()
     
-    private let nameLabel = ProfileLabel(labelType: .userName)
-    private let descriptionLabel = ProfileLabel(labelType: .description)
-    private let websiteLabel = ProfileLabel(labelType: .website)
+    private let nameLabel: ProfileLabel
+    private let descriptionLabel: ProfileLabel
+    private let websiteLabel: ProfileLabel
+    private let nameTextField: ProfileTextField
+    private var websiteTextField: ProfileTextField
     
-    private let nameTextField = ProfileTextField(fieldType: .userName)
-    private var websiteTextField: UITextField = ProfileTextField(fieldType: .website)
+    // MARK: Initialisation
+    init(presenter: InterfaceEditingProfilePresenter) {
+        self.presenter = presenter
+        self.nameLabel = ProfileLabel(labelType: .userName)
+        self.descriptionLabel = ProfileLabel(labelType: .description)
+        self.websiteLabel = ProfileLabel(labelType: .website)
+        self.nameTextField = ProfileTextField(fieldType: .userName)
+        self.websiteTextField = ProfileTextField(fieldType: .website)
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureData()
         setupUI()
-        _ = hideKeyboardWhenClicked
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        loadLabel.isHidden = true
         updateDataProfile()
+        keyboardNotification()
     }
     
-    // MARK: Methods
+    // MARK: Configuration of Data
+    private func configureData() {
+        let dataProfile = presenter.dataProfileValues()
+        updateAvatar(with: dataProfile.image ?? String())
+        nameTextField.text = dataProfile.name
+        descriptionTextView.text = dataProfile.description
+        websiteTextField.text = dataProfile.website
+    }
+    //MARK: - KingFisher
+    private func updateAvatar(with url: String) {
+        let cache = ImageCache.default
+        cache.clearDiskCache()
+        avatarImageView.kf.indicatorType = .activity
+        let processor = RoundCornerImageProcessor(cornerRadius: 60)
+        avatarImageView.kf.setImage(with: URL(string: url),
+                                    placeholder: UIImage(named: "placeholder"),
+                                    options: [.processor(processor),  .transition(.fade(1))])
+    }
+    
+    // MARK: Update Data after changing 
     func updateDataProfile() {
+        let imagePhoto: String? = presenter.updateImage(avatarImageView: avatarImageView.image?.toPngString())
         guard let tabBarController = presentingViewController as? TabBarController else { return }
         guard let navigationController = tabBarController.selectedViewController as? UINavigationController else { return }
         guard let profileViewController = navigationController.viewControllers.first(where: { $0.isKind(of: ProfileViewController.self) }) as? ProfileViewController else { return }
-        profileViewController.updateDataProfile(image: avatarImageView.image?.toPngString(), name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text)
-        profileViewController.setupUI()
+        profileViewController.presenter.updateDataProfile(image: imagePhoto, name: nameTextField.text, description: descriptionTextView.text, website: websiteTextField.text, isUpdated: presenter.shouldUpdatedImage(nil))
+        profileViewController.updateDataProfileAfterEditing()
+    }
+    
+    private func updateAvatarProfile() {
+        let alert = UIAlertController(title: "Сменить фото", message: "Загрузите ссылку на ваше изображение", preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ок", style: .default) { _ in
+            _ = self.presenter.shouldUpdatedImage(true)
+        }
+        let cancelAction = UIAlertAction(title: "Отмена", style: .cancel) { _ in
+            _ = self.presenter.shouldUpdatedImage(false)
+        }
+        alert.addTextField { [weak self] textfield in
+            textfield.placeholder = "Введите ссылку"
+            textfield.delegate = self
+        }
+        alert.addAction(okAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    private func keyboardNotification() {
+        _ = hideKeyboardWhenClicked
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
     // MARK: Selectors
@@ -109,9 +170,10 @@ final class  EditingProfileViewController: UIViewController {
     }
     @objc private func loadPhoto() {
         loadLabel.isHidden = false
+        updateAvatarProfile()
     }
     
-    @objc func keyboardWillShow(notification: NSNotification) {
+    @objc private func keyboardWillShow(notification: NSNotification) {
         if let _ = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             if websiteTextField.isEditing {
                 self.view.frame.origin.y -= nameLabel.bounds.height +  descriptionLabel.bounds.height + websiteTextField.bounds.height
@@ -119,20 +181,10 @@ final class  EditingProfileViewController: UIViewController {
         }
     }
 
-    @objc func keyboardWillHide(notification: NSNotification) {
+    @objc private func keyboardWillHide(notification: NSNotification) {
         if self.view.frame.origin.y != 0 {
             self.view.frame.origin.y = 0
         }
-    }
-}
-
-// MARK: - InterfaceProfileViewController
-extension EditingProfileViewController: InterfaceEditingProfileViewController {
-    func configureDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = image?.toImage()
-        nameTextField.text = name
-        descriptionTextView.text = description
-        websiteTextField.text = website
     }
 }
 
@@ -163,24 +215,30 @@ extension EditingProfileViewController: UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+    
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         limitLabel.isHidden = true
         setupUI()
         return true
     }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let currentText = textField.text ?? String()
         guard let stringRange = Range(range, in: currentText) else {
             return false }
         let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
-        if updatedText.count >= 80 {
+        if updatedText.count >= 200 {
             limitLabel.isHidden = false
             newConstraints()
         } else {
             limitLabel.isHidden = true
             setupUI()
         }
-        return updatedText.count <= 80
+        return updatedText.count <= 200
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        presenter.updateLink(newValue: textField.text)
     }
 }
 
@@ -238,6 +296,7 @@ private extension EditingProfileViewController {
             websiteTextField.heightAnchor.constraint(greaterThanOrEqualToConstant: 44),
         ])
     }
+    
     private func newConstraints() {
         setupUI()
         NSLayoutConstraint.activate([

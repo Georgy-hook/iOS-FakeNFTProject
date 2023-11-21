@@ -1,5 +1,5 @@
 //  ProfileViewController.swift
-//  Profile
+//  FakeNFT
 //  Created by Adam West on 03.11.2023.
 
 import UIKit
@@ -15,7 +15,6 @@ protocol InterfaceProfileViewController: AnyObject, LoadingView {
 final class ProfileViewController: UIViewController & InterfaceProfileViewController {
     // MARK: Public Properties
     var activityIndicator: UIActivityIndicatorView
-    var profileAssembly: ProfileAssembly
     var presenter: InterfaceProfilePresenter
     
     // MARK: Private properties
@@ -30,7 +29,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     private let avatarImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.layer.masksToBounds = true
-        imageView.sizeToFit()
+        imageView.contentMode = .scaleToFill
         imageView.layer.cornerRadius = 35
         return imageView
     }()
@@ -51,7 +50,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     
     private lazy var websiteButton: UIButton = {
         let button = UIButton()
-        button.setTitle("String()", for: .normal)
+        button.setTitle("", for: .normal)
         button.contentHorizontalAlignment = .left
         button.setTitleColor(.systemBlue, for: .normal)
         button.titleLabel?.numberOfLines = 0
@@ -77,13 +76,12 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }()
     
     // MARK: Initialisation
-    init(profileAssembly: ProfileAssembly) {
+    init(presenter: InterfaceProfilePresenter) {
+        self.presenter = presenter
         self.activityIndicator = UIActivityIndicatorView(style: .medium)
-        self.profileAssembly = profileAssembly
-        self.presenter = profileAssembly.profilePresenter
         super.init(nibName: nil, bundle: nil)
-        self.profileAssembly.profilePresenter(presenter: presenter, input: self)
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -91,22 +89,29 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.viewDidLoad()
         setupUI()
         setupNavigationBar()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if profileAssembly.favouriteNftIsInit {
-            let count = profileAssembly.returnCountFavouriteNft()
-            self.presenter.titleRows[1] = "Избранные NFT (\(count))"
-            self.tableView.reloadData()
-        }
+        presenter.updateFavouriteNftCount()
     }
     
-    // MARK: Methods
+    // MARK: Setup Data
     func updateDataProfile() {
-        let profile = presenter.profile
+        let profile = presenter.getProfileData()
+        guard let profile else { return }
+        updateAvatar(with: profile.avatar)
+        nameLabel.text = profile.name
+        descriptionLabel.text = profile.description
+        websiteButton.setTitle(profile.website, for: .normal)
+    }
+    
+    // MARK: Update Data
+    func updateDataProfileAfterEditing() {
+        let profile = presenter.getProfileData()
         guard let profile else { return }
         updateAvatar(with: profile.avatar)
         nameLabel.text = profile.name
@@ -115,7 +120,7 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     
     //MARK: - KingFisher
-    func updateAvatar(with url: String) {
+    private func updateAvatar(with url: String) {
         let cache = ImageCache.default
         cache.clearDiskCache()
         avatarImageView.kf.indicatorType = .activity
@@ -125,14 +130,16 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
                                     options: [.processor(processor),  .transition(.fade(1))])
     }
     
+    // MARK: Presenter methods
     func reloadTable() {
         tableView.reloadData()
     }
     func showErrorAlert() {
         self.showErrorLoadAlert()
+        navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = false
     }
     
-    // MARK: Setup ViewControllers
+    // MARK: Setup NavigationBar
     private func setupNavigationBar() {
         if let navBar = navigationController?.navigationBar {
             navigationController?.navigationBar.prefersLargeTitles = true
@@ -142,22 +149,22 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         }
     }
     
-    private func showWebViewController() {
-        guard let text = websiteButton.currentTitle else { return }
-        profileAssembly.buildwebViewer(with: self, urlString: text)
+    // MARK: Setup Controllers
+    private func showEditingProfileViewController() {
+        presenter.buildEditingProfile()
     }
     
     private func showMyNFTViewController() {
-        profileAssembly.buildMyNFT(with: self)
+        presenter.buildMyNFT()
     }
     
     private func showFavouriteNFTViewController() {
-        profileAssembly.buildFavouriteNFT(with: self)
+        presenter.buildFavouriteNFT()
     }
     
-    private func showEditingProfileViewController() {
-        let image = avatarImageView.image?.toPngString()
-        profileAssembly.buildEditingProfile(presenter: presenter, with: self, image: image, name: nameLabel.text, description: descriptionLabel.text, website: websiteButton.currentTitle)
+    private func showWebViewController() {
+        guard let text = websiteButton.currentTitle else { return }
+        presenter.buildwebViewer(text: text)
     }
     
     // MARK: Selectors
@@ -170,27 +177,17 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
 }
 
-// MARK: Update data profile editingVC
-extension ProfileViewController {
-    func updateDataProfile(image: String?, name: String?, description: String?, website: String?) {
-        avatarImageView.image = image?.toImage()
-        nameLabel.text = name
-        descriptionLabel.text = description
-        websiteButton.setTitle(website, for: .normal)
-    }
-}
-
 // MARK: - UITableViewDataSource & UITableViewDelegate
 extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return presenter.titleRows.count
+        return presenter.titleRowsCount
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 54
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = presenter.titleRows[indexPath.row]
+        cell.textLabel?.text = presenter.getTitleRowsIndex(indexPath.row)
         cell.textLabel?.textColor = .label
         cell.textLabel?.font = .systemFont(ofSize: 17, weight: .bold)
         cell.backgroundColor = .clear
@@ -216,7 +213,7 @@ extension ProfileViewController: UITableViewDataSource & UITableViewDelegate {
 }
 
 // MARK: - Setup views, constraints
-extension ProfileViewController {
+private extension ProfileViewController {
     func setupUI() {
         view.backgroundColor = .systemBackground
         view.addSubviews(stackView, descriptionLabel, websiteButton, tableView, activityIndicator)

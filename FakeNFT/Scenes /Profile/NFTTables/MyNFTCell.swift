@@ -6,17 +6,19 @@ import UIKit
 import Kingfisher
 
 final class MyNFTCell: UITableViewCell & ReuseIdentifying {
+    // MARK: Delegate
+    weak var delegate: MyNFTPresenter?
+    
     // MARK: Public properties
     lazy var likeButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
-        button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .highlighted)
         button.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
-        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .selected)
-        button.setImage(UIImage(named: ImagesAssets.like.rawValue), for: [.highlighted, .selected])
+        button.addTarget(self, action: #selector(animateLike(sender:)), for: .touchDown)
+        button.addTarget(self, action: #selector(stopAnimationOfLike(sender:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(stopAnimationOfLike(sender:)), for: .touchUpOutside)
         return button
     }()
-    
     // MARK: Private properties
     private var nftImageView: UIImageView = {
         let imageView = UIImageView()
@@ -25,19 +27,33 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
         imageView.layer.cornerRadius = 12
         return imageView
     }()
-    private var nameLabel = MyNFTLabel(labelType: .big, text: nil)
-    private var ratingStar = RatingStackView()
-    private var authorLabel = MyNFTLabel(labelType: .little, text: nil)
-    private var priceLabel = MyNFTLabel(labelType: .big, text: nil)
+    private var idOfCurrentNft: String
+    private var currentNft: Nft
     
-    private let fromAuthorLabel = MyNFTLabel(labelType: .middle, text: "от")
-    private let namePriceLabel = MyNFTLabel(labelType: .little, text: "Цена")
+    private var nameLabel: MyNFTLabel
+    private var ratingStar: RatingStackView
+    private var authorLabel: MyNFTLabel
+    private var priceLabel: MyNFTLabel
+    
+    private let fromAuthorLabel: MyNFTLabel
+    private let namePriceLabel: MyNFTLabel
+    private let animateLikeButton: InterfaceAnimateLikeButton
     
     // MARK: Initialisation
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        self.idOfCurrentNft = String()
+        self.currentNft = Nft()
+        self.nameLabel = MyNFTLabel(labelType: .big, text: nil)
+        self.ratingStar = RatingStackView()
+        self.authorLabel = MyNFTLabel(labelType: .little, text: nil)
+        self.priceLabel = MyNFTLabel(labelType: .big, text: nil)
+        self.fromAuthorLabel = MyNFTLabel(labelType: .middle, text: "от")
+        self.namePriceLabel = MyNFTLabel(labelType: .little, text: "Цена")
+        self.animateLikeButton = AnimateLikeButton()
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
     }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -48,10 +64,47 @@ final class MyNFTCell: UITableViewCell & ReuseIdentifying {
             nftImageView.kf.indicatorType = .activity
             nftImageView.kf.setImage(with: image)
         }
+        let nftPrice = nft.price.formatPrice()
         nameLabel.text = nft.name
         ratingStar.rating = nft.rating
         authorLabel.text = user.name
-        priceLabel.text = "\(nft.price) ETH"
+        priceLabel.text = "\(nftPrice) ETH"
+        idOfCurrentNft = nft.id
+        currentNft = nft
+        guard let like = nft.like else { return }
+        like ? likeButtonImage() : noLikeButtonImage()
+    }
+    
+    private func changeLike(sender: UIButton) {
+        if sender.image(for: .normal) == UIImage(named: ImagesAssets.like.rawValue) {
+            noLikeButtonImage()
+            delegate?.isLikedNft(id: idOfCurrentNft, isLiked: false)
+            delegate?.addLikeNftToFavourite(currentNft, isLiked: false)
+        } else {
+            likeButtonImage()
+            delegate?.isLikedNft(id: idOfCurrentNft, isLiked: true)
+            delegate?.addLikeNftToFavourite(currentNft, isLiked: true)
+        }
+    }
+    
+    private func likeButtonImage() {
+        likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .normal)
+        likeButton.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .highlighted)
+    }
+    
+    private func noLikeButtonImage() {
+        likeButton.setImage(UIImage(named: ImagesAssets.noLike.rawValue), for: .normal)
+        likeButton.setImage(UIImage(named: ImagesAssets.like.rawValue), for: .highlighted)
+    }
+    
+    // MARK: Selectors
+    @objc private func animateLike(sender: UIButton) {
+        animateLikeButton.animateLikeButton(sender)
+        changeLike(sender: sender)
+    }
+    
+    @objc private func stopAnimationOfLike(sender: UIButton) {
+        animateLikeButton.stopLikeButton(sender)
     }
 }
 
@@ -73,7 +126,7 @@ private extension MyNFTCell {
             likeButton.heightAnchor.constraint(equalToConstant: 42),
             likeButton.widthAnchor.constraint(equalToConstant: 42),
             
-            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 23 + 16),
+            nameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 39),
             nameLabel.leadingAnchor.constraint(equalTo: nftImageView.trailingAnchor, constant: 20),
             
             ratingStar.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 4),
@@ -86,12 +139,12 @@ private extension MyNFTCell {
             authorLabel.topAnchor.constraint(equalTo: ratingStar.bottomAnchor, constant: 6),
             authorLabel.leadingAnchor.constraint(equalTo: fromAuthorLabel.trailingAnchor, constant: 4),
             
-            namePriceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 30 + 16),
+            namePriceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 46),
             namePriceLabel.leadingAnchor.constraint(lessThanOrEqualTo: priceLabel.leadingAnchor),
             
             priceLabel.topAnchor.constraint(equalTo: namePriceLabel.bottomAnchor, constant: 2),
             priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            priceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: ratingStar.trailingAnchor, constant: 39 + 12)
+            priceLabel.leadingAnchor.constraint(greaterThanOrEqualTo: ratingStar.trailingAnchor, constant: 51)
             
         ])
     }
