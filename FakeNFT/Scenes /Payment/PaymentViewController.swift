@@ -9,6 +9,7 @@ import UIKit
 
 protocol PaymentView:AnyObject, ErrorView, LoadingView {
     func setCollectionView(with currencies:CurrencyModel)
+    func showPaymentResultVC()
 }
     
 final class PaymentViewController:UIViewController{
@@ -108,7 +109,7 @@ final class PaymentViewController:UIViewController{
     }
     
     @objc private func didPayButtonTapped(){
-        
+        presenter.didPayButtonTapped()
     }
 }
 
@@ -167,5 +168,11 @@ private extension PaymentViewController{
 extension PaymentViewController: PaymentView{
     func setCollectionView(with currencies:CurrencyModel){
         paymentCollectionView.set(with: currencies)
+    }
+    
+    func showPaymentResultVC(){
+        let paymentResultVC = PaymentResultViewController()
+        paymentResultVC.modalPresentationStyle = .fullScreen
+        present(paymentResultVC, animated: true)
     }
 }

@@ -13,8 +13,7 @@ enum PaymentResultState {
 
 final class PaymentResultViewController:UIViewController{
     // MARK: - Init
-    init(state:PaymentResultState) {
-        currentState = state
+    init() {
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -53,7 +52,6 @@ final class PaymentResultViewController:UIViewController{
     }()
     
     // MARK: - Variables
-    let currentState:PaymentResultState
     
     // MARK: - Life Cycle
     override func viewDidLoad() {
@@ -67,7 +65,7 @@ final class PaymentResultViewController:UIViewController{
 // MARK: - Layout
 private extension PaymentResultViewController{
     private func configureUI() {
-        
+        view.backgroundColor = UIColor(named: "YP White")
     }
     
     private func addSubviews() {

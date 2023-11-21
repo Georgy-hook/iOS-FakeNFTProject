@@ -45,6 +45,10 @@ final class CartServiceImpl:CartService{
             switch result{
             case .success(let cartModel):
                 var nfts: [Nft] = []
+                guard !cartModel.nfts.isEmpty else {
+                    completion(.success(nfts))
+                    return
+                }
                 cartModel.nfts.forEach{
                     self.loadNft(id: $0){ result in
                         switch result{

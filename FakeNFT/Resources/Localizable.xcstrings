@@ -136,6 +136,23 @@
         }
       }
     },
+    "Error.cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Отмена"
+          }
+        }
+      }
+    },
     "Error.network" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -149,6 +166,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Произошла ошибка сети"
+          }
+        }
+      }
+    },
+    "Error.payment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to make payment"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Не удалось произвести оплату"
           }
         }
       }
