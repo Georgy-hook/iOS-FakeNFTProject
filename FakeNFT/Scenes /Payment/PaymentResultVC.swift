@@ -60,12 +60,20 @@ final class PaymentResultViewController:UIViewController{
         addSubviews()
         applyConstraints()
     }
+    
+    // MARK: - Actions
+    @objc private func didReturnButtonTapped(){
+        let tabBarContoller = TabBarController()
+        tabBarContoller.modalPresentationStyle = .fullScreen
+        present(tabBarContoller, animated: true)
+    }
 }
 
 // MARK: - Layout
 private extension PaymentResultViewController{
     private func configureUI() {
         view.backgroundColor = UIColor(named: "YP White")
+        returnButton.addTarget(self, action: #selector(didReturnButtonTapped), for: .touchUpInside)
     }
     
     private func addSubviews() {
