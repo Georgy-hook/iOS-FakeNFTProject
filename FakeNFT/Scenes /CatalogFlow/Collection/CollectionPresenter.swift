@@ -14,6 +14,7 @@ protocol CollectionPresenterProtocol {
     func getNftsCount() -> Int
     func getNftsIndex(_ index: Int, 
                       completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
+    func reverseLike(_ id: String)
 }
 
 final class CollectionPresenter: CollectionPresenterProtocol {
@@ -30,11 +31,11 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     
     private let collections: CollectionModel
     
-    private var profile: ProfileModel = ProfileModel(nfts: [], likes: [])
+    private var profile: ProfileModel = ProfileModel(name: "", avatar: "", description: "", website: "", nfts: [], likes: [], id: "")
     private var author: AuthorModel = AuthorModel(name: "", description: "", website: "")
     private var nfts: [NftModel] = []
     
-    private var collectionCellModel: [CollectionCellModel] = []
+    private var collectionCell: [CollectionCellModel] = []
             
     private let loadGroup = DispatchGroup()
     
@@ -64,7 +65,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 self.view.showAlertWithTime {
                     /// действие на кнопку "повторить"
                     self.nfts = []
-                    self.collectionCellModel = []
+                    self.collectionCell = []
                     self.viewDidLoad()
                 }
                 return
@@ -82,17 +83,17 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     }
     
     func getNftsIndex(_ index: Int, completion: @escaping (Result<CollectionCellModel, Error>) -> Void) {
-        guard index < collectionCellModel.count else {
+        guard index < collectionCell.count else {
             completion(.failure(NftsError.indexOutOfBounds))
             return
         }
-        let collectionCellModel = collectionCellModel[index]
+        let collectionCellModel = collectionCell[index]
         completion(.success(collectionCellModel))
     }
     
     func getNftsCount() -> Int {
-        guard !collectionCellModel.isEmpty else { return 0 }
-        return collectionCellModel.count
+        guard !collectionCell.isEmpty else { return 0 }
+        return collectionCell.count
     }
     
     // MARK: Private methods
@@ -107,7 +108,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 rating: nft.rating,
                 price: nft.price
             )
-            self.collectionCellModel.append(collectionCellModel)
+            self.collectionCell.append(collectionCellModel)
         }
     }
     
@@ -141,7 +142,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private func loadAuthor(_ id: String) {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
+            guard let self else { return }
             self.networkClient.send(request: GetAuthorRequest(id: id),
                                     type: AuthorModel.self,
                                     completionQueue: .main,
@@ -159,11 +160,11 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         }
     }
 
-    private func loadNfts(_ nftsId: String, completion: @escaping (NftModel) -> Void) {
+    private func loadNfts(_ id: String, completion: @escaping (NftModel) -> Void) {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
-            guard let self = self else { return }
-            self.networkClient.send(request: GetNftsRequest(nftsId: nftsId),
+            guard let self else { return }
+            self.networkClient.send(request: GetNftsRequest(id: id),
                                     type: NftModel.self,
                                     completionQueue: .main,
                                     onResponse: { result in
@@ -177,6 +178,27 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                     print(error.localizedDescription)
                 }
             })
+        }
+    }
+    
+    func reverseLike(_ id: String) {
+        if profile.likes.contains(where: {$0 == id}) {
+            profile.likes.removeAll(where: {$0 == id})
+        } else {
+            profile.likes.append(id)
+        }
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: PutProfileRequest(profile: self.profile),
+                               type: ProfileModel.self,
+                               completionQueue: .main) { result in
+                switch result {
+                case .success(let model):
+                    print("результат лайка: \(model)")
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            }
         }
     }
 }

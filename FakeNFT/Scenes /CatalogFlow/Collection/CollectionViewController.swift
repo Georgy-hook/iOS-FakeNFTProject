@@ -214,7 +214,7 @@ extension CollectionViewController: UICollectionViewDataSource {
         presenter.getNftsIndex(indexPath.row) { cellModel in
             switch cellModel {
             case .success(let cellModel):
-                cell.configureCell(cellModel)
+                cell.configureCell(cellModel, onReversLike: self.presenter.reverseLike(_:))
             case .failure(let error):
                 print(error.localizedDescription)
             }

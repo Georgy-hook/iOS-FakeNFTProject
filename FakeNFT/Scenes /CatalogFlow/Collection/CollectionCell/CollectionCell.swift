@@ -10,6 +10,9 @@ import UIKit
 final class CollectionCell: UICollectionViewCell {
     
     // MARK: Private properties
+    private var nftId: String = ""
+    private var reversLike: (String) -> Void = { _ in return }
+    
     private let cardImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
@@ -21,8 +24,6 @@ final class CollectionCell: UICollectionViewCell {
     
     private let likeButton: UIButton = {
         let button = UIButton()
-        // TODO: finish later
-        
         button.addTarget(nil, action: #selector(likeButtonTap), for: .touchUpInside)
         return button
     }()
@@ -70,12 +71,16 @@ final class CollectionCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+        
     // MARK: Public methods
-    func configureCell(_ nft: CollectionCellModel) {        
+    func configureCell(_ nft: CollectionCellModel, onReversLike: @escaping (String) -> Void) { 
+        nftId = nft.id
+        reversLike = onReversLike
+        
         nameLabel.text = nft.name
         setStarsState(nft.rating)
         priceLabel.text = "\(nft.price) ETH"
+        
         likeButton.setImage(UIImage(named: nft.isLiked ? "activeLike" : "noActiveLike"), for: .normal)
         cardButton.setImage(UIImage(named: nft.isInCart ? "Catalog.CardFull" : "Catalog.CardEmpty"), for: .normal)
         
@@ -94,7 +99,7 @@ final class CollectionCell: UICollectionViewCell {
     
     @objc
     private func likeButtonTap() {
-        //TODO: finish this later
+        reversLike(nftId)
     }
     
     @objc

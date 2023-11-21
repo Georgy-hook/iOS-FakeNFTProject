@@ -9,15 +9,15 @@ import Foundation
 
 struct GetCollectionsRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/collections")
+        URL(string: "\(RequestConstants.baseURL)collections")
     }
     var httpMethod: HttpMethod = .get
-    var dto: Encodable?
+    var dto: Decodable?
 }
 
 struct GetProfileRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/profile/1")
+        URL(string: "\(RequestConstants.baseURL)profile/1")
     }
     var httpMethod: HttpMethod = .get
     var dto: Encodable?
@@ -26,25 +26,28 @@ struct GetProfileRequest: NetworkRequest {
 struct GetAuthorRequest: NetworkRequest {
     var id: String
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/users/\(id)")
+        URL(string: "\(RequestConstants.baseURL)users/\(id)")
     }
     var httpMethod: HttpMethod = .get
-    var dto: Encodable?
+    var dto: Decodable?
 }
 
 struct GetNftsRequest: NetworkRequest {
-    var nftsId: String
+    var id: String
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/nft/\(nftsId)")
+        URL(string: "\(RequestConstants.baseURL)nft/\(id)")
     }
     var httpMethod: HttpMethod = .get
-    var dto: Encodable?
+    var dto: Decodable?
 }
 
-struct GetOrderRequest: NetworkRequest {
+struct PutProfileRequest: NetworkRequest {
+    let profile: ProfileModel
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)/orders/1")
+        URL(string: "\(RequestConstants.baseURL)profile/1")
     }
-    var httpMethod: HttpMethod = .get
-    var dto: Encodable?
+    var httpMethod: HttpMethod = .put
+    var dto: Encodable? {
+        profile
+    }
 }
