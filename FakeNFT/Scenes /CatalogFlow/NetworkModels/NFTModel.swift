@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct NftsModel: Codable {
+/// Для экрана коллекции
+struct NftModel: Codable {
     let name: String
     let images: [String]
     let rating: Int

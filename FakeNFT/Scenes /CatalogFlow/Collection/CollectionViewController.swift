@@ -213,11 +213,10 @@ extension CollectionViewController: UICollectionViewDataSource {
     }
     
     private func setupCell(_ cell: CollectionCell, _ indexPath: IndexPath) {
-        presenter.getNftsIndex(indexPath.row) { nftsModel in
-            switch nftsModel {
-            case .success(let nftsModel):
-                cell.configureCell(nftsModel)
-                print(nftsModel)
+        presenter.getNftsIndex(indexPath.row) { cellModel in
+            switch cellModel {
+            case .success(let cellModel):
+                cell.configureCell(cellModel)
             case .failure(let error):
                 print(error.localizedDescription)
             }

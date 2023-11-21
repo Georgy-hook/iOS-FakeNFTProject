@@ -12,8 +12,7 @@ protocol CollectionPresenterProtocol {
     func viewDidLoad()
     func getAuthor() -> AuthorModel
     func getNftsCount() -> Int
-    func getNftsIndex(_ index: Int, 
-                      completion: @escaping (Result<NftsModel, Error>) -> Void)
+    func getNftsIndex(_ index: Int, completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
 }
 
 final class CollectionPresenter: CollectionPresenterProtocol {
@@ -31,13 +30,12 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private let networkClient: NetworkClient
     
     private var profile: ProfileModel?
-    private var nfts: [NftsModel] = []
+    private var nfts: [NftModel] = []
     private var author: AuthorModel = AuthorModel(name: "", description: "", website: "")
     private var collections: CollectionModel
-    //private var order: OrderModel = OrderModel(nfts: [])
+    private var collectionCellModel: [CollectionCellModel] = []
             
     private let loadGroup = DispatchGroup()
-    private let group = DispatchGroup()
     
     // MARK: Initialization
     init(networkClient: NetworkClient = DefaultNetworkClient(), collections: CollectionModel) {
@@ -49,10 +47,11 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     func viewDidLoad() {
         view.showLoading()
         
+        loadProfile()
         loadAuthor(collections.author)
         
         collections.nfts.forEach { [weak self] id in
-            guard let self = self else { return }
+            guard let self else { return }
             self.loadNfts(id) { nft in
                 self.nfts.append(nft)
             }
@@ -62,12 +61,15 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             guard self.collections.nfts.count == self.nfts.count else {
                 self.view.hideLoading()
                 self.view.showAlertWithTime {
+                    /// действие на кнопку "повторить"
                     self.nfts = []
+                    self.collectionCellModel = []
                     self.viewDidLoad()
                 }
                 return
             }
             self.sortByName()
+            self.createCollectionCellModel(profile: self.profile!, nfts: self.nfts)
             self.view.hideLoading()
             self.view.updateCollectionView()
             self.view.setupCollection(self.collections)
@@ -78,23 +80,36 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         author
     }
     
-    func getNftsIndex(_ index: Int, completion: @escaping (Result<NftsModel, Error>) -> Void) {
-        guard index < nfts.count else {
+    func getNftsIndex(_ index: Int, completion: @escaping (Result<CollectionCellModel, Error>) -> Void) {
+        guard index < collectionCellModel.count else {
             completion(.failure(NftsError.indexOutOfBounds))
             return
         }
-        let nftsModel = nfts[index]
-        completion(.success(nftsModel))
+        let collectionCellModel = collectionCellModel[index]
+        completion(.success(collectionCellModel))
     }
     
     func getNftsCount() -> Int {
-        guard !nfts.isEmpty else {
-            return 0
-        }
-        return nfts.count
+        guard !collectionCellModel.isEmpty else { return 0 }
+        return collectionCellModel.count
     }
     
     // MARK: Private methods
+    private func createCollectionCellModel(profile: ProfileModel, nfts: [NftModel]) {
+        nfts.forEach { nft in
+            let collectionCellModel = CollectionCellModel(
+                id: nft.id,
+                name: nft.name,
+                image: nft.images[0], /// первая картинка
+                isLiked: profile.likes.contains(nft.id),
+                isInCart: profile.nfts.contains(nft.id),
+                rating: nft.rating,
+                price: nft.price
+            )
+            self.collectionCellModel.append(collectionCellModel)
+        }
+    }
+    
     private func sortByName() {
         self.nfts.sort { (x, y) -> Bool in
             return x.name.localizedCaseInsensitiveCompare(y.name) == .orderedAscending
@@ -122,12 +137,12 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         }
     }
 
-    private func loadNfts(_ nftsId: String, completion: @escaping (NftsModel) -> Void) {
+    private func loadNfts(_ nftsId: String, completion: @escaping (NftModel) -> Void) {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             self.networkClient.send(request: GetNftsRequest(nftsId: nftsId),
-                                    type: NftsModel.self,
+                                    type: NftModel.self,
                                     completionQueue: .main,
                                     onResponse: { result in
                 defer {

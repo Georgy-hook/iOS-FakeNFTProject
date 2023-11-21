@@ -43,6 +43,9 @@ final class CatalogPresenter {
                     self.sort(param: (self.sortingSaveService.savedSorting))
                     self.view.updateTableView()
                 case .failure(let error):
+                    view.showError(ErrorModel(message: "Ошибка сервера", actionText: "Повторить", action: {
+                        self.viewDidLoad()
+                    }))
                     print(error.localizedDescription)
                 }
                 self.view.hideLoading()

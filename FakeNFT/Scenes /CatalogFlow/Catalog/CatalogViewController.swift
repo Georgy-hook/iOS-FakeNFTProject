@@ -8,7 +8,7 @@
 import UIKit
 import ProgressHUD
 
-protocol CatalogViewControllerProtocol: AnyObject & LoadingView {
+protocol CatalogViewControllerProtocol: AnyObject & LoadingView & ErrorView {
     var presenter: CatalogPresenterProtocol { get set }
     func updateTableView()
     func endRefreshing()

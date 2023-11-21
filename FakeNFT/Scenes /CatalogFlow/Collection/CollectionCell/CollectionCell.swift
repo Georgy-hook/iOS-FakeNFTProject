@@ -22,7 +22,7 @@ final class CollectionCell: UICollectionViewCell {
     private let likeButton: UIButton = {
         let button = UIButton()
         // TODO: finish later
-        button.setImage(UIImage(named: "noActiveLike"), for: .normal)
+        
         button.addTarget(nil, action: #selector(likeButtonTap), for: .touchUpInside)
         return button
     }()
@@ -49,7 +49,6 @@ final class CollectionCell: UICollectionViewCell {
     
     private let cardButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "Catalog.CardFull"), for: .normal)
         button.addTarget(nil, action: #selector(cardButtonTap), for: .touchUpInside)
         return button
     }()
@@ -73,13 +72,14 @@ final class CollectionCell: UICollectionViewCell {
     }
     
     // MARK: Public methods
-    func configureCell(_ nfts: NftsModel?) {
-        guard let nfts else { return }
-        nameLabel.text = nfts.name
-        setStarsState(nfts.rating)
-        priceLabel.text = "\(nfts.price) ETH"
+    func configureCell(_ nft: CollectionCellModel) {        
+        nameLabel.text = nft.name
+        setStarsState(nft.rating)
+        priceLabel.text = "\(nft.price) ETH"
+        likeButton.setImage(UIImage(named: nft.isLiked ? "activeLike" : "noActiveLike"), for: .normal)
+        cardButton.setImage(UIImage(named: nft.isInCart ? "Catalog.CardFull" : "Catalog.CardEmpty"), for: .normal)
         
-        guard let urlString = nfts.images[0].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+        guard let urlString = nft.image.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
         cardImage.kf.indicatorType = .activity
         cardImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
