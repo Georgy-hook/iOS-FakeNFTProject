@@ -25,7 +25,7 @@ final class CatalogCell: UITableViewCell {
         return label
     }()
     
-    // MARK: Init
+    // MARK: Initialization
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupViews()

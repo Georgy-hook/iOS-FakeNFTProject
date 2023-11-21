@@ -9,19 +9,15 @@ import Foundation
 
 protocol CatalogPresenterProtocol: Sortable {
     var view: CatalogViewControllerProtocol! { get set }
-    var collectionsCount: Int { get }
     func viewDidLoad()
+    var collectionsCount: Int { get }
     func getCollectionIndex(_ index: Int) -> CollectionModel?
 }
 
-final class CatalogPresenter: CatalogPresenterProtocol {
+final class CatalogPresenter {
     
     // MARK: Public properties
     unowned var view: CatalogViewControllerProtocol!
-    
-    var collectionsCount: Int {
-        return collections.count
-    }
     
     // MARK: Private properties
     private let interactor: CatalogInteractorProtocol
@@ -29,28 +25,18 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     
     private var collections: [CollectionModel] = []
     
-    // MARK: Init
+    // MARK: Initialization
     init(interactor: CatalogInteractorProtocol,
          sortingSaveService: SortingSaveServiceProtocol = SortingSaveService(screen: .catalogue)) {
         self.interactor = interactor
         self.sortingSaveService = sortingSaveService
     }
-       
-    // MARK: Public methods
-    func viewDidLoad() {
-        view.showLoading()
-        loadCollection()
-    }
-    
-    func getCollectionIndex(_ index: Int) -> CollectionModel? {
-        collections[index]
-    }
      
     // MARK: Private methods
     private func loadCollection() {
-        interactor.loadCollections { [weak self] result in
-            guard let self else { return }
-            DispatchQueue.main.async {
+        DispatchQueue.global().async {
+            self.interactor.loadCollections { [weak self] result in
+                guard let self else { return }
                 switch result {
                 case .success(let model):
                     self.collections = model
@@ -66,8 +52,24 @@ final class CatalogPresenter: CatalogPresenterProtocol {
     }
 }
 
+// MARK: - CatalogPresenterProtocol
+extension CatalogPresenter: CatalogPresenterProtocol {
+    var collectionsCount: Int {
+        return collections.count
+    }
+    
+    func viewDidLoad() {
+        view.showLoading()
+        loadCollection()
+    }
+    
+    func getCollectionIndex(_ index: Int) -> CollectionModel? {
+        collections[index]
+    }
+}
+
 //MARK: - Sorting
-extension CatalogPresenter: Sortable {
+extension CatalogPresenter {
     func sort(param: Sort) {
         sortingSaveService.saveSorting(param: param)
         switch param {

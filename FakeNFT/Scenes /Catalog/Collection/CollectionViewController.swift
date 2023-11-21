@@ -7,10 +7,11 @@
 
 import UIKit
 
-protocol CollectionViewControllerProtocol: AnyObject & LoadingView {
+protocol CollectionViewControllerProtocol: AnyObject & LoadingView & ErrorView {
     var presenter: CollectionPresenterProtocol { get set }
     func updateCollectionView()
     func setupCollection(_ collections: CollectionModel)    
+    func showAlertWithTime(_ retryAction: @escaping () -> Void)
 }
 
 final class CollectionViewController: UIViewController & CollectionViewControllerProtocol {
@@ -24,10 +25,10 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private var authorURL: String = ""
     
     private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.backgroundColor = .clear
-        scrollView.contentInsetAdjustmentBehavior = .never
-        return scrollView
+        let view = UIScrollView()
+        view.backgroundColor = .clear
+        view.contentInsetAdjustmentBehavior = .never
+        return view
     }()
     
     private let coverImage: UIImageView = {
@@ -39,50 +40,51 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     }()
     
     private let nameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 22, weight: .bold)
-        label.textColor = .black
-        return label
+        let view = UILabel()
+        view.font = .systemFont(ofSize: 22, weight: .bold)
+        view.textColor = .black
+        return view
     }()
     
     private let authorTitleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .black
-        label.font = .systemFont(ofSize: 13, weight: .medium)
-        return label
+        let view = UILabel()
+        view.textColor = .black
+        view.font = .systemFont(ofSize: 13, weight: .medium)
+        return view
     }()
     
     private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .black
-        label.numberOfLines = 0
-        return label
+        let view = UILabel()
+        view.font = .systemFont(ofSize: 13, weight: .regular)
+        view.textColor = .black
+        view.numberOfLines = 0
+        return view
     }()
     
     private lazy var authorNameLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 15, weight: .regular)
-        label.textColor = .systemBlue
-        label.numberOfLines = 0
-        label.isUserInteractionEnabled = true
-        label.addGestureRecognizer(
+        let view = UILabel()
+        view.font = .systemFont(ofSize: 15, weight: .regular)
+        view.textColor = .systemBlue
+        view.numberOfLines = 0
+        view.isUserInteractionEnabled = true
+        view.addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(didTapUserNameLabel(_:)))
         )
-        return label
+        return view
     }()
     
     private lazy var collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.dataSource = self
-        collectionView.register(CollectionCell.self, forCellWithReuseIdentifier: CollectionCell.identifier)
-        collectionView.delegate = self
-        collectionView.isScrollEnabled = false
-        collectionView.backgroundColor = .clear
-        return collectionView
+        let view = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        view.dataSource = self
+        view.register(CollectionCell.self, forCellWithReuseIdentifier: CollectionCell.identifier)
+        view.delegate = self
+        view.isScrollEnabled = false
+        view.backgroundColor = .clear
+        view.showsVerticalScrollIndicator = false
+        return view
     }()
     
-    // MARK: Init
+    // MARK: Initialization
     init(presenter: CollectionPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -134,6 +136,36 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         collectionView.reloadData()
     }
     
+    func showAlertWithTime(_ retryAction: @escaping () -> Void) {
+        let alert = UIAlertController(title: "Ошибка сервера", message: "Повторите попытку через:", preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Назад", style: .cancel) { _ in
+            self.navigationController?.popViewController(animated: true)
+        }
+        let reloadAction = UIAlertAction(title: "Повторить", style: .default) { _ in retryAction() }
+        reloadAction.isEnabled = false
+        
+        let timeLabel = UILabel()
+        timeLabel.textAlignment = .center
+        timeLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        alert.view.addSubviews(timeLabel)
+        NSLayoutConstraint.activate([
+            timeLabel.centerXAnchor.constraint(equalTo: alert.view.centerXAnchor),
+            timeLabel.centerYAnchor.constraint(equalTo: alert.view.centerYAnchor, constant: 5)
+        ])
+        var seconds = 18
+        let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
+            DispatchQueue.main.async {
+                timeLabel.text = "\(seconds) сек"
+            }
+            if seconds > 1 { seconds -= 1
+            } else { UIView.animate(withDuration: 0.3) { timeLabel.alpha = 0 }
+                reloadAction.isEnabled = true; timer.invalidate()
+            }
+        }
+        alert.addAction(cancelAction); alert.addAction(reloadAction)
+        present(alert, animated: true) { timer.fire() }
+    }
+
     // MARK: Private methods
     private func heightCollection(of nftsCount: Int) {
         let collectionHeight = (
@@ -254,8 +286,10 @@ private extension CollectionViewController {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.widthAnchor.constraint(equalTo: view.widthAnchor),
-            scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: view.widthAnchor)
+            scrollView.widthAnchor.constraint(equalTo: view.safeAreaLayoutGuide.widthAnchor),
+            scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: view.widthAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
     

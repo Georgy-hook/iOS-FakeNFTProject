@@ -39,7 +39,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private let loadGroup = DispatchGroup()
     private let group = DispatchGroup()
     
-    // MARK: Init
+    // MARK: Initialization
     init(networkClient: NetworkClient = DefaultNetworkClient(), collections: CollectionModel) {
         self.networkClient = networkClient
         self.collections = collections
@@ -53,24 +53,24 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         
         collections.nfts.forEach { [weak self] id in
             guard let self = self else { return }
-            group.enter()
             self.loadNfts(id) { nft in
                 self.nfts.append(nft)
-                self.group.leave()
             }
         }
-        /// как завершится вся группа
-        group.notify(queue: .main) {
-            self.sortByName()
-            print("Загрузка loadNfts завершена")
-            
-            /// после завершения всех loadNfts
-            self.loadGroup.notify(queue: .main) {
-                print("Обновляю UI")
+        
+        self.loadGroup.notify(queue: .main) {
+            guard self.collections.nfts.count == self.nfts.count else {
                 self.view.hideLoading()
-                self.view.updateCollectionView()
-                self.view.setupCollection(self.collections)
+                self.view.showAlertWithTime {
+                    self.nfts = []
+                    self.viewDidLoad()
+                }
+                return
             }
+            self.sortByName()
+            self.view.hideLoading()
+            self.view.updateCollectionView()
+            self.view.setupCollection(self.collections)
         }
     }
     
@@ -107,17 +107,16 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             guard let self = self else { return }
             self.networkClient.send(request: GetAuthorRequest(id: id),
                                     type: AuthorModel.self,
+                                    completionQueue: .main,
                                     onResponse: { result in
-                DispatchQueue.main.async {
-                    defer {
-                        self.loadGroup.leave()
-                    }
-                    switch result {
-                    case .success(let author):
-                        self.author = author
-                    case .failure(_):
-                        self.isCollectionLoadError = true
-                    }
+                defer {
+                    self.loadGroup.leave()
+                }
+                switch result {
+                case .success(let author):
+                    self.author = author
+                case .failure(_):
+                    self.isCollectionLoadError = true
                 }
             })
         }
@@ -129,17 +128,16 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             guard let self = self else { return }
             self.networkClient.send(request: GetNftsRequest(nftsId: nftsId),
                                     type: NftsModel.self,
+                                    completionQueue: .main,
                                     onResponse: { result in
-                DispatchQueue.main.async {
-                    defer {
-                        self.loadGroup.leave()
-                    }
-                    switch result {
-                    case .success(let model):
-                        completion(model)
-                    case .failure(_):
-                        self.isCollectionLoadError = true
-                    }
+                defer {
+                    self.loadGroup.leave()
+                }
+                switch result {
+                case .success(let model):
+                    completion(model)
+                case .failure(_):
+                    self.isCollectionLoadError = true
                 }
             })
         }
@@ -151,8 +149,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             guard let self else { return }
             self.networkClient.send(request: GetProfileRequest(),
                                     type: ProfileModel.self,
+                                    completionQueue: .main,
                                     onResponse: { result in
-                DispatchQueue.main.async {
                     defer {
                         self.loadGroup.leave()
                     }
@@ -162,7 +160,6 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                     case .failure(_):
                         self.isCollectionLoadError = true
                     }
-                }
             })
         }
     }

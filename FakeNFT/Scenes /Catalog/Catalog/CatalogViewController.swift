@@ -14,32 +14,33 @@ protocol CatalogViewControllerProtocol: AnyObject & LoadingView {
     func endRefreshing()
 }
 
-final class CatalogViewController: UIViewController & CatalogViewControllerProtocol {
+final class CatalogViewController: UIViewController {
     
     // MARK: Public properties
     let activityIndicator = UIActivityIndicatorView(style: .medium)
     
+    // MARK: Presenter
     var presenter: CatalogPresenterProtocol
     
     // MARK: Private properties
     private lazy var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.register(CatalogCell.self, forCellReuseIdentifier: CatalogCell.identifier)
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.refreshControl = refreshControl
-        tableView.separatorStyle = .none
-        tableView.showsVerticalScrollIndicator = false
-        return tableView
+        let view = UITableView()
+        view.register(CatalogCell.self, forCellReuseIdentifier: CatalogCell.identifier)
+        view.delegate = self
+        view.dataSource = self
+        view.refreshControl = refreshControl
+        view.separatorStyle = .none
+        view.showsVerticalScrollIndicator = false
+        return view
     }()
     
     private lazy var refreshControl: UIRefreshControl = {
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
-        return refreshControl
+        let view = UIRefreshControl()
+        view.addTarget(self, action: #selector(refreshData), for: .valueChanged)
+        return view
     }()
     
-    // MARK: Init
+    // MARK: Initialization
     init(presenter: CatalogPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
@@ -62,20 +63,17 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
         super.viewWillAppear(animated)
         navigationController?.hidesBarsOnSwipe = true
     }
-     
-    // MARK: Public methods
-    func updateTableView() {
-        tableView.reloadData()
-    }
     
-    // MARK: Public methods
-    func endRefreshing() {
-        refreshControl.endRefreshing()
-    }
-    
+    // MARK: Private methods
     private func scrollToTop() {
         let indexPath = IndexPath(row: 0, section: 0)
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+    }
+    
+    private func sortAndUpdate(param: Sort) {
+        presenter.sort(param: param)
+        tableView.reloadData()
+        scrollToTop()
     }
     
     // MARK: Selectors
@@ -89,17 +87,26 @@ final class CatalogViewController: UIViewController & CatalogViewControllerProto
     private func sortButtonTapped() {
         let controller = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
         controller.addAction(.init(title: "По названию", style: .default, handler: { [weak self] _ in
-            self?.presenter.sort(param: .NFTName)
-            self?.tableView.reloadData()
-            self?.scrollToTop()
+            guard let self else { return }
+            self.sortAndUpdate(param: .NFTName)
         }))
         controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { [weak self] _ in
-            self?.presenter.sort(param: .NFTCount)
-            self?.tableView.reloadData()
-            self?.scrollToTop()
+            guard let self else { return }
+            self.sortAndUpdate(param: .NFTCount)
         }))
         controller.addAction(.init(title: "Закрыть", style: .cancel))
         present(controller, animated: true)
+    }
+}
+
+// MARK: - CatalogViewControllerProtocol
+extension CatalogViewController: CatalogViewControllerProtocol {
+    func updateTableView() {
+        tableView.reloadData()
+    }
+    
+    func endRefreshing() {
+        refreshControl.endRefreshing()
     }
 }
 
@@ -110,10 +117,12 @@ extension CatalogViewController: UITableViewDelegate {
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let collections = presenter.getCollectionIndex(indexPath.row) else { return }
-        
+        goToCollection(collections)
+    }
+    
+    private func goToCollection(_ collections: CollectionModel) {
         let collectionPresenter = CollectionPresenter(collections: collections)
         let collectionViewController = CollectionViewController(presenter: collectionPresenter)
-        
         collectionViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(collectionViewController, animated: true)
     }
@@ -129,7 +138,7 @@ extension CatalogViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: CatalogCell.identifier, for: indexPath) as? CatalogCell else {
             assertionFailure("Failed to dequeue CatalogCell for indexPath: \(indexPath)")
             return UITableViewCell()
-        }        
+        }
         setupCell(cell, indexPath)
         return cell
     }

@@ -20,8 +20,6 @@ final class CatalogInteractor: CatalogInteractorProtocol {
     }
     
     func loadCollections(completion: @escaping (Result<[CollectionModel], Error>) -> Void) {
-        DispatchQueue.global().async {
-            self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self, onResponse: completion)
-        }
+        self.networkClient.send(request: GetCollectionsRequest(), type: [CollectionModel].self, completionQueue: .main, onResponse: completion)
     }
 }

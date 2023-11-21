@@ -62,7 +62,7 @@ final class CollectionCell: UICollectionViewCell {
         return view
     }()
     
-    // MARK: Init
+    // MARK: Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupViews()
