@@ -12,7 +12,8 @@ protocol CollectionPresenterProtocol {
     func viewDidLoad()
     func getAuthor() -> AuthorModel
     func getNftsCount() -> Int
-    func getNftsIndex(_ index: Int, completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
+    func getNftsIndex(_ index: Int, 
+                      completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
 }
 
 final class CollectionPresenter: CollectionPresenterProtocol {
@@ -23,16 +24,16 @@ final class CollectionPresenter: CollectionPresenterProtocol {
       
     // MARK: Public properties
     unowned var view: CollectionViewControllerProtocol!
-    
-    var isCollectionLoadError = false
-    
+        
     // MARK: Private properties
     private let networkClient: NetworkClient
     
-    private var profile: ProfileModel?
-    private var nfts: [NftModel] = []
+    private let collections: CollectionModel
+    
+    private var profile: ProfileModel = ProfileModel(nfts: [], likes: [])
     private var author: AuthorModel = AuthorModel(name: "", description: "", website: "")
-    private var collections: CollectionModel
+    private var nfts: [NftModel] = []
+    
     private var collectionCellModel: [CollectionCellModel] = []
             
     private let loadGroup = DispatchGroup()
@@ -56,8 +57,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 self.nfts.append(nft)
             }
         }
-        
-        self.loadGroup.notify(queue: .main) {
+        self.loadGroup.notify(queue: .main) { [weak self] in
+            guard let self else { return }
             guard self.collections.nfts.count == self.nfts.count else {
                 self.view.hideLoading()
                 self.view.showAlertWithTime {
@@ -69,7 +70,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 return
             }
             self.sortByName()
-            self.createCollectionCellModel(profile: self.profile!, nfts: self.nfts)
+            self.createCollectionCellModel(profile: self.profile, nfts: self.nfts)
             self.view.hideLoading()
             self.view.updateCollectionView()
             self.view.setupCollection(self.collections)
@@ -116,6 +117,27 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         }
     }
     
+    private func loadProfile() {
+        self.loadGroup.enter()
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: GetProfileRequest(),
+                                    type: ProfileModel.self,
+                                    completionQueue: .main,
+                                    onResponse: { result in
+                    defer {
+                        self.loadGroup.leave()
+                    }
+                    switch result {
+                    case .success(let profile):
+                        self.profile = profile
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+            })
+        }
+    }
+    
     private func loadAuthor(_ id: String) {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
@@ -130,8 +152,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 switch result {
                 case .success(let author):
                     self.author = author
-                case .failure(_):
-                    self.isCollectionLoadError = true
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
             })
         }
@@ -151,30 +173,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 switch result {
                 case .success(let model):
                     completion(model)
-                case .failure(_):
-                    self.isCollectionLoadError = true
+                case .failure(let error):
+                    print(error.localizedDescription)
                 }
-            })
-        }
-    }
-    
-    private func loadProfile() {
-        self.loadGroup.enter()
-        DispatchQueue.global().async { [weak self] in
-            guard let self else { return }
-            self.networkClient.send(request: GetProfileRequest(),
-                                    type: ProfileModel.self,
-                                    completionQueue: .main,
-                                    onResponse: { result in
-                    defer {
-                        self.loadGroup.leave()
-                    }
-                    switch result {
-                    case .success(let profile):
-                        self.profile = profile
-                    case .failure(_):
-                        self.isCollectionLoadError = true
-                    }
             })
         }
     }

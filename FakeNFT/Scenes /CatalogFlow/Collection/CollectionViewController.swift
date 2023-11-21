@@ -17,7 +17,7 @@ protocol CollectionViewControllerProtocol: AnyObject & LoadingView & ErrorView {
 final class CollectionViewController: UIViewController & CollectionViewControllerProtocol {
     
     // MARK: Public properties
-    var activityIndicator = UIActivityIndicatorView(style: .medium)
+    let activityIndicator = UIActivityIndicatorView(style: .medium)
     
     var presenter: CollectionPresenterProtocol
     
@@ -168,13 +168,11 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
 
     // MARK: Private methods
     private func heightCollection(of nftsCount: Int) {
-        let collectionHeight = (
-            Constants.cellHeight.rawValue + Constants.lineMargins.rawValue) *
-            ceil(CGFloat(nftsCount) /
-            Constants.cellCols.rawValue
-        )
+        let collectionHeight = (Constants.cellHeight.rawValue +
+                                Constants.lineMargins.rawValue) *
+                                ceil(CGFloat(nftsCount) /
+                                Constants.cellCols.rawValue)
         collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
-        
         navigationController?.hidesBarsOnSwipe = nftsCount > 6
     }
     
@@ -225,7 +223,7 @@ extension CollectionViewController: UICollectionViewDataSource {
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension CollectionViewController: UICollectionViewDelegateFlowLayout {
+extension CollectionViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,

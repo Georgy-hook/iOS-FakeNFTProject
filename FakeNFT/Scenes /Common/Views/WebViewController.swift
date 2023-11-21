@@ -15,11 +15,10 @@ final class WebViewViewController: UIViewController {
         return webView
     }()
     
-    private lazy var backButton: UIButton = {
+    private let backButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "backWard"), for: .normal)
         button.backgroundColor = .clear
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
@@ -45,7 +44,6 @@ final class WebViewViewController: UIViewController {
     // MARK: - LoadWebsite
     private func loadWebsite(webSite: URL) {
         let request = URLRequest(url: webSite)
-        ProgressHUD.show()
         webView.load(request)
     }
     
@@ -81,13 +79,14 @@ final class WebViewViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func didBackButtonTapped(){
+        ProgressHUD.dismiss()
         dismiss(animated: true)
     }
 }
 // MARK: - WKNavigationDelegate
 extension WebViewViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        ProgressHUD.show()
+        ProgressHUD.show(interaction: false)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -96,6 +95,6 @@ extension WebViewViewController: WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         ProgressHUD.dismiss()
-        print(error)
+        print("did fail web view error:", error)
     }
 }

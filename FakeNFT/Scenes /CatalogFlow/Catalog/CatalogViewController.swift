@@ -116,8 +116,23 @@ extension CatalogViewController: UITableViewDelegate {
         Constants.cellHeight.rawValue
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let collections = presenter.getCollectionIndex(indexPath.row) else { return }
-        goToCollection(collections)
+        guard let collection = presenter.getCollectionIndex(indexPath.row) else { return }
+        goToCollection(collection)
+    }
+
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        guard let collection = presenter.getCollectionIndex(indexPath.row) else { return nil }
+        let configuration = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self else { return nil }
+            
+            let menu = UIMenu(title: "\(collection.name)", children: [
+                UIAction(title: "Открыть", handler: { action in
+                    self.goToCollection(collection)
+                })
+            ])
+            return menu
+        }
+        return configuration
     }
     
     private func goToCollection(_ collections: CollectionModel) {
