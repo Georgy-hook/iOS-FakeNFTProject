@@ -15,6 +15,7 @@ protocol CollectionPresenterProtocol {
     func getNftsIndex(_ index: Int, 
                       completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
     func reverseLike(cell: CollectionCellProtocol, id: String)
+    func addDeleteInCart(cell: CollectionCellProtocol, id: String)
 }
 
 final class CollectionPresenter: CollectionPresenterProtocol {
@@ -32,6 +33,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private let collections: CollectionModel
     
     private var profile: ProfileModel = ProfileModel(name: "", avatar: "", description: "", website: "", nfts: [], likes: [], id: "")
+    private var order: OrderModel = OrderModel(nfts: [])
     private var author: AuthorModel = AuthorModel(name: "", description: "", website: "")
     private var nfts: [NftModel] = []
     
@@ -50,6 +52,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         view.showLoading()
         
         loadProfile()
+        loadOrder()
         loadAuthor(collections.author)
         
         collections.nfts.forEach { [weak self] id in
@@ -71,7 +74,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 return
             }
             self.sortByName()
-            self.createCollectionCellModel(profile: self.profile, nfts: self.nfts)
+            self.createCollectionCellModel(profile: self.profile,
+                                           order: self.order,
+                                           nfts: self.nfts)
             self.view.hideLoading()
             self.view.updateCollectionView()
             self.view.setupCollection(self.collections)
@@ -117,15 +122,39 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         }
     }
     
-    // MARK: Private methods
-    private func createCollectionCellModel(profile: ProfileModel, nfts: [NftModel]) {
+    func addDeleteInCart(cell: CollectionCellProtocol, id: String) {
+        if order.nfts.contains(where: {$0 == id}) {
+            order.nfts.removeAll(where: {$0 == id})
+        } else {
+            order.nfts.append(id)
+        }
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: PutOrderRequest(order: self.order),
+                               type: OrderModel.self,
+                               completionQueue: .main) { result in
+                switch result {
+                case .success(let orders):
+                    cell.setIsCart(isInCart: orders.nfts.contains(id))
+                case .failure(let error):
+                    print("Не удалось выполнить addDeleteInCart:", error.localizedDescription)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Helper methods
+private extension CollectionPresenter {
+    /// Create CollectionCellModel
+    func createCollectionCellModel(profile: ProfileModel, order: OrderModel, nfts: [NftModel]) {
         nfts.forEach { nft in
             let collectionCellModel = CollectionCellModel(
                 id: nft.id,
                 name: nft.name,
                 image: nft.images[0], /// первая картинка
                 isLiked: profile.likes.contains(nft.id),
-                isInCart: profile.nfts.contains(nft.id),
+                isInCart: order.nfts.contains(nft.id),
                 rating: nft.rating,
                 price: nft.price
             )
@@ -133,13 +162,17 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         }
     }
     
-    private func sortByName() {
+    /// Sorting
+    func sortByName() {
         self.nfts.sort { (x, y) -> Bool in
             return x.name.localizedCaseInsensitiveCompare(y.name) == .orderedAscending
         }
     }
-    
-    private func loadProfile() {
+}
+
+// MARK: - Request management
+private extension CollectionPresenter {
+    func loadProfile() {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
@@ -147,20 +180,40 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                                     type: ProfileModel.self,
                                     completionQueue: .main,
                                     onResponse: { result in
-                    defer {
-                        self.loadGroup.leave()
-                    }
-                    switch result {
-                    case .success(let profile):
-                        self.profile = profile
-                    case .failure(let error):
-                        print("Не удалось выполнить загрузку профиля:", error.localizedDescription)
-                    }
+                defer {
+                    self.loadGroup.leave()
+                }
+                switch result {
+                case .success(let profile):
+                    self.profile = profile
+                case .failure(let error):
+                    print("Не удалось выполнить загрузку профиля:", error.localizedDescription)
+                }
             })
         }
     }
     
-    private func loadAuthor(_ id: String) {
+    func loadOrder() {
+        self.loadGroup.enter()
+        DispatchQueue.global().async { [weak self] in
+            guard let self else { return }
+            networkClient.send(request: GetOrderRequest(),
+                               type: OrderModel.self,
+                               completionQueue: .main) { result in
+                defer {
+                    self.loadGroup.leave()
+                }
+                switch result {
+                case .success(let order):
+                    self.order = order
+                case .failure(let error):
+                    print("Не удалось выполнить загрузку order:", error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    func loadAuthor(_ id: String) {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
@@ -180,8 +233,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
             })
         }
     }
-
-    private func loadNfts(_ id: String, completion: @escaping (NftModel) -> Void) {
+    
+    func loadNfts(_ id: String, completion: @escaping (NftModel) -> Void) {
         self.loadGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }

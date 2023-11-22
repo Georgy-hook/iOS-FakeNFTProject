@@ -23,6 +23,14 @@ struct GetProfileRequest: NetworkRequest {
     var dto: Encodable?
 }
 
+struct GetOrderRequest: NetworkRequest {
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)orders/1")
+    }
+    var httpMethod: HttpMethod = .get
+    var dto: Encodable?
+}
+
 struct GetAuthorRequest: NetworkRequest {
     var id: String
     var endpoint: URL? {
@@ -49,5 +57,16 @@ struct PutProfileRequest: NetworkRequest {
     var httpMethod: HttpMethod = .put
     var dto: Encodable? {
         profile
+    }
+}
+
+struct PutOrderRequest: NetworkRequest {
+    let order: OrderModel
+    var endpoint: URL? {
+        URL(string: "\(RequestConstants.baseURL)orders/1")
+    }
+    var httpMethod: HttpMethod = .put
+    var dto: Encodable? {
+        order
     }
 }

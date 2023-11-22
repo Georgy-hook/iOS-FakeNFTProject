@@ -259,6 +259,9 @@ extension CollectionViewController: CollectionDelegate {
     func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String) {
         presenter.reverseLike(cell: cell, id: nftId)
     }
+    func collectionCellDidTapCart(_ cell: CollectionCellProtocol, nftId: String) {
+        presenter.addDeleteInCart(cell: cell, id: nftId)
+    }
 }
 
 // MARK: - Setup Views/Constraints

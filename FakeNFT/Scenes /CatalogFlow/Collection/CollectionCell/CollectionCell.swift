@@ -10,10 +10,12 @@ import Kingfisher
 
 protocol CollectionCellProtocol: AnyObject {
     func setIsLiked(isLiked: Bool)
+    func setIsCart(isInCart: Bool)
 }
 
 protocol CollectionDelegate: AnyObject {
     func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String)
+    func collectionCellDidTapCart(_ cell: CollectionCellProtocol, nftId: String)
 }
 
 final class CollectionCell: UICollectionViewCell {
@@ -24,9 +26,7 @@ final class CollectionCell: UICollectionViewCell {
     private var nftId: String = ""
     private let cache = ImageCache.default
     
-    private lazy var heartbeatAnimator = {
-        HeartbeatAnimator(targetLayer: self.likeButton.layer)
-    }()
+    private let heartbeatAnimator: HeartbeatAnimatorProtocol
     
     private let previewImage: UIImageView = {
         let view = UIImageView()
@@ -79,6 +79,7 @@ final class CollectionCell: UICollectionViewCell {
     
     // MARK: Initialization
     override init(frame: CGRect) {
+        self.heartbeatAnimator = HeartbeatAnimator()
         super.init(frame: frame)
         setupViews()
     }
@@ -101,9 +102,8 @@ final class CollectionCell: UICollectionViewCell {
         priceLabel.text = "\(nft.price) ETH"
         setStarsState(nft.rating)
         setIsLiked(isLiked: nft.isLiked)
-        
-        cartButton.setImage(UIImage(named: nft.isInCart ? "Catalog.CardFull" : "Catalog.CardEmpty"), for: .normal)
-        
+        setIsCart(isInCart: nft.isInCart)
+                
         guard let urlString = nft.image.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
         previewImage.kf.indicatorType = .activity
@@ -125,22 +125,20 @@ final class CollectionCell: UICollectionViewCell {
     
     @objc
     private func cartButtonClicked() {
-        //TODO: finish this later
+        cartButton.isUserInteractionEnabled = false
+        delegate?.collectionCellDidTapCart(self, nftId: nftId)
     }
 }
 
 // MARK: - Like and Cart Protocol
 extension CollectionCell: CollectionCellProtocol {
     func setIsLiked(isLiked: Bool) {
-        let likeImage = isLiked ? UIImage(named: "activeLike") : UIImage(named: "noActiveLike")
-        
-        UIView.transition(with: likeButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            self.likeButton.setImage(likeImage, for: .normal)
-        }, completion: { _ in
-            if isLiked {
-                self.heartbeatAnimator.animateHeartbeat()
-            }
-        })
+        heartbeatAnimator.animationStart(with: likeButton, isLiked: isLiked)
+    }
+    
+    func setIsCart(isInCart: Bool) {
+        let cartImage = isInCart ? UIImage(named: "Catalog.CardFull") : UIImage(named: "Catalog.CardEmpty")
+        self.cartButton.setImage(cartImage, for: .normal)
         likeButton.isUserInteractionEnabled = true
     }
 }
