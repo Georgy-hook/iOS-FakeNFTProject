@@ -6,14 +6,25 @@
 //
 
 import UIKit
+import Kingfisher
+
+protocol CollectionCellProtocol: AnyObject {
+    func setIsLiked(isLiked: Bool)
+}
+
+protocol CollectionDelegate: AnyObject {
+    func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String)
+}
 
 final class CollectionCell: UICollectionViewCell {
     
+    weak var delegate: CollectionDelegate?
+    
     // MARK: Private properties
     private var nftId: String = ""
-    private var reversLike: (String) -> Void = { _ in return }
+    private let cache = ImageCache.default
     
-    private let cardImage: UIImageView = {
+    private let previewImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
         view.layer.cornerRadius = 12
@@ -24,17 +35,17 @@ final class CollectionCell: UICollectionViewCell {
     
     private let likeButton: UIButton = {
         let button = UIButton()
-        button.addTarget(nil, action: #selector(likeButtonTap), for: .touchUpInside)
+        button.addTarget(nil, action: #selector(likeButtonClicked), for: .touchUpInside)
         return button
     }()
     
-    private let starsImage: [UIImageView] = {
+    private let starsImages: [UIImageView] = {
         (1...5).map { _ in
             UIImageView()
         }
     }()
     
-    private let nameLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17, weight: .bold)
         label.textColor = .black
@@ -48,14 +59,14 @@ final class CollectionCell: UICollectionViewCell {
         return label
     }()
     
-    private let cardButton: UIButton = {
+    private let cartButton: UIButton = {
         let button = UIButton()
-        button.addTarget(nil, action: #selector(cardButtonTap), for: .touchUpInside)
+        button.addTarget(nil, action: #selector(cartButtonClicked), for: .touchUpInside)
         return button
     }()
     
-    private lazy var starsView: UIStackView = {
-        let view = UIStackView(arrangedSubviews: starsImage)
+    private lazy var starsStackView: UIStackView = {
+        let view = UIStackView(arrangedSubviews: starsImages)
         view.axis = .horizontal
         view.alignment = .center
         view.spacing = 0.75
@@ -73,38 +84,51 @@ final class CollectionCell: UICollectionViewCell {
     }
         
     // MARK: Public methods
-    func configureCell(_ nft: CollectionCellModel, onReversLike: @escaping (String) -> Void) { 
+    public override func prepareForReuse() {
+        previewImage.kf.cancelDownloadTask()
+    }
+    
+    func configureCell(_ nft: CollectionCellModel) {
+//        cache.clearMemoryCache()
+//        cache.clearDiskCache()
+        
         nftId = nft.id
-        reversLike = onReversLike
-        
-        nameLabel.text = nft.name
-        setStarsState(nft.rating)
+        titleLabel.text = nft.name
         priceLabel.text = "\(nft.price) ETH"
+        setStarsState(nft.rating)
+        setIsLiked(isLiked: nft.isLiked)
         
-        likeButton.setImage(UIImage(named: nft.isLiked ? "activeLike" : "noActiveLike"), for: .normal)
-        cardButton.setImage(UIImage(named: nft.isInCart ? "Catalog.CardFull" : "Catalog.CardEmpty"), for: .normal)
+        cartButton.setImage(UIImage(named: nft.isInCart ? "Catalog.CardFull" : "Catalog.CardEmpty"), for: .normal)
         
         guard let urlString = nft.image.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
-        cardImage.kf.indicatorType = .activity
-        cardImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
+        previewImage.kf.indicatorType = .activity
+        previewImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
     }
     
     // MARK: Private methods
     private func setStarsState(_ state: Int) {
-        starsImage.enumerated().forEach { position, star in
+        starsImages.enumerated().forEach { position, star in
             star.image = position < state ? UIImage(named: "starDoneIcon") : UIImage(named: "defaultStarIcon")
         }
     }
     
     @objc
-    private func likeButtonTap() {
-        reversLike(nftId)
+    private func likeButtonClicked() {
+        delegate?.collectionCellDidTapLike(self, nftId: nftId)
     }
     
     @objc
-    private func cardButtonTap() {
+    private func cartButtonClicked() {
         //TODO: finish this later
+    }
+}
+
+// MARK: - CollectionCellProtocol
+extension CollectionCell: CollectionCellProtocol {
+    func setIsLiked(isLiked: Bool) {
+        let likeImage = isLiked ? UIImage(named: "activeLike") : UIImage(named: "noActiveLike")
+        likeButton.setImage(likeImage, for: .normal)
     }
 }
 
@@ -112,28 +136,28 @@ final class CollectionCell: UICollectionViewCell {
 private extension CollectionCell {
     func setupViews() {
         self.backgroundColor = .clear
-        contentView.addSubviews(cardImage, likeButton, starsView, nameLabel, priceLabel, cardButton)
-        setupCardImage()
+        contentView.addSubviews(previewImage, likeButton, starsStackView, titleLabel, priceLabel, cartButton)
+        setupPreviewImage()
         setupLikeButton()
         setupStarsView()
-        setupNameLabel()
+        setupTitleLabel()
         setupPriceLabel()
-        setupCardButton()
+        setupCartButton()
     }
     
-    func setupCardImage() {
+    func setupPreviewImage() {
         NSLayoutConstraint.activate([
-            cardImage.topAnchor.constraint(equalTo: contentView.topAnchor),
-            cardImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            cardImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cardImage.heightAnchor.constraint(equalTo: cardImage.widthAnchor)
+            previewImage.topAnchor.constraint(equalTo: contentView.topAnchor),
+            previewImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            previewImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            previewImage.heightAnchor.constraint(equalTo: previewImage.widthAnchor)
         ])
     }
     
     func setupLikeButton() {
         NSLayoutConstraint.activate([
-            likeButton.topAnchor.constraint(equalTo: cardImage.topAnchor),
-            likeButton.trailingAnchor.constraint(equalTo: cardImage.trailingAnchor),
+            likeButton.topAnchor.constraint(equalTo: previewImage.topAnchor),
+            likeButton.trailingAnchor.constraint(equalTo: previewImage.trailingAnchor),
             likeButton.heightAnchor.constraint(equalToConstant: 40),
             likeButton.widthAnchor.constraint(equalToConstant: 40),
         ])
@@ -141,32 +165,32 @@ private extension CollectionCell {
     
     func setupStarsView() {
         NSLayoutConstraint.activate([
-            starsView.topAnchor.constraint(equalTo: cardImage.bottomAnchor, constant: 8),
-            starsView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0.75),
-            starsView.heightAnchor.constraint(equalToConstant: 12)
+            starsStackView.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 8),
+            starsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0.75),
+            starsStackView.heightAnchor.constraint(equalToConstant: 12)
         ])
     }
     
-    func setupNameLabel() {
+    func setupTitleLabel() {
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: cardImage.bottomAnchor, constant: 24),
-            nameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
+            titleLabel.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 24),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
     
     func setupPriceLabel() {
         NSLayoutConstraint.activate([
-            priceLabel.topAnchor.constraint(equalTo: cardImage.bottomAnchor, constant: 51),
+            priceLabel.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 51),
             priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
     
-    func setupCardButton() {
+    func setupCartButton() {
         NSLayoutConstraint.activate([
-            cardButton.topAnchor.constraint(equalTo: cardImage.bottomAnchor, constant: 24),
-            cardButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cardButton.heightAnchor.constraint(equalToConstant: 40),
-            cardButton.widthAnchor.constraint(equalToConstant: 40),
+            cartButton.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 24),
+            cartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            cartButton.heightAnchor.constraint(equalToConstant: 40),
+            cartButton.widthAnchor.constraint(equalToConstant: 40),
         ])
     }
 }

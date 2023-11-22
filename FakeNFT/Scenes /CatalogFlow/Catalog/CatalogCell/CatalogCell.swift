@@ -36,6 +36,10 @@ final class CatalogCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    public override func prepareForReuse() {
+        previewImage.kf.cancelDownloadTask()
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 21, left: 16, bottom: .zero, right: 16))

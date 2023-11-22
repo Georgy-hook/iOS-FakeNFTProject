@@ -14,7 +14,7 @@ protocol CollectionPresenterProtocol {
     func getNftsCount() -> Int
     func getNftsIndex(_ index: Int, 
                       completion: @escaping (Result<CollectionCellModel, Error>) -> Void)
-    func reverseLike(_ id: String)
+    func reverseLike(cell: CollectionCellProtocol, id: String)
 }
 
 final class CollectionPresenter: CollectionPresenterProtocol {
@@ -96,6 +96,27 @@ final class CollectionPresenter: CollectionPresenterProtocol {
         return collectionCell.count
     }
     
+    func reverseLike(cell: CollectionCellProtocol, id: String) {
+        if profile.likes.contains(where: {$0 == id}) {
+            profile.likes.removeAll(where: {$0 == id})
+        } else {
+            profile.likes.append(id)
+        }
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self else { return }
+            self.networkClient.send(request: PutProfileRequest(profile: self.profile),
+                               type: ProfileModel.self,
+                               completionQueue: .main) { result in
+                switch result {
+                case .success(let profile):
+                    cell.setIsLiked(isLiked: profile.likes.contains(id))
+                case .failure(let error):
+                    print("Не удалось выполнить reverseLike:", error.localizedDescription)
+                }
+            }
+        }
+    }
+    
     // MARK: Private methods
     private func createCollectionCellModel(profile: ProfileModel, nfts: [NftModel]) {
         nfts.forEach { nft in
@@ -133,7 +154,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                     case .success(let profile):
                         self.profile = profile
                     case .failure(let error):
-                        print(error.localizedDescription)
+                        print("Не удалось выполнить загрузку профиля:", error.localizedDescription)
                     }
             })
         }
@@ -154,7 +175,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .success(let author):
                     self.author = author
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    print("Не удалось выполнить загрузку автора \(id):", error.localizedDescription)
                 }
             })
         }
@@ -162,7 +183,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
 
     private func loadNfts(_ id: String, completion: @escaping (NftModel) -> Void) {
         self.loadGroup.enter()
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
             self.networkClient.send(request: GetNftsRequest(id: id),
                                     type: NftModel.self,
@@ -175,30 +196,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .success(let model):
                     completion(model)
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    print("Не удалось выполнить загрузку nft \(id):", error.localizedDescription)
                 }
             })
-        }
-    }
-    
-    func reverseLike(_ id: String) {
-        if profile.likes.contains(where: {$0 == id}) {
-            profile.likes.removeAll(where: {$0 == id})
-        } else {
-            profile.likes.append(id)
-        }
-        DispatchQueue.global(qos: .utility).async { [weak self] in
-            guard let self else { return }
-            self.networkClient.send(request: PutProfileRequest(profile: self.profile),
-                               type: ProfileModel.self,
-                               completionQueue: .main) { result in
-                switch result {
-                case .success(let model):
-                    print("результат лайка: \(model)")
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            }
         }
     }
 }

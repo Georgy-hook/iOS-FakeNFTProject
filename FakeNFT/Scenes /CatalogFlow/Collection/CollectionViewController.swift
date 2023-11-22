@@ -124,7 +124,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         let urlString = collections.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
         let url = URL(string: urlString!)
         coverImage.kf.indicatorType = .activity
-        coverImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
+        coverImage.kf.setImage(with: url)
         
         nameLabel.text = collections.name
         descriptionLabel.text = collections.description
@@ -204,6 +204,7 @@ extension CollectionViewController: UICollectionViewDataSource {
             assertionFailure("Failed to dequeue CollectionCell for indexPath: \(indexPath)")
             return UICollectionViewCell()
         }
+        cell.delegate = self
         
         setupCell(cell, indexPath)
 
@@ -214,7 +215,7 @@ extension CollectionViewController: UICollectionViewDataSource {
         presenter.getNftsIndex(indexPath.row) { cellModel in
             switch cellModel {
             case .success(let cellModel):
-                cell.configureCell(cellModel, onReversLike: self.presenter.reverseLike(_:))
+                cell.configureCell(cellModel)
             case .failure(let error):
                 print(error.localizedDescription)
             }
@@ -250,6 +251,13 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout, UICollec
 extension CollectionViewController: UIGestureRecognizerDelegate {
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+}
+
+// MARK: - CollectionCellDelegate
+extension CollectionViewController: CollectionDelegate {
+    func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String) {
+        presenter.reverseLike(cell: cell, id: nftId)
     }
 }
 
