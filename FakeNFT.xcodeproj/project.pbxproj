@@ -225,6 +225,7 @@
 				2A58DA1F2B07D673006D5A72 /* NetworkModels */,
 				2A3F52F42B02C507006B0174 /* Sorting.swift */,
 				2A8599732AF9387D0077F522 /* Requests.swift */,
+				2AE9C50D2B0E23BC00B2A2F8 /* HeartbeatAnimator.swift */,
 				2A2AD2342AFEE85700FBED19 /* Catalog */,
 				2A367EFE2AF83D86004EAAD7 /* Collection */,
 				2A4389642AFADC5200F1AF18 /* Test */,
@@ -254,7 +255,6 @@
 		2A367EFE2AF83D86004EAAD7 /* Collection */ = {
 			isa = PBXGroup;
 			children = (
-				2AE9C50D2B0E23BC00B2A2F8 /* HeartbeatAnimator.swift */,
 				2A367EFF2AF83DAF004EAAD7 /* CollectionViewController.swift */,
 				2A4389612AFADBEF00F1AF18 /* CollectionPresenter.swift */,
 				2AE9C5112B0E60AD00B2A2F8 /* CollectionInteractor.swift */,

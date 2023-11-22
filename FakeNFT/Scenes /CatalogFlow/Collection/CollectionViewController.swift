@@ -108,13 +108,6 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        if isMovingFromParent {
-            hidesBottomBarWhenPushed = false
-        }
-    }
-    
     // MARK: Public methods
     func setupCollection(_ collections: CollectionModel) {
         let author = presenter.getAuthor()
@@ -262,10 +255,10 @@ extension CollectionViewController: UIGestureRecognizerDelegate {
 
 // MARK: - CollectionCellDelegate
 extension CollectionViewController: CollectionDelegate {
-    func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String) {
+    func collectionCellDidTapLike(cell: CollectionCellProtocol, nftId: String) {
         presenter.reverseLike(cell: cell, id: nftId)
     }
-    func collectionCellDidTapCart(_ cell: CollectionCellProtocol, nftId: String) {
+    func collectionCellDidTapCart(cell: CollectionCellProtocol, nftId: String) {
         presenter.addDeleteInCart(cell: cell, id: nftId)
     }
 }

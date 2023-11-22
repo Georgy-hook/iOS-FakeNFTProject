@@ -116,6 +116,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .failure(let error):
                     print("Не удалось выполнить reverseLike:", error.localizedDescription)
                 }
+                cell.setInteractionLike(isEnabled: true)
             }
         }
     }
@@ -135,6 +136,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .failure(let error):
                     print("Не удалось выполнить addDeleteInCart:", error.localizedDescription)
                 }
+                cell.setInteractionCart(isEnabled: true)
             }
         }
     }

@@ -11,11 +11,13 @@ import Kingfisher
 protocol CollectionCellProtocol: AnyObject {
     func setIsLiked(isLiked: Bool)
     func setIsCart(isInCart: Bool)
+    func setInteractionLike(isEnabled: Bool)
+    func setInteractionCart(isEnabled: Bool)
 }
 
 protocol CollectionDelegate: AnyObject {
-    func collectionCellDidTapLike(_ cell: CollectionCellProtocol, nftId: String)
-    func collectionCellDidTapCart(_ cell: CollectionCellProtocol, nftId: String)
+    func collectionCellDidTapLike(cell: CollectionCellProtocol, nftId: String)
+    func collectionCellDidTapCart(cell: CollectionCellProtocol, nftId: String)
 }
 
 final class CollectionCell: UICollectionViewCell {
@@ -119,14 +121,14 @@ final class CollectionCell: UICollectionViewCell {
     
     @objc
     private func likeButtonClicked() {
-        likeButton.isUserInteractionEnabled = false
-        delegate?.collectionCellDidTapLike(self, nftId: nftId)
+        setInteractionLike(isEnabled: false)
+        delegate?.collectionCellDidTapLike(cell: self, nftId: nftId)
     }
     
     @objc
     private func cartButtonClicked() {
-        cartButton.isUserInteractionEnabled = false
-        delegate?.collectionCellDidTapCart(self, nftId: nftId)
+        setInteractionCart(isEnabled: false)
+        delegate?.collectionCellDidTapCart(cell: self, nftId: nftId)
     }
 }
 
@@ -139,7 +141,14 @@ extension CollectionCell: CollectionCellProtocol {
     func setIsCart(isInCart: Bool) {
         let cartImage = isInCart ? UIImage(named: "Catalog.CardFull") : UIImage(named: "Catalog.CardEmpty")
         self.cartButton.setImage(cartImage, for: .normal)
-        likeButton.isUserInteractionEnabled = true
+    }
+    
+    func setInteractionLike(isEnabled: Bool) {
+        likeButton.isUserInteractionEnabled = isEnabled
+    }
+    
+    func setInteractionCart(isEnabled: Bool) {
+        cartButton.isUserInteractionEnabled = isEnabled
     }
 }
 

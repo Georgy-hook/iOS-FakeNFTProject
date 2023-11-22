@@ -34,7 +34,7 @@ final class CatalogPresenter {
      
     // MARK: Private methods
     private func loadCollection() {
-        DispatchQueue.global().async {
+        DispatchQueue.global(qos: .userInitiated).async {
             self.interactor.loadCollections { [weak self] result in
                 guard let self else { return }
                 switch result {
