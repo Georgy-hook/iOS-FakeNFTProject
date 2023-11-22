@@ -28,7 +28,7 @@ final class UserServiceImpl: UserService {
         }
 
         let request = UserRequest(id: id)
-        networkClient.send(request: request, type: User.self) { [weak storage] result in
+        networkClient.send(request: request, type: User.self, completionQueue: .main) { [weak storage] result in
             switch result {
             case .success(let user):
                 storage?.saveUser(user)

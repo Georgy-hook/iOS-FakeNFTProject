@@ -59,7 +59,9 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
         showEmptyLabel()
     }
     func showErrorAlert() {
-        self.showErrorLoadAlert()
+        self.showErrorLoadAlert() { [weak self] in
+            self?.presenter.viewDidLoad()
+        }
     }
     
     // MARK: Private methods

@@ -70,7 +70,6 @@ extension WebViewerController: WKNavigationDelegate, WKUIDelegate {
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         showActivityIndicator(show: false)
-        self.showErrorLoadAlert()
     }
 }
 

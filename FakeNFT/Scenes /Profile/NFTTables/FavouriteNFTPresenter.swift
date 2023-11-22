@@ -45,7 +45,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             profileService.loadProfile(id: "1") { result in
                 switch result {
@@ -64,7 +64,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     
     private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             favoritesNFT.forEach { nft in
                 self.nftService.loadNft(id: nft) { result in
@@ -72,6 +72,7 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
                     case .success(let nft):
                         completion(nft)
                     case .failure:
+                        self.ressetAllData()
                         self.view?.showErrorAlert()
                     }
                     self.view?.hideLoading()
@@ -81,6 +82,11 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     // MARK: Methods
+    private func ressetAllData() {
+        self.favoritesNFT = []
+        self.favoritesNFTProfile = []
+    }
+    
     func getCollectionsIndex(_ index: Int) -> Nft? {
         return favoritesNFTProfile[index]
     }
@@ -94,12 +100,12 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     func addToCollectionFavoritesNFT(_ currentNft: Nft) {
-        if favoritesNFTProfile.contains(where: {$0 == currentNft} ) {
+        guard favoritesNFTProfile.contains(where: {$0 == currentNft} ) else {
             return
-        } else {
-            favoritesNFTProfile.append(currentNft)
-            view?.reloadData()
         }
+        favoritesNFTProfile.append(currentNft)
+        view?.reloadData()
+        
     }
     
     func removeFromCollectionFavoritesNFT(_ currentNft: Nft) {

@@ -135,7 +135,9 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
         tableView.reloadData()
     }
     func showErrorAlert() {
-        self.showErrorLoadAlert()
+        self.showErrorLoadAlert() { [weak self] in
+            self?.presenter.viewDidLoad()
+        }
         navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = false
     }
     

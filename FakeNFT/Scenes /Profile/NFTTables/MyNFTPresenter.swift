@@ -64,7 +64,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             self.profileService.loadProfile(id: "1") { result in
                 switch result {
@@ -77,6 +77,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                     }
                 case .failure:
                     self.view?.showErrorAlert()
+                    
                 }
             }
         }
@@ -85,7 +86,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     // MARK: Load request & user
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
         assert(Thread.isMainThread)
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             myNFT.forEach { nft in
                 self.nftService.loadNft(id: nft) { result in
@@ -102,7 +103,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     }
     
     private func loadUser(nft: Nft, _ completion: @escaping()->()) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             self.userService.loadUser(id: nft.author) { result in
                 switch result {
@@ -110,10 +111,18 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                     self.myNFTUsers.append(user)
                     completion()
                 case .failure:
+                    self.ressetAllData()
                     self.view?.showErrorAlert()
                 }
             }
         }
+    }
+    
+    private func ressetAllData() {
+        self.myNFT = []
+        self.favoritesNFT = []
+        self.myNFTProfile = []
+        self.myNFTUsers = []
     }
     
     // MARK: Configure Cell

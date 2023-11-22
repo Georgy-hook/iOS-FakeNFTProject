@@ -28,7 +28,7 @@ final class ProfileServiceImpl: ProfileService {
         }
 
         let request = ProfileRequest(id: id)
-        networkClient.send(request: request, type: Profile.self) { [weak profileStorage] result in
+        networkClient.send(request: request, type: Profile.self, completionQueue: .main) { [weak profileStorage] result in
             switch result {
             case .success(let profile):
                 profileStorage?.saveProfile(profile)
@@ -41,7 +41,7 @@ final class ProfileServiceImpl: ProfileService {
     
     func updateProfile(name: String, avatar: String, description: String, website: String, nfts: [String], likes: [String], id: String, _ completion: ProfileCompletion?) {
         let request = ProfilePutRequest(name: name, avatar: avatar, description: description, website: website, nfts: nfts, likes: likes, id: id)
-        networkClient.send(request: request, type: Profile.self) { [weak profileStorage] result in
+        networkClient.send(request: request, type: Profile.self, completionQueue: .global()) { [weak profileStorage] result in
             switch result {
             case .success(let profile):
                 profileStorage?.saveProfile(profile)

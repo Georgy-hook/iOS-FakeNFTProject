@@ -19,10 +19,14 @@ extension UIViewController {
     }
     
     // MARK: Show alert
-    func showErrorLoadAlert() {
-        let alert = UIAlertController(title: "Ошибка", message: "Не удалось загрузить данные", preferredStyle: .alert)
-        let okAction = UIAlertAction(title: "Ок", style: .default)
-        alert.addAction(okAction)
+    func showErrorLoadAlert(_ completion: @escaping() -> Void) {
+        let alert = UIAlertController(title: "Не удалось получить данные", message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "Отмена", style: .default)
+        let repeatAction = UIAlertAction(title: "Повторить", style: .default) { _ in
+            completion()
+        }
+        alert.addAction(cancelAction)
+        alert.addAction(repeatAction)
         self.present(alert, animated: true, completion: nil)
     }
 }

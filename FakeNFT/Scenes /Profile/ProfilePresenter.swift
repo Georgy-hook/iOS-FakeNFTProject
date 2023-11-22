@@ -83,7 +83,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     }
     
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             let numberOfProfile = "1"
             self.profileService.loadProfile(id: numberOfProfile) { result in
@@ -115,7 +115,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         profile?.name = name ?? String()
         profile?.description = description ?? String()
         profile?.website = website ?? String()
-        putUpdatedDataProfile()
+        //putUpdatedDataProfile()
     }
     
     func updateFavouriteNftCount() {
@@ -123,7 +123,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
             let count = profileAssembly.returnFavouriteNft().count
             titleRows[1] = "Избранные NFT (\(count))"
             updateFavouriteNft()
-            putUpdatedDataProfile()
+            //putUpdatedDataProfile()
             view?.reloadTable()
         }
     }
@@ -136,7 +136,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     
     // MARK: Make put Request to update data on server
     private func putUpdatedDataProfile() {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             guard let profile else { return }
             self.profileService.updateProfile(
