@@ -24,6 +24,10 @@ final class CollectionCell: UICollectionViewCell {
     private var nftId: String = ""
     private let cache = ImageCache.default
     
+    private lazy var heartbeatAnimator = {
+        HeartbeatAnimator(targetLayer: self.likeButton.layer)
+    }()
+    
     private let previewImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
@@ -115,6 +119,7 @@ final class CollectionCell: UICollectionViewCell {
     
     @objc
     private func likeButtonClicked() {
+        likeButton.isUserInteractionEnabled = false
         delegate?.collectionCellDidTapLike(self, nftId: nftId)
     }
     
@@ -124,11 +129,19 @@ final class CollectionCell: UICollectionViewCell {
     }
 }
 
-// MARK: - CollectionCellProtocol
+// MARK: - Like and Cart Protocol
 extension CollectionCell: CollectionCellProtocol {
     func setIsLiked(isLiked: Bool) {
         let likeImage = isLiked ? UIImage(named: "activeLike") : UIImage(named: "noActiveLike")
-        likeButton.setImage(likeImage, for: .normal)
+        
+        UIView.transition(with: likeButton, duration: 0.3, options: .transitionCrossDissolve, animations: {
+            self.likeButton.setImage(likeImage, for: .normal)
+        }, completion: { _ in
+            if isLiked {
+                self.heartbeatAnimator.animateHeartbeat()
+            }
+        })
+        likeButton.isUserInteractionEnabled = true
     }
 }
 
