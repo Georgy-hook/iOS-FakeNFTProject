@@ -2,24 +2,13 @@ import UIKit
 
 final class TabBarController: UITabBarController {
     
-    let servicesAssembly = ServicesAssembly(
+    private let servicesAssembly = ServicesAssembly(
         networkClient: DefaultNetworkClient(),
         nftStorage: NftStorageImpl(),
         profileStorage: ProfileStorageImpl(),
         userStorage: UserStorageImpl()
     )
     
-    let profileAssembly = ProfileAssembly(
-        editingProfileViewController: EditingProfileViewController(
-            presenter: EditingProfilePresenter()),
-        webViewerController: WebViewerController(),
-        myNFTViewController: MyNFTViewController(
-            presenter: MyNFTPresenter()),
-        favouriteNFTViewController: FavouriteNFTViewController(
-            presenter: FavouriteNFTPresenter())
-    )
-    
-
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),
         image: UIImage(named: "YP Catalog"),
@@ -50,16 +39,14 @@ final class TabBarController: UITabBarController {
             servicesAssembly: servicesAssembly
         )
         catalogController.tabBarItem = catalogTabBarItem
-
-        let profilePresenter = ProfilePresenter(profileAssembly: profileAssembly)
-        let profileViewController = ProfileViewController(presenter: profilePresenter) 
-        profilePresenter.view = profileViewController
         
-        let profileController = UINavigationController(rootViewController: profileViewController)
+        /// Profile
+        let profileController = configureProfile()
         profileController.tabBarItem = profileTabBarItem
         
         let cartController = UIViewController()
         cartController.tabBarItem = cartTabBarItem
+        
         let statsController = UIViewController()
         statsController.tabBarItem = statsTabBarItem
 
@@ -67,5 +54,25 @@ final class TabBarController: UITabBarController {
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.tintColor = UIColor(named: "YP Blue")
         tabBar.unselectedItemTintColor = UIColor(named: "YP Black")
+    }
+    
+    private func configureProfile() -> UIViewController {
+        let profileAssembly = ProfileAssembly(
+            editingProfileViewController: EditingProfileViewController(
+                presenter: EditingProfilePresenter()),
+            webViewerController: WebViewerController(),
+            myNFTViewController: MyNFTViewController(
+                presenter: MyNFTPresenter(servicesAssembly: servicesAssembly)),
+            favouriteNFTViewController: FavouriteNFTViewController(
+                presenter: FavouriteNFTPresenter(servicesAssembly: servicesAssembly))
+        )
+        
+        let profilePresenter = ProfilePresenter(profileAssembly: profileAssembly)
+        let profileViewController = ProfileViewController(presenter: profilePresenter)
+        profilePresenter.view = profileViewController
+        
+        let profileController = UINavigationController(rootViewController: profileViewController)
+        
+        return profileController
     }
 }

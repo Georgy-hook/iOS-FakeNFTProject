@@ -79,12 +79,7 @@ final class FavouriteNFTViewController: UIViewController & InterfaceFavouriteNFT
     
     private func configureCell(with indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(indexPath: indexPath) as FavouriteNFTCell
-        cell.delegate = self
-        guard let favoritesNFTProfile = presenter.getCollectionsIndex(indexPath.row) else {
-            return UICollectionViewCell()
-        }
-        cell.configure(with: favoritesNFTProfile)
-        return cell
+        return presenter.configureCell(with: cell, indexPath: indexPath)
     }
     
     // MARK: Selectors

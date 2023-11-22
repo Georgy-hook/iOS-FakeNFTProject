@@ -13,6 +13,11 @@ protocol InterfaceMyNFTPresenter: AnyObject {
     func viewDidLoad()
 }
 
+protocol InterfaceMyNFTCell: AnyObject {
+    func isLikedNft(id: String, isLiked: Bool)
+    func addLikeNftToFavourite(_ currentNft: Nft, isLiked: Bool)
+}
+
 // MARK: Sotring option
 enum sotringOption {
     case price
@@ -20,7 +25,7 @@ enum sotringOption {
     case name
 }
 
-final class MyNFTPresenter: InterfaceMyNFTPresenter {
+final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
     // MARK: Public Properties
     var collectionsCount: Int {
         return myNFTProfile.count
@@ -41,19 +46,15 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
             view?.reloadData()
         }
     }
-    private let nftService: NftServiceImpl
-    private let profileService: ProfileServiceImpl
-    private let userService: UserServiceImpl
+    private let servicesAssembly: ServicesAssembly
     
     // MARK: Initialization
-    init() {
+    init(servicesAssembly: ServicesAssembly) {
         self.myNFT = []
         self.favoritesNFT = []
         self.myNFTProfile = []
         self.myNFTUsers = []
-        self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
-        self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
-        self.userService = UserServiceImpl(networkClient: DefaultNetworkClient(), storage: UserStorageImpl())
+        self.servicesAssembly = servicesAssembly
     }
     
     // MARK: Life cycle
@@ -66,7 +67,8 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private func setupDataProfile() {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            self.profileService.loadProfile(id: "1") { result in
+            let numberOfProfile = "1"
+            self.servicesAssembly.profileService.loadProfile(id: numberOfProfile) { result in
                 switch result {
                 case .success(let profile):
                     self.myNFT = profile.nfts
@@ -77,7 +79,6 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
                     }
                 case .failure:
                     self.view?.showErrorAlert()
-                    
                 }
             }
         }
@@ -85,11 +86,10 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     
     // MARK: Load request & user
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
-        assert(Thread.isMainThread)
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             myNFT.forEach { nft in
-                self.nftService.loadNft(id: nft) { result in
+                self.servicesAssembly.nftService.loadNft(id: nft) { result in
                     switch result {
                     case .success(let nft):
                         completion(nft)
@@ -105,7 +105,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter {
     private func loadUser(nft: Nft, _ completion: @escaping()->()) {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
-            self.userService.loadUser(id: nft.author) { result in
+            self.servicesAssembly.userService.loadUser(id: nft.author) { result in
                 switch result {
                 case .success(let user):
                     self.myNFTUsers.append(user)

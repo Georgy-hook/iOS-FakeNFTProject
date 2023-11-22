@@ -7,14 +7,17 @@ protocol InterfaceFavouriteNFTPresenter: AnyObject {
     var view: InterfaceFavouriteNFTController? { get set }
     var collectionsCount: Int { get }
     func viewDidLoad()
-    func getCollectionsIndex(_ index: Int) -> Nft?
-    func removeFromCollection(_ index: Int)
     func getCollectionFavoritesNFT() -> [Nft]
     func addToCollectionFavoritesNFT(_ currentNft: Nft)
     func removeFromCollectionFavoritesNFT(_ currentNft: Nft)
+    func configureCell(with cell: FavouriteNFTCell, indexPath: IndexPath) -> FavouriteNFTCell
 }
 
-final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
+protocol InterfaceFavouriteNFTCell: AnyObject {
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft)
+}
+
+final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter, InterfaceFavouriteNFTCell {
     // MARK: Public Properties
     var collectionsCount: Int {
         return favoritesNFTProfile.count
@@ -26,15 +29,13 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     // MARK: Private properties
     private var favoritesNFT: [String]
     private var favoritesNFTProfile: [Nft]
-    private let nftService: NftServiceImpl
-    private let profileService: ProfileServiceImpl
+    private let servicesAssembly: ServicesAssembly
     
     // MARK: Initialisation
-    init() {
+    init(servicesAssembly: ServicesAssembly) {
         self.favoritesNFT = []
         self.favoritesNFTProfile = []
-        self.nftService = NftServiceImpl(networkClient: DefaultNetworkClient(), storage: NftStorageImpl())
-        self.profileService = ProfileServiceImpl(networkClient: DefaultNetworkClient(), profileStorage: ProfileStorageImpl())
+        self.servicesAssembly = servicesAssembly
     }
     
     // MARK: Life cycle
@@ -47,7 +48,8 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     private func setupDataProfile() {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            profileService.loadProfile(id: "1") { result in
+            let numberOfProfile = "1"
+            servicesAssembly.profileService.loadProfile(id: numberOfProfile) { result in
                 switch result {
                 case .success(let profile):
                     self.favoritesNFT = profile.likes
@@ -63,42 +65,45 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
     }
     
     private func loadRequest(_ favoritesNFT: [String], _ completion: @escaping(Nft)->()) {
-        assert(Thread.isMainThread)
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             favoritesNFT.forEach { nft in
-                self.nftService.loadNft(id: nft) { result in
-                    switch result {
-                    case .success(let nft):
-                        completion(nft)
-                    case .failure:
-                        self.ressetAllData()
-                        self.view?.showErrorAlert()
+                DispatchQueue.main.async {
+                    self.servicesAssembly.nftService.loadNft(id: nft) { result in
+                        switch result {
+                        case .success(let nft):
+                            completion(nft)
+                        case .failure:
+                            self.ressetAllData()
+                            self.view?.showErrorAlert()
+                        }
+                        self.view?.hideLoading()
                     }
-                    self.view?.hideLoading()
                 }
             }
         }
     }
     
-    // MARK: Methods
     private func ressetAllData() {
         self.favoritesNFT = []
         self.favoritesNFTProfile = []
     }
     
-    func getCollectionsIndex(_ index: Int) -> Nft? {
-        return favoritesNFTProfile[index]
+    // MARK: Configure Cell
+    func configureCell(with cell: FavouriteNFTCell, indexPath: IndexPath) -> FavouriteNFTCell {
+        cell.delegate = self
+        let favoritesNFTProfile = favoritesNFTProfile[indexPath.row]
+        cell.configure(with: favoritesNFTProfile)
+        return cell
     }
     
-    func removeFromCollection(_ index: Int) {
-        favoritesNFTProfile.remove(at: index)
+    // MARK: Delegate InterfaceFavouriteNFTCell
+    func removeFromCollectionFavoritesNFT(_ currentNft: Nft) {
+        favoritesNFTProfile.removeAll(where: {$0 == currentNft})
+        view?.reloadData()
     }
     
-    func getCollectionFavoritesNFT() -> [Nft] {
-        return favoritesNFTProfile
-    }
-    
+    // MARK: Add to collection for MYNFTPresenter
     func addToCollectionFavoritesNFT(_ currentNft: Nft) {
         guard favoritesNFTProfile.contains(where: {$0 == currentNft} ) else {
             return
@@ -108,8 +113,8 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter {
         
     }
     
-    func removeFromCollectionFavoritesNFT(_ currentNft: Nft) {
-        favoritesNFTProfile.removeAll(where: {$0 == currentNft})
-        view?.reloadData()
+    // MARK: Get collection to ProfilePresenter
+    func getCollectionFavoritesNFT() -> [Nft] {
+        return favoritesNFTProfile
     }
 }

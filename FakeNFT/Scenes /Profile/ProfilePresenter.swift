@@ -37,7 +37,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     private var titleRows: [String]
     private var profile: Profile?
     private let profileService: ProfileServiceImpl
-    private var profileAssembly: ProfileAssembly
+    private let profileAssembly: ProfileAssembly
     
     // MARK: Initialization
     init(profileAssembly: ProfileAssembly) {
@@ -115,7 +115,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         profile?.name = name ?? String()
         profile?.description = description ?? String()
         profile?.website = website ?? String()
-        //putUpdatedDataProfile()
+        putUpdatedDataProfile()
     }
     
     func updateFavouriteNftCount() {
@@ -123,7 +123,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
             let count = profileAssembly.returnFavouriteNft().count
             titleRows[1] = "Избранные NFT (\(count))"
             updateFavouriteNft()
-            //putUpdatedDataProfile()
+            putUpdatedDataProfile()
             view?.reloadTable()
         }
     }

@@ -21,7 +21,9 @@ extension UIViewController {
     // MARK: Show alert
     func showErrorLoadAlert(_ completion: @escaping() -> Void) {
         let alert = UIAlertController(title: "Не удалось получить данные", message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Отмена", style: .default)
+        let cancelAction = UIAlertAction(title: "Отмена", style: .default) { [weak self] _ in
+            self?.navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = false
+        }
         let repeatAction = UIAlertAction(title: "Повторить", style: .default) { _ in
             completion()
         }

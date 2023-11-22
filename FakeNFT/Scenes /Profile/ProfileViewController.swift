@@ -136,9 +136,10 @@ final class ProfileViewController: UIViewController & InterfaceProfileViewContro
     }
     func showErrorAlert() {
         self.showErrorLoadAlert() { [weak self] in
-            self?.presenter.viewDidLoad()
+            guard let self else { return }
+            self.presenter.viewDidLoad()
+            self.navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = true
         }
-        navigationController?.navigationBar.topItem?.rightBarButtonItem?.isEnabled = false
     }
     
     // MARK: Setup NavigationBar

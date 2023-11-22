@@ -5,7 +5,6 @@
 import UIKit
 
 extension UILabel {
-    
     // MARK: Pass value for any one of both parameters and see result
     func setLineSpacing(lineSpacing: CGFloat = 0.0, lineHeightMultiple: CGFloat = 0.0) {
         guard let labelText = self.text else { return }
