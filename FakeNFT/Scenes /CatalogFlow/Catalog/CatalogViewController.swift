@@ -136,7 +136,8 @@ extension CatalogViewController: UITableViewDelegate {
     }
     
     private func goToCollection(_ collections: CollectionModel) {
-        let collectionPresenter = CollectionPresenter(collections: collections)
+        let collectionInteractor = CollectionInteractor(networkClient: DefaultNetworkClient())
+        let collectionPresenter = CollectionPresenter(interactor: collectionInteractor, collections: collections)
         let collectionViewController = CollectionViewController(presenter: collectionPresenter)
         collectionViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(collectionViewController, animated: true)

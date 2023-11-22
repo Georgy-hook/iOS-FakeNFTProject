@@ -28,7 +28,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     unowned var view: CollectionViewControllerProtocol!
         
     // MARK: Private properties
-    private let networkClient: NetworkClient
+    private let interactor: CollectionInteractorProtocol
     
     private let collections: CollectionModel
     
@@ -42,8 +42,8 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private let loadGroup = DispatchGroup()
     
     // MARK: Initialization
-    init(networkClient: NetworkClient = DefaultNetworkClient(), collections: CollectionModel) {
-        self.networkClient = networkClient
+    init(interactor: CollectionInteractorProtocol, collections: CollectionModel) {
+        self.interactor = interactor
         self.collections = collections
     }
     
@@ -102,16 +102,14 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     }
     
     func reverseLike(cell: CollectionCellProtocol, id: String) {
-        if profile.likes.contains(where: {$0 == id}) {
-            profile.likes.removeAll(where: {$0 == id})
+        if self.profile.likes.contains(where: {$0 == id}) {
+            self.profile.likes.removeAll(where: {$0 == id})
         } else {
-            profile.likes.append(id)
+            self.profile.likes.append(id)
         }
         DispatchQueue.global(qos: .utility).async { [weak self] in
             guard let self else { return }
-            self.networkClient.send(request: PutProfileRequest(profile: self.profile),
-                               type: ProfileModel.self,
-                               completionQueue: .main) { result in
+            self.interactor.reverseLike(cell: cell, id: id, profile: self.profile) { result in
                 switch result {
                 case .success(let profile):
                     cell.setIsLiked(isLiked: profile.likes.contains(id))
@@ -123,16 +121,14 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     }
     
     func addDeleteInCart(cell: CollectionCellProtocol, id: String) {
-        if order.nfts.contains(where: {$0 == id}) {
-            order.nfts.removeAll(where: {$0 == id})
+        if self.order.nfts.contains(where: {$0 == id}) {
+            self.order.nfts.removeAll(where: {$0 == id})
         } else {
-            order.nfts.append(id)
+            self.order.nfts.append(id)
         }
         DispatchQueue.global(qos: .utility).async { [weak self] in
             guard let self else { return }
-            self.networkClient.send(request: PutOrderRequest(order: self.order),
-                               type: OrderModel.self,
-                               completionQueue: .main) { result in
+            self.interactor.addDeleteInCart(cell: cell, id: id, order: self.order) { result in
                 switch result {
                 case .success(let orders):
                     cell.setIsCart(isInCart: orders.nfts.contains(id))
@@ -176,10 +172,7 @@ private extension CollectionPresenter {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            self.networkClient.send(request: GetProfileRequest(),
-                                    type: ProfileModel.self,
-                                    completionQueue: .main,
-                                    onResponse: { result in
+            self.interactor.loadProfile(completion: { result in
                 defer {
                     self.loadGroup.leave()
                 }
@@ -197,9 +190,7 @@ private extension CollectionPresenter {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            networkClient.send(request: GetOrderRequest(),
-                               type: OrderModel.self,
-                               completionQueue: .main) { result in
+            interactor.loadOrder { result in
                 defer {
                     self.loadGroup.leave()
                 }
@@ -217,10 +208,7 @@ private extension CollectionPresenter {
         self.loadGroup.enter()
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            self.networkClient.send(request: GetAuthorRequest(id: id),
-                                    type: AuthorModel.self,
-                                    completionQueue: .main,
-                                    onResponse: { result in
+            self.interactor.loadAuthor(id) { result in
                 defer {
                     self.loadGroup.leave()
                 }
@@ -230,7 +218,7 @@ private extension CollectionPresenter {
                 case .failure(let error):
                     print("Не удалось выполнить загрузку автора \(id):", error.localizedDescription)
                 }
-            })
+            }
         }
     }
     
@@ -238,10 +226,7 @@ private extension CollectionPresenter {
         self.loadGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
-            self.networkClient.send(request: GetNftsRequest(id: id),
-                                    type: NftModel.self,
-                                    completionQueue: .main,
-                                    onResponse: { result in
+            self.interactor.loadNfts(id) { result in
                 defer {
                     self.loadGroup.leave()
                 }
@@ -251,7 +236,7 @@ private extension CollectionPresenter {
                 case .failure(let error):
                     print("Не удалось выполнить загрузку nft \(id):", error.localizedDescription)
                 }
-            })
+            }
         }
     }
 }

@@ -225,6 +225,12 @@ extension CollectionViewController: UICollectionViewDataSource {
 
 // MARK: - UICollectionViewDelegateFlowLayout
 extension CollectionViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        goToDetail()
+    }
+    
+    private func goToDetail() {}
+    
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
