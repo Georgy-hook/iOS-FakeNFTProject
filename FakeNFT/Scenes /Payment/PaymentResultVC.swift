@@ -36,7 +36,8 @@ final class PaymentResultViewController:UIViewController{
         label.textColor = UIColor(named: "YP Black")
         label.text = NSLocalizedString("Success! The payment went through Congratulations on your purchase!", comment: "")
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
     
@@ -90,6 +91,8 @@ private extension PaymentResultViewController{
             successImageView.heightAnchor.constraint(equalToConstant: 278),
             successLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             successLabel.topAnchor.constraint(equalTo: successImageView.bottomAnchor, constant: 20),
+            successLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 36),
+            successLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -36),
             returnButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             returnButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             returnButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
