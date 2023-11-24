@@ -26,7 +26,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     
     private let scrollView: UIScrollView = {
         let view = UIScrollView()
-        view.backgroundColor = .clear
+        view.backgroundColor = Constants.Colors.clear
         view.contentInsetAdjustmentBehavior = .never
         return view
     }()
@@ -34,38 +34,38 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     private let coverImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = Constants.Layout.cornerRadius
         view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         return view
     }()
     
     private let nameLabel: UILabel = {
         let view = UILabel()
-        view.font = .systemFont(ofSize: 22, weight: .bold)
-        view.textColor = .black
+        view.font = .headlineBold22
+        view.textColor = Constants.Colors.black
         return view
     }()
     
     private let authorTitleLabel: UILabel = {
         let view = UILabel()
-        view.textColor = .black
-        view.font = .systemFont(ofSize: 13, weight: .medium)
+        view.textColor = Constants.Colors.black
+        view.font = .captionMedium13
         return view
     }()
     
     private let descriptionLabel: UILabel = {
         let view = UILabel()
-        view.font = .systemFont(ofSize: 13, weight: .regular)
-        view.textColor = .black
-        view.numberOfLines = 0
+        view.font = .captionRegular13
+        view.textColor = Constants.Colors.black
+        view.numberOfLines = .zero
         return view
     }()
     
     private lazy var authorNameLabel: UILabel = {
         let view = UILabel()
-        view.font = .systemFont(ofSize: 15, weight: .regular)
-        view.textColor = .systemBlue
-        view.numberOfLines = 0
+        view.font = .captionRegular15
+        view.textColor = Constants.Colors.blue
+        view.numberOfLines = .zero
         view.isUserInteractionEnabled = true
         view.addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(didTapUserNameLabel(_:)))
@@ -79,7 +79,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         view.register(CollectionCell.self, forCellWithReuseIdentifier: CollectionCell.identifier)
         view.delegate = self
         view.isScrollEnabled = false
-        view.backgroundColor = .clear
+        view.backgroundColor = Constants.Colors.clear
         view.showsVerticalScrollIndicator = false
         return view
     }()
@@ -114,14 +114,15 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         authorURL = author.website
         authorNameLabel.text = author.name
         
-        let urlString = collections.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-        let url = URL(string: urlString!)
+        guard let urlString = collections.cover.addingPercentEncoding(
+            withAllowedCharacters: .urlQueryAllowed) else { return }
+        let url = URL(string: urlString)
         coverImage.kf.indicatorType = .activity
         coverImage.kf.setImage(with: url)
         
         nameLabel.text = collections.name
         descriptionLabel.text = collections.description
-        authorTitleLabel.text = "Автор коллекции:"
+        authorTitleLabel.text = Constants.Strings.authorTitle
         heightCollection(of: collections.nfts.count)
     }
     
@@ -130,16 +131,16 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     }
     
     func showAlertWithTime(_ retryAction: @escaping () -> Void) {
-        let alert = UIAlertController(title: "Ошибка сервера", message: "Повторите попытку через:", preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "Назад", style: .cancel) { _ in
+        let alert = UIAlertController(title: Constants.Strings.alertTitle, message: Constants.Strings.alertMessage, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: Constants.Strings.alertBackAction, style: .cancel) { _ in
             self.navigationController?.popViewController(animated: true)
         }
-        let reloadAction = UIAlertAction(title: "Повторить", style: .default) { _ in retryAction() }
-        reloadAction.isEnabled = false
+        let retryAction = UIAlertAction(title: Constants.Strings.alertRetryAction, style: .default) { _ in retryAction() }
+        retryAction.isEnabled = false
         
         let timeLabel = UILabel()
         timeLabel.textAlignment = .center
-        timeLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        timeLabel.font = .captionMedium13
         alert.view.addSubviews(timeLabel)
         NSLayoutConstraint.activate([
             timeLabel.centerXAnchor.constraint(equalTo: alert.view.centerXAnchor),
@@ -148,25 +149,25 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         var seconds = 18
         let timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
             DispatchQueue.main.async {
-                timeLabel.text = "\(seconds) сек"
+                timeLabel.text = "\(seconds) \(Constants.Strings.alertSeconds)"
             }
             if seconds > 1 { seconds -= 1
-            } else { UIView.animate(withDuration: 0.3) { timeLabel.alpha = 0 }
-                reloadAction.isEnabled = true; timer.invalidate()
+            } else { UIView.animate(withDuration: 0.3) { timeLabel.alpha = .zero }
+                retryAction.isEnabled = true; timer.invalidate()
             }
         }
-        alert.addAction(cancelAction); alert.addAction(reloadAction)
+        alert.addAction(cancelAction); alert.addAction(retryAction)
         present(alert, animated: true) { timer.fire() }
     }
 
     // MARK: Private methods
     private func heightCollection(of nftsCount: Int) {
-        let collectionHeight = (Constants.cellHeight.rawValue +
-                                Constants.lineMargins.rawValue) *
+        let collectionHeight = (Constants.Layout.cellHeight +
+                                Constants.Layout.lineMargins) *
                                 ceil(CGFloat(nftsCount) /
-                                Constants.cellCols.rawValue)
+                                     Constants.Layout.cellColumns)
         collectionView.heightAnchor.constraint(equalToConstant: collectionHeight).isActive = true
-        navigationController?.hidesBarsOnSwipe = nftsCount > 6
+        navigationController?.hidesBarsOnSwipe = nftsCount > Constants.Layout.maxNumberOfCellsWithoutSwipe
     }
     
     // MARK: Selectors
@@ -228,21 +229,21 @@ extension CollectionViewController: UICollectionViewDelegateFlowLayout, UICollec
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath) -> CGSize {
-            let width = floor((collectionView.frame.width - Constants.cellMargins.rawValue * (Constants.cellCols.rawValue - 1)) / Constants.cellCols.rawValue)
-            return CGSize(width: width, height: Constants.cellHeight.rawValue)
+            let width = floor((collectionView.frame.width - Constants.Layout.cellMargins * (Constants.Layout.cellColumns - 1)) / Constants.Layout.cellColumns)
+            return CGSize(width: width, height: Constants.Layout.cellHeight)
         }
     
     func collectionView(
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout,
         minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-            return Constants.cellMargins.rawValue
+            return Constants.Layout.cellMargins
         }
     
     func collectionView(_ collectionView: UICollectionView,
                         layout collectionViewLayout: UICollectionViewLayout,
                         minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return Constants.lineMargins.rawValue
+        return Constants.Layout.lineMargins
     }
 }
 
@@ -266,7 +267,7 @@ extension CollectionViewController: CollectionDelegate {
 // MARK: - Setup Views/Constraints
 private extension CollectionViewController {
     func setupViews() {
-        view.backgroundColor = .white
+        view.backgroundColor = Constants.Colors.backgroundColor
         setupNavigationBar()
         setupScrollView()
         setupActivityIndicator()
@@ -284,7 +285,7 @@ private extension CollectionViewController {
     func setupNavigationBar() {
         let backItem = UIBarButtonItem()
         backItem.title = nil
-        backItem.tintColor = .black
+        backItem.tintColor = Constants.Colors.black
         navigationController?.navigationBar.topItem?.backBarButtonItem = backItem
     }
     
@@ -312,7 +313,7 @@ private extension CollectionViewController {
         NSLayoutConstraint.activate([
             coverImage.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             coverImage.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            coverImage.heightAnchor.constraint(equalToConstant: 310),
+            coverImage.heightAnchor.constraint(equalToConstant: Constants.Layout.coverImageHeight),
             coverImage.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
@@ -320,51 +321,81 @@ private extension CollectionViewController {
     func setupNameLabel() {
         scrollView.addSubviews(nameLabel)
         NSLayoutConstraint.activate([
-            nameLabel.topAnchor.constraint(equalTo: coverImage.bottomAnchor, constant: 16),
-            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue)
+            nameLabel.topAnchor.constraint(equalTo: coverImage.bottomAnchor, constant: Constants.Layout.sideMargins),
+            nameLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.sideMargins)
         ])
     }
     
     func setupAuthorTitleLabel() {
         NSLayoutConstraint.activate([
-            authorTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 13),
-            authorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue)
+            authorTitleLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: Constants.Layout.authorTitleLabelTopAnchor),
+            authorTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.sideMargins)
         ])
     }
     
     func setupAuthorNameLabel() {
         NSLayoutConstraint.activate([
             authorNameLabel.topAnchor.constraint(equalTo: authorTitleLabel.topAnchor),
-            authorNameLabel.leadingAnchor.constraint(equalTo: authorTitleLabel.trailingAnchor, constant: 4),
-            authorNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue)
+            authorNameLabel.leadingAnchor.constraint(equalTo: authorTitleLabel.trailingAnchor, constant: Constants.Layout.authorNameLabelLeadingAnchor),
+            authorNameLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.sideMargins)
         ])
     }
     
     func setupDescriptionLabel() {
         NSLayoutConstraint.activate([
-            descriptionLabel.topAnchor.constraint(equalTo: authorTitleLabel.bottomAnchor, constant: 5),
-            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue),
-            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue)
+            descriptionLabel.topAnchor.constraint(equalTo: authorTitleLabel.bottomAnchor, constant: Constants.Layout.descriptionLabelTopAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.sideMargins),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.sideMargins)
         ])
     }
     
     func setupCollectionView() {
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 16),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.sideMargins.rawValue),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.sideMargins.rawValue),
-            collectionView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -16)
+            collectionView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: Constants.Layout.sideMargins),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constants.Layout.sideMargins),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constants.Layout.sideMargins),
+            collectionView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor, constant: -Constants.Layout.sideMargins)
         ])
     }
 }
 
 // MARK: - Constants
 private extension CollectionViewController {
-    enum Constants: CGFloat {
-        case cellMargins = 9
-        case lineMargins = 8
-        case cellCols = 3
-        case cellHeight = 192
-        case sideMargins = 16
+    enum Constants {
+        enum Layout {
+            static let cornerRadius: CGFloat = 12
+            static let cellMargins: CGFloat = 9
+            static let lineMargins: CGFloat = 8
+            static let cellColumns: CGFloat = 3
+            static let cellHeight: CGFloat = 192
+            static let sideMargins: CGFloat = 16
+            
+            static let coverImageHeight: CGFloat = 310
+            static let authorTitleLabelTopAnchor: CGFloat = 13
+            static let authorNameLabelLeadingAnchor: CGFloat = 4
+            static let descriptionLabelTopAnchor: CGFloat = 5
+            
+            static let maxNumberOfCellsWithoutSwipe: Int = 6
+        }
+
+        enum Strings {
+            static let authorTitle = "Автор коллекции:"
+            static let alertTitle = "Ошибка сервера"
+            static let alertMessage = "Повторите попытку через:"
+            static let alertBackAction = "Назад"
+            static let alertRetryAction = "Повторить"
+            static let alertSeconds = "сек"
+        }
+
+        enum ImageNames {
+            static let placeholder = "placeholder_image"
+        }
+        
+        enum Colors {
+            static let backgroundColor = UIColor.white
+            static let blue = UIColor.systemBlue
+            static let black = UIColor.black
+            static let clear = UIColor.clear
+        }
     }
 }

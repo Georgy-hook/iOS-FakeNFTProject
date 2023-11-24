@@ -13,15 +13,15 @@ final class CatalogCell: UITableViewCell {
     private let previewImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
-        imageView.layer.cornerRadius = 12
+        imageView.layer.cornerRadius = Constants.Layout.cornerRadius
         imageView.clipsToBounds = true
         return imageView
     }()
     
     private let previewText: UILabel = {
         let label = UILabel()
-        label.textColor = .black
-        label.font = .bodyBold
+        label.textColor = Constants.Colors.textColor
+        label.font = .bodyBold17
         return label
     }()
     
@@ -42,7 +42,12 @@ final class CatalogCell: UITableViewCell {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        contentView.frame = contentView.frame.inset(by: UIEdgeInsets(top: 21, left: 16, bottom: .zero, right: 16))
+        contentView.frame = contentView.frame.inset(by: UIEdgeInsets(
+            top: Constants.Layout.contentViewEdgeTop,
+            left: Constants.Layout.contentViewEdgeLeftRight,
+            bottom: .zero,
+            right: Constants.Layout.contentViewEdgeLeftRight)
+        )
     }
     
     func setupCell(_ collection: CollectionModel) {
@@ -50,14 +55,14 @@ final class CatalogCell: UITableViewCell {
         guard let urlString = collection.cover.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
         previewImage.kf.indicatorType = .activity
-        previewImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.collection.placeholder"))
+        previewImage.kf.setImage(with: url, placeholder: UIImage(named: Constants.ImageNames.previewImagePlaceholder))
     }
 }
 
 private extension CatalogCell {
     func setupViews() {
         self.selectionStyle = .none
-        self.backgroundColor = .clear
+        self.backgroundColor = Constants.Colors.clear
         contentView.addSubviews(previewImage, previewText)
     }
     
@@ -66,18 +71,32 @@ private extension CatalogCell {
             previewImage.topAnchor.constraint(equalTo: contentView.topAnchor),
             previewImage.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             previewImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            previewImage.heightAnchor.constraint(equalToConstant: Constants.imageHeight.rawValue),
+            previewImage.heightAnchor.constraint(equalToConstant: Constants.Layout.previewImageHeight),
             
-            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.topOffset.rawValue),
+            previewText.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.Layout.previewTextTopAnchor),
             previewText.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
 }
 
 // MARK: - Constants
-extension CatalogCell {
-    private enum Constants: CGFloat {
-        case imageHeight = 140
-        case topOffset = 4
+private extension CatalogCell {
+    enum Constants {
+        enum Layout {
+            static let cornerRadius: CGFloat = 12
+            static let previewImageHeight: CGFloat = 140
+            static let previewTextTopAnchor: CGFloat = 4
+            static let contentViewEdgeTop: CGFloat = 21
+            static let contentViewEdgeLeftRight: CGFloat = 16
+        }
+
+        enum ImageNames {
+            static let previewImagePlaceholder = "Catalog.collection.placeholder"
+        }
+        
+        enum Colors {
+            static let textColor = UIColor.textPrimary
+            static let clear = UIColor.clear
+        }
     }
 }

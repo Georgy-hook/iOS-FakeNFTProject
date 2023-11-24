@@ -23,6 +23,8 @@ final class CatalogViewController: UIViewController {
     var presenter: CatalogPresenterProtocol
     
     // MARK: Private properties
+    private let router: CatalogRouter = Router.shared
+    
     private lazy var tableView: UITableView = {
         let view = UITableView()
         view.register(CatalogCell.self, forCellReuseIdentifier: CatalogCell.identifier)
@@ -66,7 +68,7 @@ final class CatalogViewController: UIViewController {
     
     // MARK: Private methods
     private func scrollToTop() {
-        let indexPath = IndexPath(row: 0, section: 0)
+        let indexPath = IndexPath(row: .zero, section: .zero)
         tableView.scrollToRow(at: indexPath, at: .top, animated: true)
     }
     
@@ -85,16 +87,16 @@ final class CatalogViewController: UIViewController {
     
     @objc
     private func sortButtonTapped() {
-        let controller = UIAlertController(title: "Сортировка", message: nil, preferredStyle: .actionSheet)
-        controller.addAction(.init(title: "По названию", style: .default, handler: { [weak self] _ in
+        let controller = UIAlertController(title: Constants.Strings.alertTitle, message: nil, preferredStyle: .actionSheet)
+        controller.addAction(.init(title: Constants.Strings.alertByNameAction, style: .default, handler: { [weak self] _ in
             guard let self else { return }
             self.sortAndUpdate(param: .NFTName)
         }))
-        controller.addAction(.init(title: "По количеству NFT", style: .default, handler: { [weak self] _ in
+        controller.addAction(.init(title: Constants.Strings.alertByCountAction, style: .default, handler: { [weak self] _ in
             guard let self else { return }
             self.sortAndUpdate(param: .NFTCount)
         }))
-        controller.addAction(.init(title: "Закрыть", style: .cancel))
+        controller.addAction(.init(title: Constants.Strings.alertCancelAction, style: .cancel))
         present(controller, animated: true)
     }
 }
@@ -113,11 +115,11 @@ extension CatalogViewController: CatalogViewControllerProtocol {
 // MARK: - UITableViewDelegate
 extension CatalogViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        Constants.cellHeight.rawValue
+        Constants.Layout.cellHeight
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let collection = presenter.getCollectionIndex(indexPath.row) else { return }
-        goToCollection(collection)
+        router.showCollection(for: self, animated: true, collectionModel: collection)
     }
 
     func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
@@ -126,21 +128,13 @@ extension CatalogViewController: UITableViewDelegate {
             guard let self else { return nil }
             
             let menu = UIMenu(title: "\(collection.name)", children: [
-                UIAction(title: "Открыть", handler: { action in
-                    self.goToCollection(collection)
+                UIAction(title: Constants.Strings.uiMenuOpen, handler: { action in
+                    self.router.showCollection(for: self, animated: true, collectionModel: collection)
                 })
             ])
             return menu
         }
         return configuration
-    }
-    
-    private func goToCollection(_ collections: CollectionModel) {
-        let collectionInteractor = CollectionInteractor(networkClient: DefaultNetworkClient())
-        let collectionPresenter = CollectionPresenter(interactor: collectionInteractor, collections: collections)
-        let collectionViewController = CollectionViewController(presenter: collectionPresenter)
-        collectionViewController.hidesBottomBarWhenPushed = true
-        navigationController?.pushViewController(collectionViewController, animated: true)
     }
 }
 
@@ -170,19 +164,19 @@ private extension CatalogViewController {
     func setupViews() {
         setupNavigationController()
         setupSortButton()
-        view.backgroundColor = .background
+        view.backgroundColor = Constants.Colors.backgroundColor
         view.addSubviews(tableView, activityIndicator)
     }
     
     func setupSortButton() {
-        let sortImage = UIImage(named: "sort") ?? UIImage(systemName: "line.3.horizontal")
+        let sortImage = UIImage(named: Constants.ImageNames.sortImage) ?? UIImage(systemName: Constants.ImageNames.systemSortImage)
         let sortButton = UIBarButtonItem(image: sortImage, style: .done, target: self, action: #selector(sortButtonTapped))
-        sortButton.tintColor = .black
+        sortButton.tintColor = Constants.Colors.tintColor
         navigationItem.rightBarButtonItem = sortButton
     }
     
     func setupNavigationController() {
-        navigationController?.navigationBar.backgroundColor = .clear
+        navigationController?.navigationBar.backgroundColor = Constants.Colors.clear
     }
     
     func setupConstraints() {
@@ -200,7 +194,29 @@ private extension CatalogViewController {
 
 // MARK: - Constants
 private extension CatalogViewController {
-    enum Constants: CGFloat {
-        case cellHeight = 187
+    enum Constants {
+        enum Layout {
+            static let cellHeight: CGFloat = 187
+        }
+
+        enum Strings {
+            static let alertTitle = "Сортировка"
+            static let alertCancelAction = "Закрыть"
+            static let alertByNameAction = "По названию"
+            static let alertByCountAction = "По количеству NFT"
+            
+            static let uiMenuOpen = "Открыть"
+        }
+
+        enum ImageNames {
+            static let sortImage = "sort"
+            static let systemSortImage = "line.3.horizontal"
+        }
+        
+        enum Colors {
+            static let backgroundColor = UIColor.background
+            static let tintColor = UIColor.segmentActive
+            static let clear = UIColor.clear
+        }
     }
 }

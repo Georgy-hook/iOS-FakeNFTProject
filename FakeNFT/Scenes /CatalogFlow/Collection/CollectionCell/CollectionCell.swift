@@ -33,7 +33,7 @@ final class CollectionCell: UICollectionViewCell {
     private let previewImage: UIImageView = {
         let view = UIImageView()
         view.layer.masksToBounds = true
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = Constants.Layout.cornerRadius
         view.contentMode = .scaleAspectFill
         view.clipsToBounds = true
         return view
@@ -46,22 +46,22 @@ final class CollectionCell: UICollectionViewCell {
     }()
     
     private let starsImages: [UIImageView] = {
-        (1...5).map { _ in
+        Constants.Layout.numberOfStars.map { _ in
             UIImageView()
         }
     }()
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .black
+        label.font = .bodyBold17
+        label.textColor = Constants.Colors.textColor
         return label
     }()
     
     private let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 10, weight: .medium)
-        label.textColor = .black
+        label.font = .captionMedium10
+        label.textColor = Constants.Colors.textColor
         return label
     }()
     
@@ -75,7 +75,7 @@ final class CollectionCell: UICollectionViewCell {
         let view = UIStackView(arrangedSubviews: starsImages)
         view.axis = .horizontal
         view.alignment = .center
-        view.spacing = 0.75
+        view.spacing = Constants.Layout.starsStackViewSpacing
         return view
     }()
     
@@ -101,7 +101,7 @@ final class CollectionCell: UICollectionViewCell {
         
         nftId = nft.id
         titleLabel.text = nft.name
-        priceLabel.text = "\(nft.price) ETH"
+        priceLabel.text = "\(nft.price) \(Constants.Strings.currency)"
         setStarsState(nft.rating)
         setIsLiked(isLiked: nft.isLiked)
         setIsCart(isInCart: nft.isInCart)
@@ -109,13 +109,13 @@ final class CollectionCell: UICollectionViewCell {
         guard let urlString = nft.image.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
               let url = URL(string: urlString) else { return }
         previewImage.kf.indicatorType = .activity
-        previewImage.kf.setImage(with: url, placeholder: UIImage(named: "Catalog.nulImage"))
+        previewImage.kf.setImage(with: url, placeholder: UIImage(named: Constants.ImageNames.catalogNulImage))
     }
     
     // MARK: Private methods
     private func setStarsState(_ state: Int) {
         starsImages.enumerated().forEach { position, star in
-            star.image = position < state ? UIImage(named: "starDoneIcon") : UIImage(named: "defaultStarIcon")
+            star.image = position < state ? UIImage(named: Constants.ImageNames.starDoneIcon) : UIImage(named: Constants.ImageNames.starEmptyIcon)
         }
     }
     
@@ -139,7 +139,7 @@ extension CollectionCell: CollectionCellProtocol {
     }
     
     func setIsCart(isInCart: Bool) {
-        let cartImage = isInCart ? UIImage(named: "Catalog.CardFull") : UIImage(named: "Catalog.CardEmpty")
+        let cartImage = isInCart ? UIImage(named: Constants.ImageNames.catalogCardFull) : UIImage(named: Constants.ImageNames.catalogCardEmpty)
         self.cartButton.setImage(cartImage, for: .normal)
     }
     
@@ -155,7 +155,7 @@ extension CollectionCell: CollectionCellProtocol {
 // MARK: - Setup Views/Constraints
 private extension CollectionCell {
     func setupViews() {
-        self.backgroundColor = .clear
+        self.backgroundColor = Constants.Colors.clear
         contentView.addSubviews(previewImage, likeButton, starsStackView, titleLabel, priceLabel, cartButton)
         setupPreviewImage()
         setupLikeButton()
@@ -178,39 +178,79 @@ private extension CollectionCell {
         NSLayoutConstraint.activate([
             likeButton.topAnchor.constraint(equalTo: previewImage.topAnchor),
             likeButton.trailingAnchor.constraint(equalTo: previewImage.trailingAnchor),
-            likeButton.heightAnchor.constraint(equalToConstant: 40),
-            likeButton.widthAnchor.constraint(equalToConstant: 40),
+            likeButton.heightAnchor.constraint(equalToConstant: Constants.Layout.likeButtonHeight),
+            likeButton.widthAnchor.constraint(equalToConstant: Constants.Layout.likeButtonHeight),
         ])
     }
     
     func setupStarsView() {
         NSLayoutConstraint.activate([
-            starsStackView.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 8),
-            starsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 0.75),
-            starsStackView.heightAnchor.constraint(equalToConstant: 12)
+            starsStackView.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.Layout.starsStackViewTopAnchor),
+            starsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: .zero),
+            starsStackView.heightAnchor.constraint(equalToConstant: Constants.Layout.starsStackViewHeight)
         ])
     }
     
     func setupTitleLabel() {
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 24),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
+            titleLabel.topAnchor.constraint(equalTo: starsStackView.bottomAnchor, constant: Constants.Layout.titleLabelTopAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            titleLabel.heightAnchor.constraint(equalToConstant: Constants.Layout.titleLabelHeight)
         ])
     }
     
     func setupPriceLabel() {
         NSLayoutConstraint.activate([
-            priceLabel.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 51),
+            priceLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: Constants.Layout.priceLabelTopAnchor),
             priceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
     
     func setupCartButton() {
         NSLayoutConstraint.activate([
-            cartButton.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: 24),
+            cartButton.topAnchor.constraint(equalTo: previewImage.bottomAnchor, constant: Constants.Layout.cartButtonTopAnchor),
             cartButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cartButton.heightAnchor.constraint(equalToConstant: 40),
-            cartButton.widthAnchor.constraint(equalToConstant: 40),
+            cartButton.heightAnchor.constraint(equalToConstant: Constants.Layout.cartButtonHeight),
+            cartButton.widthAnchor.constraint(equalToConstant: Constants.Layout.cartButtonWidth),
         ])
+    }
+}
+
+// MARK: - Constants
+private extension CollectionCell {
+    enum Constants {
+        enum Layout {
+            static let numberOfStars = (1...5)
+            static let starsStackViewSpacing = 0.75
+            static let cornerRadius: CGFloat = 12
+            static let cartButtonHeight: CGFloat = 40
+            static let cartButtonWidth: CGFloat = 40
+            static let likeButtonHeight: CGFloat = 40
+            static let likeButtonWidth: CGFloat = 40
+            static let starsStackViewTopAnchor: CGFloat = 8
+            static let starsStackViewHeight: CGFloat = 12
+            static let titleLabelTopAnchor: CGFloat = 5
+            static let titleLabelHeight: CGFloat = 22
+            static let priceLabelTopAnchor: CGFloat = 4
+            static let cartButtonTopAnchor: CGFloat = 24
+        }
+        
+        enum Strings {
+            static let currency = "ETH"
+        }
+
+        enum ImageNames {
+            static let catalogNulImage = "Catalog.nulImage"
+            static let starDoneIcon = "starDoneIcon"
+            static let starEmptyIcon = "starEmptyIcon"
+            
+            static let catalogCardFull = "Catalog.CardFull"
+            static let catalogCardEmpty = "Catalog.CardEmpty"
+        }
+                
+        enum Colors {
+            static let textColor = UIColor.textPrimary
+            static let clear = UIColor.clear
+        }
     }
 }
