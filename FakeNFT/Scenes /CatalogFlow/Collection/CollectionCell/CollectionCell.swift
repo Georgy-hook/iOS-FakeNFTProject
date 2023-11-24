@@ -79,6 +79,14 @@ final class CollectionCell: UICollectionViewCell {
         return view
     }()
     
+    private lazy var numberFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+    
     // MARK: Initialization
     override init(frame: CGRect) {
         self.heartbeatAnimator = HeartbeatAnimator()
@@ -96,12 +104,12 @@ final class CollectionCell: UICollectionViewCell {
     }
     
     func configureCell(_ nft: CollectionCellModel) {
-//        cache.clearMemoryCache()
-//        cache.clearDiskCache()
-        
         nftId = nft.id
         titleLabel.text = nft.name
-        priceLabel.text = "\(nft.price) \(Constants.Strings.currency)"
+
+        let formattedPrice = numberFormatter.string(from: NSNumber(value: nft.price)) ?? "\(nft.price)"
+        priceLabel.text = "\(formattedPrice) \(Constants.Strings.currency)"
+        
         setStarsState(nft.rating)
         setIsLiked(isLiked: nft.isLiked)
         setIsCart(isInCart: nft.isInCart)

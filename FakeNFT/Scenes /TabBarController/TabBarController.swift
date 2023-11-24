@@ -38,7 +38,7 @@ final class TabBarController: UITabBarController {
 
         let catalogInteractor = CatalogInteractor(networkClient: DefaultNetworkClient())
         let catalogPresenter = CatalogPresenter(interactor: catalogInteractor)
-        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter))
+        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter, router: Router.shared))
         catalogController.tabBarItem = catalogTabBarItem
 
         let profileController = UIViewController() // Replace with the actual ProfileViewController

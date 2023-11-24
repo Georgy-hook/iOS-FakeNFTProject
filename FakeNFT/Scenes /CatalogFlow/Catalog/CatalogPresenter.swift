@@ -9,8 +9,8 @@ import Foundation
 
 protocol CatalogPresenterProtocol: Sortable {
     var view: CatalogViewControllerProtocol! { get set }
-    func viewDidLoad()
     var collectionsCount: Int { get }
+    func viewDidLoad()
     func getCollectionIndex(_ index: Int) -> CollectionModel?
 }
 
@@ -43,7 +43,9 @@ final class CatalogPresenter {
                     self.sort(param: (self.sortingSaveService.savedSorting))
                     self.view.updateTableView()
                 case .failure(let error):
-                    view.showError(ErrorModel(message: "Ошибка сервера", actionText: "Повторить", action: {
+                    self.view.showError(ErrorModel(message: "Ошибка сервера",
+                                                   actionText: "Повторить",
+                                                   action: {
                         self.viewDidLoad()
                     }))
                     print(error.localizedDescription)
@@ -58,7 +60,7 @@ final class CatalogPresenter {
 // MARK: - CatalogPresenterProtocol
 extension CatalogPresenter: CatalogPresenterProtocol {
     var collectionsCount: Int {
-        return collections.count
+        collections.count
     }
     
     func viewDidLoad() {

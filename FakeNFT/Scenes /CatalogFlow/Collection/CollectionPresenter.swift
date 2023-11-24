@@ -114,6 +114,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .success(let profile):
                     cell.setIsLiked(isLiked: profile.likes.contains(id))
                 case .failure(let error):
+                    self.view.showError(ErrorModel(message: "Слишком много запросов",
+                                                   actionText: "Окей",
+                                                   action: {}))
                     print("Не удалось выполнить reverseLike:", error.localizedDescription)
                 }
                 cell.setInteractionLike(isEnabled: true)
@@ -134,6 +137,9 @@ final class CollectionPresenter: CollectionPresenterProtocol {
                 case .success(let orders):
                     cell.setIsCart(isInCart: orders.nfts.contains(id))
                 case .failure(let error):
+                    self.view.showError(ErrorModel(message: "Слишком много запросов",
+                                                   actionText: "Окей",
+                                                   action: {}))
                     print("Не удалось выполнить addDeleteInCart:", error.localizedDescription)
                 }
                 cell.setInteractionCart(isEnabled: true)

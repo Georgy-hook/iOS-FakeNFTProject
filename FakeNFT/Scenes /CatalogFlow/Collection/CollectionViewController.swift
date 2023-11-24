@@ -89,7 +89,6 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
         self.presenter.view = self
-        self.presenter.viewDidLoad()
     }
     
     required init?(coder: NSCoder) {
@@ -99,6 +98,7 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.viewDidLoad()
         setupViews()
     }
     
@@ -132,10 +132,13 @@ final class CollectionViewController: UIViewController & CollectionViewControlle
     
     func showAlertWithTime(_ retryAction: @escaping () -> Void) {
         let alert = UIAlertController(title: Constants.Strings.alertTitle, message: Constants.Strings.alertMessage, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: Constants.Strings.alertBackAction, style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: Constants.Strings.alertBackAction, style: .cancel) { [weak self] _ in
+            guard let self else { return }
             self.navigationController?.popViewController(animated: true)
         }
-        let retryAction = UIAlertAction(title: Constants.Strings.alertRetryAction, style: .default) { _ in retryAction() }
+        let retryAction = UIAlertAction(title: Constants.Strings.alertRetryAction, style: .default) { _ in
+            retryAction()
+        }
         retryAction.isEnabled = false
         
         let timeLabel = UILabel()

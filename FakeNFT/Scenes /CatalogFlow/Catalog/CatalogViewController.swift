@@ -23,7 +23,7 @@ final class CatalogViewController: UIViewController {
     var presenter: CatalogPresenterProtocol
     
     // MARK: Private properties
-    private let router: CatalogRouter = Router.shared
+    private let router: CatalogRouter
     
     private lazy var tableView: UITableView = {
         let view = UITableView()
@@ -43,11 +43,11 @@ final class CatalogViewController: UIViewController {
     }()
     
     // MARK: Initialization
-    init(presenter: CatalogPresenterProtocol) {
+    init(presenter: CatalogPresenterProtocol, router: CatalogRouter) {
         self.presenter = presenter
+        self.router = router
         super.init(nibName: nil, bundle: nil)
         self.presenter.view = self
-        self.presenter.viewDidLoad()
     }
     
     required init?(coder: NSCoder) {
@@ -57,6 +57,7 @@ final class CatalogViewController: UIViewController {
     // MARK: Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter.viewDidLoad()
         setupViews()
         setupConstraints()
     }
