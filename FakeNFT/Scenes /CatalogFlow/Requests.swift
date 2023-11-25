@@ -9,7 +9,7 @@ import Foundation
 
 struct GetCollectionsRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)collections")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/collections")
     }
     var httpMethod: HttpMethod = .get
     var dto: Decodable?
@@ -17,7 +17,7 @@ struct GetCollectionsRequest: NetworkRequest {
 
 struct GetProfileRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)profile/1")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/profile/1")
     }
     var httpMethod: HttpMethod = .get
     var dto: Encodable?
@@ -25,7 +25,7 @@ struct GetProfileRequest: NetworkRequest {
 
 struct GetOrderRequest: NetworkRequest {
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)orders/1")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }
     var httpMethod: HttpMethod = .get
     var dto: Encodable?
@@ -34,7 +34,7 @@ struct GetOrderRequest: NetworkRequest {
 struct GetAuthorRequest: NetworkRequest {
     var id: String
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)users/\(id)")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/users/\(id)")
     }
     var httpMethod: HttpMethod = .get
     var dto: Decodable?
@@ -43,7 +43,7 @@ struct GetAuthorRequest: NetworkRequest {
 struct GetNftsRequest: NetworkRequest {
     var id: String
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)nft/\(id)")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/nft/\(id)")
     }
     var httpMethod: HttpMethod = .get
     var dto: Decodable?
@@ -52,7 +52,7 @@ struct GetNftsRequest: NetworkRequest {
 struct PutProfileRequest: NetworkRequest {
     let profile: ProfileModel
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)profile/1")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/profile/1")
     }
     var httpMethod: HttpMethod = .put
     var dto: Encodable? {
@@ -63,7 +63,7 @@ struct PutProfileRequest: NetworkRequest {
 struct PutOrderRequest: NetworkRequest {
     let order: OrderModel
     var endpoint: URL? {
-        URL(string: "\(RequestConstants.baseURL)orders/1")
+        URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }
     var httpMethod: HttpMethod = .put
     var dto: Encodable? {

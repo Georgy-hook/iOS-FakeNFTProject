@@ -74,7 +74,6 @@
 		661066272AF6A09B00DA66FB /* ProfileLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066262AF6A09B00DA66FB /* ProfileLabel.swift */; };
 		661066292AF6A0A200DA66FB /* ProfileTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066282AF6A0A200DA66FB /* ProfileTextField.swift */; };
 		6610662C2AF6A16E00DA66FB /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610662B2AF6A16E00DA66FB /* UIViewController.swift */; };
-		6610662E2AF6A17300DA66FB /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610662D2AF6A17300DA66FB /* UIView.swift */; };
 		661066302AF6A17900DA66FB /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6610662F2AF6A17900DA66FB /* UILabel.swift */; };
 		661066332AF6C01000DA66FB /* MyNFTViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066322AF6C01000DA66FB /* MyNFTViewController.swift */; };
 		661066352AF6CB7500DA66FB /* MyNFTCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 661066342AF6CB7500DA66FB /* MyNFTCell.swift */; };
@@ -194,7 +193,6 @@
 		661066262AF6A09B00DA66FB /* ProfileLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileLabel.swift; sourceTree = "<group>"; };
 		661066282AF6A0A200DA66FB /* ProfileTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileTextField.swift; sourceTree = "<group>"; };
 		6610662B2AF6A16E00DA66FB /* UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
-		6610662D2AF6A17300DA66FB /* UIView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		6610662F2AF6A17900DA66FB /* UILabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		661066322AF6C01000DA66FB /* MyNFTViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTViewController.swift; sourceTree = "<group>"; };
 		661066342AF6CB7500DA66FB /* MyNFTCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyNFTCell.swift; sourceTree = "<group>"; };
@@ -605,7 +603,6 @@
 			isa = PBXGroup;
 			children = (
 				6610662B2AF6A16E00DA66FB /* UIViewController.swift */,
-				6610662D2AF6A17300DA66FB /* UIView.swift */,
 				6610662F2AF6A17900DA66FB /* UILabel.swift */,
 				666592F02AF7DA3900AF8A29 /* UIImage.swift */,
 				666592F22AF7DACE00AF8A29 /* String.swift */,
@@ -806,7 +803,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				66AC8AF72AFE23A8008B5D5B /* ProfileAssembly.swift in Sources */,
-				6610662E2AF6A17300DA66FB /* UIView.swift in Sources */,
 				3FC8C38B29D242E90081F015 /* ProductDetailsTableViewCell.swift in Sources */,
 				2A480EA22B03CADB00DD634B /* WebViewController.swift in Sources */,
 				665CD8D02AFAB3AF0072D83C /* ProfilePresenter.swift in Sources */,
