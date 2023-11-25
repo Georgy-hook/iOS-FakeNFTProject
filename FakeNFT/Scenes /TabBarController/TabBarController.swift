@@ -36,8 +36,9 @@ final class TabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let catalogPresenter = CatalogPresenter()
-        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter))
+        let catalogInteractor = CatalogInteractor(networkClient: DefaultNetworkClient())
+        let catalogPresenter = CatalogPresenter(interactor: catalogInteractor)
+        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter, router: Router.shared))
         catalogController.tabBarItem = catalogTabBarItem
 
         let profileController = UIViewController() // Replace with the actual ProfileViewController

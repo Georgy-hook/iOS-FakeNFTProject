@@ -16,7 +16,7 @@ protocol SortingSaveServiceProtocol {
     func saveSorting(param: Sort)
 }
 
-enum Sort {
+enum Sort: String {
     case NFTCount
     case NFTName
 }

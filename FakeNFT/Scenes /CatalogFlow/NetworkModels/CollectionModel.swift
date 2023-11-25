@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Для экрана каталога
 struct CollectionModel: Decodable {
     let name: String
     let cover: String
