@@ -35,9 +35,10 @@ final class TabBarController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let catalogController = TestCatalogViewController(
-            servicesAssembly: servicesAssembly
-        )
+
+        let catalogInteractor = CatalogInteractor(networkClient: DefaultNetworkClient())
+        let catalogPresenter = CatalogPresenter(interactor: catalogInteractor)
+        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter, router: Router.shared))
         catalogController.tabBarItem = catalogTabBarItem
         
         /// Profile
