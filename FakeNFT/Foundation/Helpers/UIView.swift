@@ -1,13 +1,11 @@
-//
-//  UIView + Extension.swift
+//  UIView.swift
 //  FakeNFT
-//
-//  Created by Руслан  on 04.11.2023.
-//
+//  Created by Adam West on 03.11.2023.
 
 import UIKit
 
 extension UIView {
+    // MARK: Multiple editing
     func addSubviews(_ views: UIView...) {
         views.forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
@@ -15,3 +13,4 @@ extension UIView {
         }
     }
 }
+

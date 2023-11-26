@@ -9,11 +9,11 @@ import Foundation
 
 protocol CollectionInteractorProtocol {
     func loadProfile(completion: @escaping (Result<ProfileModel, Error>) -> Void)
-    func loadOrder(completion: @escaping (Result<OrderModel, Error>) -> Void)
+    func loadOrder(completion: @escaping (Result<OrderModelCatalog, Error>) -> Void)
     func loadAuthor(_ id: String, completion: @escaping (Result<AuthorModel, Error>) -> Void)
     func loadNfts(_ id: String, completion: @escaping (Result<NftModel, Error>) -> Void)
     func reverseLike(cell: CollectionCellProtocol, id: String, profile: ProfileModel, completion: @escaping (Result<ProfileModel, Error>) -> Void)
-    func addDeleteInCart(cell: CollectionCellProtocol, id: String, order: OrderModel, completion: @escaping (Result<OrderModel, Error>) -> Void)
+    func addDeleteInCart(cell: CollectionCellProtocol, id: String, order: OrderModelCatalog, completion: @escaping (Result<OrderModelCatalog, Error>) -> Void)
 }
 
 final class CollectionInteractor: CollectionInteractorProtocol {
@@ -32,9 +32,9 @@ final class CollectionInteractor: CollectionInteractorProtocol {
         
     }
     
-    func loadOrder(completion: @escaping (Result<OrderModel, Error>) -> Void) {
+    func loadOrder(completion: @escaping (Result<OrderModelCatalog, Error>) -> Void) {
         self.networkClient.send(request: GetOrderRequest(),
-                                type: OrderModel.self,
+                                type: OrderModelCatalog.self,
                                 completionQueue: .main,
                                 onResponse: completion)
         
@@ -61,10 +61,10 @@ final class CollectionInteractor: CollectionInteractorProtocol {
                                 onResponse: completion)
     }
     
-    func addDeleteInCart(cell: CollectionCellProtocol, id: String, order: OrderModel, completion: @escaping (Result<OrderModel, Error>) -> Void) {
+    func addDeleteInCart(cell: CollectionCellProtocol, id: String, order: OrderModelCatalog, completion: @escaping (Result<OrderModelCatalog, Error>) -> Void) {
         self.networkClient.send(request: PutOrderRequest(order: order),
-                                type: OrderModel.self,
-                                completionQueue: .main, 
+                                type: OrderModelCatalog.self,
+                                completionQueue: .main,
                                 onResponse: completion)
     }
 }

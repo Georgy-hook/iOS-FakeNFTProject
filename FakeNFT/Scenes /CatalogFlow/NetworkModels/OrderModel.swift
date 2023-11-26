@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct OrderModel: Codable {
+struct OrderModelCatalog: Codable {
     var nfts: [String]
 }

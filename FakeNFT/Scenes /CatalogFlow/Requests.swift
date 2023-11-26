@@ -61,7 +61,7 @@ struct PutProfileRequest: NetworkRequest {
 }
 
 struct PutOrderRequest: NetworkRequest {
-    let order: OrderModel
+    let order: OrderModelCatalog
     var endpoint: URL? {
         URL(string: "\(RequestConstants.baseURL)/api/v1/orders/1")
     }

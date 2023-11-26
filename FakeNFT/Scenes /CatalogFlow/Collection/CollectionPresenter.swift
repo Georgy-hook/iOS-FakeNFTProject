@@ -33,7 +33,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
     private let collections: CollectionModel
     
     private var profile: ProfileModel = ProfileModel(name: "", avatar: "", description: "", website: "", nfts: [], likes: [], id: "")
-    private var order: OrderModel = OrderModel(nfts: [])
+    private var order: OrderModelCatalog = OrderModelCatalog(nfts: [])
     private var author: AuthorModel = AuthorModel(name: "", description: "", website: "")
     private var nfts: [NftModel] = []
     
@@ -151,7 +151,7 @@ final class CollectionPresenter: CollectionPresenterProtocol {
 // MARK: - Helper methods
 private extension CollectionPresenter {
     /// Create CollectionCellModel
-    func createCollectionCellModel(profile: ProfileModel, order: OrderModel, nfts: [NftModel]) {
+    func createCollectionCellModel(profile: ProfileModel, order: OrderModelCatalog, nfts: [NftModel]) {
         nfts.forEach { nft in
             let collectionCellModel = CollectionCellModel(
                 id: nft.id,

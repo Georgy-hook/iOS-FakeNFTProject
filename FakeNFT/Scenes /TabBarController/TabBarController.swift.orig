@@ -9,8 +9,11 @@ final class TabBarController: UITabBarController {
         userStorage: UserStorageImpl()
     )
     
+<<<<<<< HEAD
+=======
     let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
     
+>>>>>>> cartEpic
     private let catalogTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.catalog", comment: ""),
         image: UIImage(named: "YP Catalog"),
@@ -47,12 +50,16 @@ final class TabBarController: UITabBarController {
         let profileController = configureProfile()
         profileController.tabBarItem = profileTabBarItem
         
+<<<<<<< HEAD
+        let cartController = UIViewController()
+=======
         let cartPresenter = CartViewPresenterImpl(service: cartService)
         let cartController = CartViewController(
             presenter: cartPresenter
         )
         cartPresenter.view = cartController
         
+>>>>>>> cartEpic
         cartController.tabBarItem = cartTabBarItem
         
         let statsController = UIViewController()
