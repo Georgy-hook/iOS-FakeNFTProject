@@ -102,6 +102,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
                 state = .empty
                 return
             }
+            view?.cartNotEmpty()
             let total = calculateTotalPrice(with: nfts)
             self.nfts = nfts
             sort(with: sortOption)

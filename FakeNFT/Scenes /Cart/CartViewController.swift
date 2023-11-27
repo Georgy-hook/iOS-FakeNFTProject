@@ -13,6 +13,7 @@ protocol CartView: AnyObject, ErrorView, LoadingView, SortOptionsView {
     func cartIsEmpty()
     func setCount(with count:Int)
     func deleteStateChanged(with state:Bool)
+    func cartNotEmpty()
 }
 
 protocol CartViewControllerDelegate:AnyObject{
@@ -163,6 +164,10 @@ final class CartViewController:UIViewController{
         presenter.viewDidLoad()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        presenter.viewDidLoad()
+    }
+    
     // MARK: - Actions
     @objc private func payButtonDidTapped(){
         let currencyService = CurrencyServiceImpl(networkClient: DefaultNetworkClient(), storage: CurrencyStorageImpl())
@@ -283,6 +288,16 @@ extension CartViewController:CartView{
         amountLabel.isHidden = true
         payButton.isHidden = true
         placeholderLabel.isHidden = false
+    }
+    
+    func cartNotEmpty(){
+        grayView.isHidden = false
+        sortButton.isHidden = false
+        cartTableView.isHidden = false
+        priceLabel.isHidden = false
+        amountLabel.isHidden = false
+        payButton.isHidden = false
+        placeholderLabel.isHidden = true
     }
     
     func deleteStateChanged(with state:Bool){

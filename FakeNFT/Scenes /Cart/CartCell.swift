@@ -119,7 +119,11 @@ extension CartCell{
         nameLabel.text = nft.name
         priceLabel.text = "\(formattedPrice) ETH"
         ratingControl.rating = nft.rating
-        NFTImageView.kf.setImage(with: nft.images.first)
+        NFTImageView.kf.indicator?.startAnimatingView()
+        NFTImageView.kf.setImage(with:nft.images.first , completionHandler: {_ in
+            self.NFTImageView.kf.indicator?.stopAnimatingView()
+        })
+        
         deleteButton.addTarget(self, action: #selector(didDeleteButtonTapped), for: .touchUpInside)
     }
     
