@@ -22,11 +22,6 @@ final class ProfileServiceImpl: ProfileService {
     }
     
     func loadProfile(id: String, completion: @escaping ProfileCompletion) {
-        if let profile = profileStorage.getProfile(with: id) {
-            completion(.success(profile))
-            return
-        }
-
         let request = ProfileRequest(id: id)
         networkClient.send(request: request, type: Profile.self, completionQueue: .main) { [weak profileStorage] result in
             switch result {

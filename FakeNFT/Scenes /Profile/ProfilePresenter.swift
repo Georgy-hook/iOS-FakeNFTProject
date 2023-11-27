@@ -82,6 +82,21 @@ final class ProfilePresenter: InterfaceProfilePresenter {
         }
     }
     
+    private func updateFavouriteNFTProfile() {
+        setupDataProfile { [weak self] profile in
+            guard let profile else { return }
+            guard let self else { return }
+            self.myNFT = profile.nfts
+            self.favoritesNFT = profile.likes
+            self.titleRows = [
+                "Мои NFT (\(self.myNFT.count))",
+                "Избранные NFT (\(self.favoritesNFT.count))",
+                "О разработчике"
+            ]
+            self.view?.reloadTable()
+        }
+    }
+    
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -125,6 +140,8 @@ final class ProfilePresenter: InterfaceProfilePresenter {
             updateFavouriteNft()
             putUpdatedDataProfile()
             view?.reloadTable()
+        } else {
+            updateFavouriteNFTProfile()
         }
     }
     
