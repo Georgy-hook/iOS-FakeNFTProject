@@ -1,28 +1,18 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
-    
-    private let servicesAssembly = ServicesAssembly(
-        networkClient: DefaultNetworkClient(),
-        nftStorage: NftStorageImpl(),
-        profileStorage: ProfileStorageImpl(),
-        userStorage: UserStorageImpl()
-    )
-    
-    let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
-    
-    private let catalogTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.catalog", comment: ""),
-        image: UIImage(named: "YP Catalog"),
-        tag: 0
-    )
-
+    // MARK: TabBarItems
     private let profileTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.profile", comment: ""),
         image: UIImage(named: "YP Profile"),
+        tag: 0
+    )
+    private let catalogTabBarItem = UITabBarItem(
+        title: NSLocalizedString("Tab.catalog", comment: ""),
+        image: UIImage(named: "YP Catalog"),
         tag: 1
     )
-    
+
     private let cartTabBarItem = UITabBarItem(
         title: NSLocalizedString("Tab.cart", comment: ""),
         image: UIImage(named: "YP Cart"),
@@ -34,36 +24,43 @@ final class TabBarController: UITabBarController {
         image: UIImage(named: "YP Statistics"),
         tag: 3
     )
+    
+    // MARK: Services
+    private let servicesAssembly = ServicesAssembly(
+        networkClient: DefaultNetworkClient(),
+        nftStorage: NftStorageImpl(),
+        profileStorage: ProfileStorageImpl(),
+        userStorage: UserStorageImpl()
+    )
+    
+    private let cartService = CartServiceImpl(networkClient: DefaultNetworkClient(), storage: CartStorageImpl())
 
+    // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let catalogInteractor = CatalogInteractor(networkClient: DefaultNetworkClient())
-        let catalogPresenter = CatalogPresenter(interactor: catalogInteractor)
-        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter, router: Router.shared))
-        catalogController.tabBarItem = catalogTabBarItem
-        
         /// Profile
         let profileController = configureProfile()
         profileController.tabBarItem = profileTabBarItem
         
-        let cartPresenter = CartViewPresenterImpl(service: cartService)
-        let cartController = CartViewController(
-            presenter: cartPresenter
-        )
-        cartPresenter.view = cartController
+        /// Catalog
+        let catalogController = configureCatalog()
+        catalogController.tabBarItem = catalogTabBarItem
         
+        /// Cart
+        let cartController = configureCart()
         cartController.tabBarItem = cartTabBarItem
         
+        /// Stats
         let statsController = UIViewController()
         statsController.tabBarItem = statsTabBarItem
 
-        viewControllers = [catalogController, profileController, cartController, statsController]
+        viewControllers = [profileController, catalogController, cartController, statsController]
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.tintColor = UIColor(named: "YP Blue")
         tabBar.unselectedItemTintColor = UIColor(named: "YP Black")
     }
     
+    // MARK: configuration of viewControllers
     private func configureProfile() -> UIViewController {
         let profileAssembly = ProfileAssembly(
             editingProfileViewController: EditingProfileViewController(
@@ -74,13 +71,26 @@ final class TabBarController: UITabBarController {
             favouriteNFTViewController: FavouriteNFTViewController(
                 presenter: FavouriteNFTPresenter(servicesAssembly: servicesAssembly))
         )
-        
         let profilePresenter = ProfilePresenter(profileAssembly: profileAssembly)
         let profileViewController = ProfileViewController(presenter: profilePresenter)
         profilePresenter.view = profileViewController
-        
         let profileController = UINavigationController(rootViewController: profileViewController)
-        
         return profileController
+    }
+    
+    private func configureCatalog() -> UIViewController {
+        let catalogInteractor = CatalogInteractor(networkClient: DefaultNetworkClient())
+        let catalogPresenter = CatalogPresenter(interactor: catalogInteractor)
+        let catalogController = UINavigationController(rootViewController: CatalogViewController(presenter: catalogPresenter, router: Router.shared))
+        return catalogController
+    }
+    
+    private func configureCart() -> UIViewController {
+        let cartPresenter = CartViewPresenterImpl(service: cartService)
+        let cartController = CartViewController(
+            presenter: cartPresenter
+        )
+        cartPresenter.view = cartController
+        return cartController
     }
 }

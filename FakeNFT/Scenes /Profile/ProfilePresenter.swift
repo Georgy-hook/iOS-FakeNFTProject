@@ -83,7 +83,7 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     }
     
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             let numberOfProfile = "1"
             self.profileService.loadProfile(id: numberOfProfile) { result in
