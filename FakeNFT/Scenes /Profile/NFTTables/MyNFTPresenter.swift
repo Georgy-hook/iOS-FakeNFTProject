@@ -43,7 +43,9 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
     private var myNFTProfile: [Nft]
     private var myNFTUsers: [User] {
         didSet {
-            view?.reloadData()
+            DispatchQueue.main.async {
+                self.view?.reloadData()
+            }
         }
     }
     private let servicesAssembly: ServicesAssembly
@@ -65,7 +67,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
     
     // MARK: Setup Data Profile
     private func setupDataProfile() {
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let self else { return }
             let numberOfProfile = "1"
             self.servicesAssembly.profileService.loadProfile(id: numberOfProfile) { result in
@@ -78,7 +80,9 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
                         self.loadUser(nft: nft) { }
                     }
                 case .failure:
-                    self.view?.showErrorAlert()
+                    DispatchQueue.main.async {
+                        self.view?.showErrorAlert()
+                    }
                 }
             }
         }
@@ -86,7 +90,7 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
     
     // MARK: Load request & user
     private func loadRequest(_ myNFT: [String], _ completion: @escaping(Nft)->()) {
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let self else { return }
             myNFT.forEach { nft in
                 self.servicesAssembly.nftService.loadNft(id: nft) { result in
@@ -94,16 +98,20 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
                     case .success(let nft):
                         completion(nft)
                     case .failure:
-                        self.view?.showErrorAlert()
+                        DispatchQueue.main.async {
+                            self.view?.showErrorAlert()
+                        }
                     }
-                    self.view?.hideLoading()
+                    DispatchQueue.main.async {
+                        self.view?.hideLoading()
+                    }
                 }
             }
         }
     }
     
     private func loadUser(nft: Nft, _ completion: @escaping()->()) {
-        DispatchQueue.global().async { [weak self] in
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
             guard let self = self else { return }
             self.servicesAssembly.userService.loadUser(id: nft.author) { result in
                 switch result {
@@ -112,7 +120,9 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
                     completion()
                 case .failure:
                     self.ressetAllData()
-                    self.view?.showErrorAlert()
+                    DispatchQueue.main.async {
+                        self.view?.showErrorAlert()
+                    }
                 }
             }
         }
@@ -169,17 +179,14 @@ final class MyNFTPresenter: InterfaceMyNFTPresenter, InterfaceMyNFTCell {
     
     private func sortedByPrice() {
         myNFTProfile = myNFTProfile.sorted { $0.price < $1.price }
-        view?.reloadData()
     }
     
     private func sortedByRating() {
         myNFTProfile = myNFTProfile.sorted { $0.rating < $1.rating }
-        view?.reloadData()
     }
     
     private func sortedByName() {
         myNFTProfile = myNFTProfile.sorted { $0.name < $1.name }
-        view?.reloadData()
     }
 }
 

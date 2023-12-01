@@ -55,10 +55,14 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter, InterfaceFavo
                     self.favoritesNFT = profile.likes
                     self.loadRequest(self.favoritesNFT) { nft in
                         self.favoritesNFTProfile.append(nft)
-                        self.view?.reloadData()
+                        DispatchQueue.main.async {
+                            self.view?.reloadData()
+                        }
                     }
                 case .failure:
-                    self.view?.showErrorAlert()
+                    DispatchQueue.main.async {
+                        self.view?.showErrorAlert()
+                    }
                 }
             }
         }
@@ -68,15 +72,17 @@ final class FavouriteNFTPresenter: InterfaceFavouriteNFTPresenter, InterfaceFavo
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             favoritesNFT.forEach { nft in
-                DispatchQueue.main.async {
-                    self.servicesAssembly.nftService.loadNft(id: nft) { result in
-                        switch result {
-                        case .success(let nft):
-                            completion(nft)
-                        case .failure:
-                            self.ressetAllData()
+                self.servicesAssembly.nftService.loadNft(id: nft) { result in
+                    switch result {
+                    case .success(let nft):
+                        completion(nft)
+                    case .failure:
+                        self.ressetAllData()
+                        DispatchQueue.main.async {
                             self.view?.showErrorAlert()
                         }
+                    }
+                    DispatchQueue.main.async {
                         self.view?.hideLoading()
                     }
                 }

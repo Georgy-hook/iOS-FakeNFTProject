@@ -77,8 +77,10 @@ final class ProfilePresenter: InterfaceProfilePresenter {
                 "Избранные NFT (\(self.favoritesNFT.count))",
                 "О разработчике"
             ]
-            self.view?.reloadTable()
-            self.view?.updateDataProfile()
+            DispatchQueue.main.async {
+                self.view?.reloadTable()
+                self.view?.updateDataProfile()
+            }
         }
     }
     
@@ -93,25 +95,31 @@ final class ProfilePresenter: InterfaceProfilePresenter {
                 "Избранные NFT (\(self.favoritesNFT.count))",
                 "О разработчике"
             ]
-            self.view?.reloadTable()
+            DispatchQueue.main.async {
+                self.view?.reloadTable()
+            }
         }
     }
     
     private func setupDataProfile(_ completion: @escaping(Profile?)->()) {
-        DispatchQueue.main.async { [weak self] in
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
             let numberOfProfile = "1"
             self.profileService.loadProfile(id: numberOfProfile) { result in
                 switch result {
                 case .success(let profile):
-                    self.encodeData(profile)
+                    profile.encodeData()
                     completion(profile)
                 case .failure:
-                    self.decodeData()
+                    DispatchQueue.main.async {
+                        self.view?.showErrorAlert()
+                    }
+                    self.profile = Profile().decodeData()
                     completion(self.profile)
-                    self.view?.showErrorAlert()
                 }
-                self.view?.hideLoading()
+                DispatchQueue.main.async {
+                    self.view?.hideLoading()
+                }
             }
         }
     }
@@ -192,20 +200,3 @@ final class ProfilePresenter: InterfaceProfilePresenter {
     }
 }
 
-// MARK: - Decoding Data Profile
-private extension ProfilePresenter {
-    func encodeData(_ value: Profile) {
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(value) {
-            UserDefaults.standard.set(encoded, forKey: "SavedProfile")
-        }
-    }
-    func decodeData() {
-        if let savedProfile = UserDefaults.standard.object(forKey: "SavedProfile") as? Data {
-            let decoder = JSONDecoder()
-            if let loadedProfile = try? decoder.decode(Profile.self, from: savedProfile) {
-                self.profile = loadedProfile
-            }
-        }
-    }
-}

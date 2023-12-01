@@ -405,6 +405,7 @@
       }
     },
     "Tab.stats" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

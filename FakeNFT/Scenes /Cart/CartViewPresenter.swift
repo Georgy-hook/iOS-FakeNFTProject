@@ -43,9 +43,8 @@ final class CartViewPresenterImpl: CartViewPresenter{
             sort(with: sortOption)
         }
     }
-    private var deletedID:String?
-    private var profileID:String = "1"
-    private let numberFormatter = AppNumberFormatter.shared
+    private var deletedID: String?
+    private var profileID: String = "1"
     
     // MARK: - Init
     
@@ -70,7 +69,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
         }
     }
     
-    func didCellDeleteButtonTapped(with id:String){
+    func didCellDeleteButtonTapped(with id: String){
         state = .delete
         deletedID = id
     }
@@ -152,7 +151,7 @@ final class CartViewPresenterImpl: CartViewPresenter{
         ntfs.forEach{
             total += $0.price
         }
-        guard let totalString = numberFormatter.formatPrice(total) else { return "0.0"}
+        let totalString = total.formatPrice()
         return totalString
     }
     

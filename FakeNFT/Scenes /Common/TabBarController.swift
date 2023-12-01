@@ -19,12 +19,6 @@ final class TabBarController: UITabBarController {
         tag: 2
     )
     
-    private let statsTabBarItem = UITabBarItem(
-        title: NSLocalizedString("Tab.stats", comment: ""),
-        image: UIImage(named: "YP Statistics"),
-        tag: 3
-    )
-    
     // MARK: Services
     private let servicesAssembly = ServicesAssembly(
         networkClient: DefaultNetworkClient(),
@@ -49,12 +43,8 @@ final class TabBarController: UITabBarController {
         /// Cart
         let cartController = configureCart()
         cartController.tabBarItem = cartTabBarItem
-        
-        /// Stats
-        let statsController = UIViewController()
-        statsController.tabBarItem = statsTabBarItem
 
-        viewControllers = [profileController, catalogController, cartController, statsController]
+        viewControllers = [profileController, catalogController, cartController]
         view.backgroundColor = UIColor(named: "YP White")
         tabBar.tintColor = UIColor(named: "YP Blue")
         tabBar.unselectedItemTintColor = UIColor(named: "YP Black")

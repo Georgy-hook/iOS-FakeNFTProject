@@ -60,8 +60,8 @@ final class CartCell: UITableViewCell{
     }()
 
     
-    private let ratingControl = RatingControl()
-    
+    private let ratingControl = RatingStackView()
+
     weak var delegateVC:CartViewControllerDelegate?
     private var nftID: String?
     
@@ -114,7 +114,7 @@ private extension CartCell {
 // MARK: - Cell's methods
 extension CartCell{
     func set(with nft:Nft){
-        let formattedPrice = AppNumberFormatter.shared.formatPrice(nft.price) ?? "0,0"
+        let formattedPrice = nft.price.formatPrice()
         nftID = nft.id
         nameLabel.text = nft.name
         priceLabel.text = "\(formattedPrice) ETH"

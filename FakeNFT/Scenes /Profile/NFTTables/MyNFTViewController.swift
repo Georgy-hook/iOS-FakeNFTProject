@@ -85,14 +85,17 @@ final class MyNFTViewController: UIViewController & InterfaceMyNFTController {
         let priceAction = UIAlertAction(title: "По цене", style: .default) { [weak self] _ in
             guard let self else { return }
             self.presenter.typeSorted(type: .price)
+            self.tableView.reloadData()
         }
         let raitingAction = UIAlertAction(title: "По рейтингу", style: .default) { [weak self] _ in
              guard let self else { return }
             self.presenter.typeSorted(type: .rating)
+            self.tableView.reloadData()
         }
         let nameAction = UIAlertAction(title: "По названию", style: .default) { [weak self] _ in
              guard let self else { return }
             self.presenter.typeSorted(type: .name)
+            self.tableView.reloadData()
         }
         let cancelAction = UIAlertAction(title: "Закрыть", style: .cancel)
         

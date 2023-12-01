@@ -35,3 +35,22 @@ struct Profile: Codable {
         self.id = String()
     }
 }
+
+// MARK: - Decoding Data Profile
+extension Profile {
+    func encodeData() {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(self) {
+            UserDefaults.standard.set(encoded, forKey: "SavedProfile")
+        }
+    }
+    func decodeData() -> Profile {
+        if let savedProfile = UserDefaults.standard.object(forKey: "SavedProfile") as? Data {
+            let decoder = JSONDecoder()
+            if let loadedProfile = try? decoder.decode(Profile.self, from: savedProfile) {
+                return loadedProfile
+            }
+        }
+        return Profile()
+    }
+}

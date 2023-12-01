@@ -1,6 +1,6 @@
 //  Float.swift
 //  FakeNFT
-//  Created by Adam West on 15.11.2023.
+//  Created by Georgy and Adam West on 15.11.2023.
 
 import Foundation
 

@@ -1,3 +1,7 @@
+//  ProfileRequest.swift
+//  FakeNFT
+//  Created by Adam West on 15.11.2023.
+
 import Foundation
 
 struct ProfileRequest: NetworkRequest {
